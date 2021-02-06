@@ -1,3 +1,6 @@
+#This git ignore was sourced from:
+#https://github.com/github/gitignore/blob/master/Python.gitignore
+
 # Byte-compiled / optimized / DLL files
 __pycache__/
 *.py[cod]
@@ -127,3 +130,9 @@ dmypy.json
 
 # Pyre type checker
 .pyre/
+
+
+
+#pycharm
+.idea
+*.orig
