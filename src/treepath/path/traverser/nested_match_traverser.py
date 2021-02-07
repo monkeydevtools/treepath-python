@@ -22,5 +22,6 @@ class NestedMatchTraverser(MatchTraverser):
         )
         root_match.vertex_index = 0
         root_match.remembered_on_catch_match = root_match
+        self.root_match = root_match
         self.current_match = root_match
-        self._invoke_next_action = self.match_action
+        self._invoke_next_action = self.report_action

@@ -54,13 +54,7 @@ class MatchTraverser:
         root_match.remembered_on_catch_match = root_match
         self.root_match = root_match
         self.current_match = root_match
-        self._invoke_next_action = self.match_action
-
-        if not self.leaf_vertex.parent:
-            raise TraversingError(
-                root_match,
-                "Invalid path.   The root vertex in the path must have at least one child path vertex.  "
-            )
+        self._invoke_next_action = self.report_action
 
     def match_action(self):
         current_match = self.current_match
@@ -78,28 +72,6 @@ class MatchTraverser:
         else:
             self.current_match = current_match.remembered_on_catch_match
             self._invoke_next_action = current_match.remembered_on_catch_action
-
-    def recursive_match_action(self):
-        current_match = self.current_match
-        current_match.remembered_on_catch_action = self.match_action
-
-        next_vertex_index = current_match.vertex_index
-        next_vertex_index += 1
-        next_vertex = self.vertex_path[next_vertex_index]
-
-        # apply the match
-        next_match = next_vertex.recursive_match(current_match)
-
-        if next_match:
-            next_match.vertex_index = next_vertex_index - 1
-            self.current_match = next_match
-            self._invoke_next_action = self.match_action
-        else:
-            self.current_match = current_match.remembered_on_catch_match
-            self._invoke_next_action = current_match.remembered_on_catch_action
-
-    def post_recursive_match_action(self):
-        pass
 
     def report_action(self):
         current_match = self.current_match

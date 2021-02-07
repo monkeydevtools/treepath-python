@@ -46,6 +46,11 @@ def test_list_wildcard_on_key_MatchNotFoundError(k_a_a_k_a_a_a_k):
         get(exp[wildcard], k_a_a_k_a_a_a_k)
 
 
+def test_3d_root(three_dimensional_list):
+    expected = three_dimensional_list
+    actual = get(exp, three_dimensional_list)
+    assert actual == expected
+
 def test_3d_0(three_dimensional_list):
     expected = three_dimensional_list[0]
     actual = get(exp[0], three_dimensional_list)

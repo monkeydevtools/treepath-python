@@ -5,88 +5,92 @@ from treepath import find, exp, match_all
 def test_recursive_find_all_keys(keys):
     exp_iter = find(exp.recursive, keys)
     count = 0
-    for expected_path, expected_value in gen_test_data(keys, yaia, yaia, yaia):
+    for expected_path, expected_value in gen_test_data(keys, yria, yaia, yaia, yaia):
         count += 1
         actual = next(exp_iter)
         assert actual == expected_value
-    assert count == 39
+    assert count == 40
     assert_done_iterating(exp_iter)
 
 
 def test_recursive_find_all_keys_path(keys):
     exp_iter = match_all(exp.recursive, keys)
     count = 0
-    for expected_path, expected_value in gen_test_data(keys, yaia, yaia, yaia):
+    for expected_path, expected_value in gen_test_data(keys, yria, yaia, yaia, yaia):
         count += 1
         actual = next(exp_iter)
         assert repr(actual) == f"{expected_path}={expected_value}"
-    assert count == 39
+    assert count == 40
     assert_done_iterating(exp_iter)
 
 
 def test_recursive_find_all_three_dimensional_list(three_dimensional_list):
     exp_iter = find(exp.recursive, three_dimensional_list)
     count = 0
-    for expected_path, expected_value in gen_test_data(three_dimensional_list, yaia, yaia, yaia):
+    for expected_path, expected_value in gen_test_data(three_dimensional_list, yria, yaia, yaia, yaia):
         count += 1
         actual = next(exp_iter)
         assert actual == expected_value
-    assert count == 39
+    assert count == 40
     assert_done_iterating(exp_iter)
 
 
 def test_recursive_find_all_three_dimensional_list_path(three_dimensional_list):
     exp_iter = match_all(exp.recursive, three_dimensional_list)
     count = 0
-    for expected_path, expected_value in gen_test_data(three_dimensional_list, yaia, yaia, yaia):
+    for expected_path, expected_value in gen_test_data(three_dimensional_list, yria, yaia, yaia, yaia):
         count += 1
         actual = next(exp_iter)
         assert repr(actual) == f"{expected_path}={expected_value}"
-    assert count == 39
+    assert count == 40
     assert_done_iterating(exp_iter)
 
 
 def test_recursive_find_all_k_a_a_k_a_a_a_k(k_a_a_k_a_a_a_k):
     exp_iter = find(exp.recursive, k_a_a_k_a_a_a_k)
     count = 0
-    for expected_path, expected_value in gen_test_data(k_a_a_k_a_a_a_k, yaia, yaia, yaia, yaia, yaia, yaia, yaia, yaia):
+    for expected_path, expected_value in gen_test_data(k_a_a_k_a_a_a_k, yria, yaia, yaia, yaia, yaia, yaia, yaia, yaia,
+                                                       yaia):
         count += 1
         actual = next(exp_iter)
         assert actual == expected_value
-    assert count == 9840
+    assert count == 9841
     assert_done_iterating(exp_iter)
 
 
 def test_recursive_find_all_k_a_a_k_a_a_a_k_path(k_a_a_k_a_a_a_k):
     exp_iter = match_all(exp.recursive, k_a_a_k_a_a_a_k)
     count = 0
-    for expected_path, expected_value in gen_test_data(k_a_a_k_a_a_a_k, yaia, yaia, yaia, yaia, yaia, yaia, yaia, yaia):
+    for expected_path, expected_value in gen_test_data(k_a_a_k_a_a_a_k, yria, yaia, yaia, yaia, yaia, yaia, yaia, yaia,
+                                                       yaia):
         count += 1
         actual = next(exp_iter)
         assert repr(actual) == f"{expected_path}={expected_value}"
-    assert count == 9840
+    assert count == 9841
     assert_done_iterating(exp_iter)
 
 
 def test_recursive_find_all_a_k_k_a_k_k_k_a(a_k_k_a_k_k_k_a):
     exp_iter = find(exp.recursive, a_k_k_a_k_k_k_a)
     count = 0
-    for expected_path, expected_value in gen_test_data(a_k_k_a_k_k_k_a, yaia, yaia, yaia, yaia, yaia, yaia, yaia, yaia):
+    for expected_path, expected_value in gen_test_data(a_k_k_a_k_k_k_a, yria, yaia, yaia, yaia, yaia, yaia, yaia, yaia,
+                                                       yaia):
         count += 1
         actual = next(exp_iter)
         assert actual == expected_value
-    assert count == 9840
+    assert count == 9841
     assert_done_iterating(exp_iter)
 
 
 def test_recursive_find_all_a_k_k_a_k_k_k_a_path(a_k_k_a_k_k_k_a):
     exp_iter = match_all(exp.recursive, a_k_k_a_k_k_k_a)
     count = 0
-    for expected_path, expected_value in gen_test_data(a_k_k_a_k_k_k_a, yaia, yaia, yaia, yaia, yaia, yaia, yaia, yaia):
+    for expected_path, expected_value in gen_test_data(a_k_k_a_k_k_k_a, yria, yaia, yaia, yaia, yaia, yaia, yaia, yaia,
+                                                       yaia):
         count += 1
         actual = next(exp_iter)
         assert repr(actual) == f"{expected_path}={expected_value}"
-    assert count == 9840
+    assert count == 9841
     assert_done_iterating(exp_iter)
 
 

@@ -15,11 +15,6 @@ def test_empty_dict_wildcard_MatchNotFoundError():
         get(exp.wildcard, empty_dict)
 
 
-def test_root_get_TraversingError(keys):
-    with pytest.raises(TraversingError):
-        get(exp, keys)
-
-
 def test_keys_x_MatchNotFoundError(keys):
     with pytest.raises(MatchNotFoundError):
         get(exp.a, keys)
@@ -48,6 +43,12 @@ def test_keys_x_on_list_MatchNotFoundError(a_k_k_a_k_k_k_a):
 def test_keys_wildcard_on_list_MatchNotFoundError(a_k_k_a_k_k_k_a):
     with pytest.raises(MatchNotFoundError):
         get(exp.wildcard, a_k_k_a_k_k_k_a)
+
+
+def test_root_get(keys):
+    expected = keys
+    actual = get(exp, keys)
+    assert actual == expected
 
 
 def test_keys_x(keys):
@@ -101,10 +102,11 @@ def test_keys_find_all_wildcard(keys):
 
 
 def test_keys_find_all_wildcard_path(keys):
-    match_iter = match_all(exp.wildcard.wildcard.wildcard, keys)
+    result = match_all(exp.wildcard.wildcard.wildcard, keys)
     for expected_path, expected_value in gen_test_data(keys, naia, naia, yaia):
-        actual = next(match_iter)
+        actual = next(result)
         assert str(actual) == f"{expected_path}={actual.data}"
+    assert_done_iterating(result)
 
 
 def test_a_k_k_a_k_k_k_a_find_all_wildcard(a_k_k_a_k_k_k_a):

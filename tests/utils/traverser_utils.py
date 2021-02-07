@@ -37,6 +37,8 @@ class KeyMatch():
         return self.name
 
 
+yria = object()
+
 yaia = WildMatch("yaia", True, True)
 naia = WildMatch("naia", False, True)
 
@@ -110,6 +112,13 @@ def gen_test_data(data, *args):
     path = [i for i in range(20)]
     path[0] = "$"
     level = 1
+
+    if args[0] == yria:
+        path_str = path[0]
+        value = data
+        yield path_str, value
+        args = args[1:]
+
     for item in loop(level, path, data, *args):
         yield item[0], item[1]
 

@@ -37,6 +37,7 @@ def _has(has_func):
     ((expression, operator_), convert_type) maps to (expression, operator_, convert_type)
     ((expression, operator_)) maps to (expression, operator_)
     """
+
     def _unpack(*args):
         outer_length = len(args)
         first_arg = args[0]
@@ -59,46 +60,18 @@ def _has(has_func):
 
 @_has
 def has(expression, single_arg_operator, single_arg_convert_type):
-    match_iter = functools.partial(nested_match, expression)
+    match_iter = functools.partial(nested_match_all, expression)
 
     def create_has_predicate():
         def has_predicate(parent_match: Match):
-            next_match = match_iter(parent_match)
-            if next_match:
-                return single_arg_operator(single_arg_convert_type(next_match.data))
-            else:
-                return single_arg_operator(None)
+            for next_match in match_iter(parent_match):
+                if single_arg_operator(single_arg_convert_type(next_match.data)):
+                    return True
+            return single_arg_operator(None)
 
         return has_predicate
 
     return create_has_predicate()
-
-
-def and_(*predicates):
-    def create_and_predicate():
-        def and_predicate(parent_match: Match):
-            for predicate in predicates:
-                if not predicate(parent_match):
-                    return False
-
-            return True
-
-        return and_predicate
-
-    return create_and_predicate()
-
-
-def or_(*predicates):
-    def create_or_predicate():
-        def or_predicate(parent_match: Match):
-            for predicate in predicates:
-                if predicate(parent_match):
-                    return True
-            return False
-
-        return or_predicate
-
-    return create_or_predicate()
 
 
 def match(expression: PathBuilder, data) -> Match:
