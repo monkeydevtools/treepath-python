@@ -67,7 +67,7 @@ def has(expression, single_arg_operator, single_arg_convert_type):
             for next_match in match_iter(parent_match):
                 if single_arg_operator(single_arg_convert_type(next_match.data)):
                     return True
-            return single_arg_operator(None)
+            return False
 
         return has_predicate
 
