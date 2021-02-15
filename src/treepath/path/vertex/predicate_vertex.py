@@ -5,6 +5,8 @@ from treepath.path.vertex.vertex import Vertex
 
 
 class PredicateVertex(Vertex):
+    __slots__ = '_predicate'
+
     def __init__(self, parent, predicate):
         self._predicate = predicate
         super().__init__(parent, predicate)

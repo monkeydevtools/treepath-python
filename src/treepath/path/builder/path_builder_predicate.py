@@ -9,6 +9,7 @@ def create_partial_operator(operator_, b):
 
 
 class PathBuilderPredicate:
+    __slots__ = ()
 
     def __lt__(self, other):
         operator_ = create_partial_operator(operator.__lt__, other)

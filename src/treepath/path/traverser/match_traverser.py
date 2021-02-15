@@ -1,11 +1,16 @@
 from treepath.path.exceptions.stop_traversing import StopTraversing
-from treepath.path.exceptions.traversing_error import TraversingError
 from treepath.path.traverser.match import Match
 from treepath.path.traverser.root_match import RootMatch
 from treepath.path.vertex.vertex import Vertex
 
 
 class MatchTraverser:
+    __slots__ = 'vertex_path', \
+                'leaf_vertex', \
+                'root_data', \
+                '_invoke_next_action', \
+                'current_match', \
+                'root_match'
 
     def __init__(self, root_data, leaf_vertex: Vertex):
         self.vertex_path = leaf_vertex.path_as_list

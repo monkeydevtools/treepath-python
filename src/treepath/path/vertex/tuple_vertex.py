@@ -5,12 +5,17 @@ from treepath.path.vertex.vertex import Vertex
 
 
 class CatchState:
+    __slots__ = 'iterable', \
+                'match_constructor'
+
     def __init__(self, iterable, match_constructor):
         self.iterable = iterable
         self.match_constructor = match_constructor
 
 
 class TupleVertex(Vertex):
+    __slots__ = '_tuple'
+
     def __init__(self, parent, tuple_: tuple):
         self._tuple = tuple_
         super().__init__(parent, tuple_)

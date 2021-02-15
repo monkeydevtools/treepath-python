@@ -4,6 +4,8 @@ from treepath.path.vertex.vertex import Vertex
 
 
 class KeyVertex(Vertex):
+    __slots__ = ()
+
     def __init__(self, parent, name):
         super().__init__(parent, name)
 
@@ -30,6 +32,8 @@ class KeyVertex(Vertex):
 
 
 class KeyWildVertex(Vertex):
+    __slots__ = ()
+
     def __init__(self, parent):
         super().__init__(parent, '*')
         self.is_catch_vertex = True

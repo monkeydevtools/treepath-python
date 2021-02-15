@@ -1,9 +1,18 @@
-import functools
 import typing
 from abc import ABC
 
 
 class Match(ABC):
+    __slots__ = 'parent', \
+                'data_name', \
+                'data', \
+                'vertex', \
+                'vertex_index', \
+                'remembered_catch_state', \
+                'remembered_on_catch_match', \
+                'remembered_on_catch_action', \
+                '_path_as_list', \
+                '_path'
 
     def __init__(self,
                  parent,
@@ -21,20 +30,35 @@ class Match(ABC):
         self.remembered_catch_state = None
         self.remembered_on_catch_match = remembered_on_catch_match
         self.remembered_on_catch_action = remembered_on_catch_action
+        self._path_as_list = self
+        self._path = self
 
-    @functools.cached_property
+    @property
     def path_as_list(self) -> list:
-        match_list = []
+        path_as_list = self._path_as_list
+        if path_as_list != self:
+            return path_as_list
+
+        path_as_list = []
 
         def collect(vertex):
-            match_list.append(vertex)
+            path_as_list.append(vertex)
 
         self.traverse(collect)
-        return match_list
 
-    @functools.cached_property
+        self._path_as_list = path_as_list
+        return path_as_list
+
+    @property
     def path(self):
-        return ''.join(match.path_segment() for match in self.path_as_list)
+        path = self._path
+        if path != self:
+            return path
+
+        path_as_list = self.path_as_list
+        path = ''.join(match.path_segment() for match in path_as_list)
+        self._path = path
+        return path
 
     def path_segment(self):
         raise NotImplementedError

@@ -6,6 +6,8 @@ from treepath.path.vertex.vertex import Vertex
 
 
 class RootVertex(Vertex):
+    __slots__ = ()
+
     def __init__(self, name: str):
         super().__init__(None, name)
         self._path_as_list = [self]

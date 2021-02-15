@@ -1,5 +1,3 @@
-import functools
-
 from treepath.path.traverser.empty_match import EmptyMatch
 from treepath.path.traverser.key_match import KeyMatch
 from treepath.path.traverser.list_match import ListMatch
@@ -8,11 +6,17 @@ from treepath.path.vertex.vertex import Vertex
 
 
 class CatchState:
+    __slots__ = 'iterable', \
+                'match_constructor'
+
     def __init__(self, iterable, match_constructor):
         self.iterable = iterable
         self.match_constructor = match_constructor
 
+
 class RecursiveVertex(Vertex):
+    __slots__ = ()
+
     def __init__(self, parent):
         super().__init__(parent, ".")
         self.is_catch_vertex = True
@@ -20,7 +24,7 @@ class RecursiveVertex(Vertex):
     def path_segment(self):
         return f"."
 
-    @functools.cached_property
+    @property
     def path(self):
         return ''.join(vertex.path_segment() for vertex in self.path_as_list) + "."
 
@@ -42,8 +46,6 @@ class RecursiveVertex(Vertex):
                 parent_match.remembered_on_catch_action
             )
             return match
-
-
 
         try:
             item = next(remembered_catch_state.iterable)

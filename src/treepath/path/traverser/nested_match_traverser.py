@@ -5,6 +5,7 @@ from treepath.path.vertex.vertex import Vertex
 
 
 class NestedMatchTraverser(MatchTraverser):
+    __slots__ = 'nested_match'
 
     def __init__(self, nested_match: Match, leaf_vertex: Vertex):
         super().__init__(nested_match.data, leaf_vertex)

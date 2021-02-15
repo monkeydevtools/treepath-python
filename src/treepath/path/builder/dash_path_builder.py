@@ -4,6 +4,7 @@ from treepath.path.vertex.root_vertex import RootVertex
 
 
 class DashPathBuilder(PathBuilder):
+    __slots__ = ()
 
     def __init__(self, vertex):
         super().__init__(vertex)
@@ -22,6 +23,7 @@ class DashPathBuilder(PathBuilder):
 
 
 class DashRoot(DashPathBuilder):
+    __slots__ = ()
 
     def __init__(self):
         vertex = RootVertex("$")

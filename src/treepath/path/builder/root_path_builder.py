@@ -3,6 +3,7 @@ from treepath.path.vertex.root_vertex import RootVertex
 
 
 class Root(PathBuilder):
+    __slots__ = ()
 
     def __init__(self):
         vertex = RootVertex("$")

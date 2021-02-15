@@ -33,6 +33,7 @@ def build_key(parent_vertex, key):
 
 
 class PathBuilder(PathBuilderPredicate):
+    __slots__ = _RESERVED_ATTR_FOR_VERTEX_DATA
 
     def __init__(self, vertex):
         object.__setattr__(self, _RESERVED_ATTR_FOR_VERTEX_DATA, vertex)

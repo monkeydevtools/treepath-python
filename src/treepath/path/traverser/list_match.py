@@ -2,6 +2,7 @@ from treepath.path.traverser.match import Match
 
 
 class ListMatch(Match):
+    __slots__ = ()
 
     def __init__(self, parent, data_name, data, vertex, remembered_on_catch_match, remembered_on_catch_action):
         super().__init__(parent, data_name, data, vertex, remembered_on_catch_match, remembered_on_catch_action)

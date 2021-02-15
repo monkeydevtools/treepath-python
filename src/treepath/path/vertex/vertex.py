@@ -1,29 +1,49 @@
-import functools
 import typing
-from abc import ABC
 
 from treepath.path.traverser.match import Match
 
 
-class Vertex(ABC):
+class Vertex:
+    __slots__ = 'parent', \
+                'name', \
+                'is_catch_vertex', \
+                '_path_as_list', \
+                '_path'
+
     def __init__(self, parent, name):
         self.parent = parent
         self.name = name
         self.is_catch_vertex = False
+        self._path_as_list = self
+        self._path = self
 
-    @functools.cached_property
+    @property
     def path_as_list(self) -> list:
-        vertex_list = []
+        path_as_list = self._path_as_list
+        if path_as_list != self:
+            return path_as_list
+
+        path_as_list = []
 
         def collect(vertex):
-            vertex_list.append(vertex)
+            path_as_list.append(vertex)
 
         self.traverse(collect)
-        return vertex_list
 
-    @functools.cached_property
+        self._path_as_list = path_as_list
+
+        return path_as_list
+
+    @property
     def path(self):
-        return ''.join(vertex.path_segment() for vertex in self.path_as_list)
+        path = self._path
+        if path != self:
+            return path
+
+        path_as_list = self.path_as_list
+        path = ''.join(vertex.path_segment() for vertex in path_as_list)
+        self._path = path
+        return path
 
     def path_segment(self):
         return self.name

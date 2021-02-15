@@ -9,6 +9,7 @@ class EmptyMatch(Match):
     structure.  The traversing algorithms use this object to assist in traversing the data tree structure without
     mangling the parent traversing state.
     """
+    __slots__ = ()
 
     def __init__(self, parent, data_name, data, vertex, remembered_on_catch_match, remembered_on_catch_action):
         super().__init__(parent, data_name, data, vertex, remembered_on_catch_match, remembered_on_catch_action)

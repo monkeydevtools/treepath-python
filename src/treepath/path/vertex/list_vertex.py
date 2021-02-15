@@ -6,6 +6,7 @@ from treepath.path.vertex.vertex import Vertex
 
 
 class ListVertex(Vertex, ABC):
+    __slots__ = ()
 
     def __init__(self, parent, name):
         super().__init__(parent, name)
@@ -15,6 +16,8 @@ class ListVertex(Vertex, ABC):
 
 
 class ListIndexVertex(ListVertex):
+    __slots__ = 'index'
+
     def __init__(self, parent, index: int):
         self.index = index
         super().__init__(parent, index)
@@ -39,6 +42,8 @@ class ListIndexVertex(ListVertex):
 
 
 class ListSliceVertex(ListVertex):
+    __slots__ = '_slice'
+
     def __init__(self, parent, slice_: slice):
         self._slice = slice_
         super().__init__(parent, slice_)
@@ -85,6 +90,8 @@ class ListSliceVertex(ListVertex):
 
 
 class ListWildVertex(ListVertex):
+    __slots__ = ()
+
     def __init__(self, parent):
         super().__init__(parent, '*')
         self.is_catch_vertex = True
