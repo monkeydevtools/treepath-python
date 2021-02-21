@@ -1,6 +1,9 @@
+from typing import Union
+
 from treepath.path.traverser.key_match import KeyMatch
 from treepath.path.traverser.list_match import ListMatch
 from treepath.path.traverser.match import Match
+from treepath.path.traverser.traverser_state_match import TraverserStateMatch
 from treepath.path.vertex.vertex import Vertex
 
 
@@ -24,7 +27,7 @@ class TupleVertex(Vertex):
     def path_segment(self):
         return repr(self._tuple)
 
-    def match(self, parent_match: Match, traverser) -> object:
+    def match(self, parent_match: TraverserStateMatch, traverser) -> Union[TraverserStateMatch, None]:
 
         remembered_catch_state = parent_match.remembered_catch_state
         if not remembered_catch_state:

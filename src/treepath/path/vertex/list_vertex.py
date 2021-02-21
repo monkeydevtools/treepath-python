@@ -1,9 +1,11 @@
+from typing import Union
+
 from treepath.path.traverser.list_match import ListMatch
-from treepath.path.traverser.match import Match
+from treepath.path.traverser.traverser_state_match import TraverserStateMatch
 from treepath.path.vertex.vertex import Vertex
 
 
-class ListVertex(Vertex):
+class _ListVertex(Vertex):
     __slots__ = ()
 
     def __init__(self, parent, name):
@@ -12,15 +14,18 @@ class ListVertex(Vertex):
     def path_segment(self):
         return f"[{self.name}]"
 
+    def match(self, parent_match: TraverserStateMatch, traverser) -> Union[TraverserStateMatch, None]:
+        raise NotImplementedError
 
-class ListIndexVertex(ListVertex):
+
+class ListIndexVertex(_ListVertex):
     __slots__ = 'index'
 
     def __init__(self, parent, index: int):
         self.index = index
         super().__init__(parent, index)
 
-    def match(self, parent_match: Match, traverser) -> Match:
+    def match(self, parent_match: TraverserStateMatch, traverser) -> Union[TraverserStateMatch, None]:
         data = parent_match.data
         if not isinstance(data, list):
             return None
@@ -39,7 +44,7 @@ class ListIndexVertex(ListVertex):
             pass
 
 
-class ListSliceVertex(ListVertex):
+class ListSliceVertex(_ListVertex):
     __slots__ = '_slice'
 
     def __init__(self, parent, slice_: slice):
@@ -60,7 +65,7 @@ class ListSliceVertex(ListVertex):
             return f"[{start}:{stop}]"
         return f"[{start}:{stop}:{step}]"
 
-    def match(self, parent_match: Match, traverser) -> object:
+    def match(self, parent_match: TraverserStateMatch, traverser) -> Union[TraverserStateMatch, None]:
 
         remembered_catch_state = parent_match.remembered_catch_state
 
@@ -87,7 +92,7 @@ class ListSliceVertex(ListVertex):
             return None
 
 
-class ListWildVertex(ListVertex):
+class ListWildVertex(_ListVertex):
     __slots__ = ()
 
     def __init__(self, parent):
@@ -97,7 +102,7 @@ class ListWildVertex(ListVertex):
     def path_segment(self):
         return "[*]"
 
-    def match(self, parent_match: Match, traverser) -> object:
+    def match(self, parent_match: TraverserStateMatch, traverser) -> Union[TraverserStateMatch, None]:
 
         remembered_catch_state = parent_match.remembered_catch_state
 

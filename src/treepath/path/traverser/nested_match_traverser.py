@@ -1,13 +1,13 @@
 from treepath.path.traverser.empty_match import EmptyMatch
-from treepath.path.traverser.match import Match
 from treepath.path.traverser.match_traverser import MatchTraverser
+from treepath.path.traverser.traverser_state_match import TraverserStateMatch
 from treepath.path.vertex.vertex import Vertex
 
 
 class NestedMatchTraverser(MatchTraverser):
     __slots__ = 'nested_match'
 
-    def __init__(self, nested_match: Match, leaf_vertex: Vertex):
+    def __init__(self, nested_match: TraverserStateMatch, leaf_vertex: Vertex):
         super().__init__(nested_match.data, leaf_vertex)
         self.nested_match = nested_match
 

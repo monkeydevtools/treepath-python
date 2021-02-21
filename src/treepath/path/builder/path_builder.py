@@ -15,7 +15,7 @@ _RESERVED_ATTR_FOR_VERTEX_DATA = "_RESERVED_ATTR_FOR_VERTEX_DATA"
 """
 
 
-def build_key(parent_vertex, key):
+def _build_key(parent_vertex, key):
     if isinstance(key, int):
         return ListIndexVertex(parent_vertex, key)
     elif isinstance(key, slice):
@@ -61,7 +61,7 @@ class PathBuilder(PathBuilderPredicate):
         Overloads self[key]
         """
         parent_vertex = object.__getattribute__(self, _RESERVED_ATTR_FOR_VERTEX_DATA)
-        vertex = build_key(parent_vertex, key)
+        vertex = _build_key(parent_vertex, key)
         path_builder = PathBuilder(vertex)
         return path_builder
 

@@ -1,7 +1,7 @@
 import typing
 
 from treepath.path.exceptions.traversing_error import TraversingError
-from treepath.path.traverser.match import Match
+from treepath.path.traverser.traverser_state_match import TraverserStateMatch
 from treepath.path.vertex.vertex import Vertex
 
 
@@ -23,5 +23,5 @@ class RootVertex(Vertex):
     def traverse(self, visit: typing.Callable):
         visit(self)
 
-    def match(self, parent_match: Match, traverser) -> object:
+    def match(self, parent_match: TraverserStateMatch, traverser) -> typing.Union[TraverserStateMatch, None]:
         raise TraversingError(parent_match, f"The path {self.name} is not traversable.  ")

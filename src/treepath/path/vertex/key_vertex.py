@@ -1,5 +1,7 @@
+from typing import Union
+
 from treepath.path.traverser.key_match import KeyMatch
-from treepath.path.traverser.match import Match
+from treepath.path.traverser.traverser_state_match import TraverserStateMatch
 from treepath.path.vertex.vertex import Vertex
 
 
@@ -12,7 +14,7 @@ class KeyVertex(Vertex):
     def path_segment(self):
         return f".{self.name}"
 
-    def match(self, parent_match: Match, traverser) -> Match:
+    def match(self, parent_match: TraverserStateMatch, traverser) -> Union[TraverserStateMatch, None]:
         data = parent_match.data
         if not isinstance(data, dict):
             return None
@@ -41,7 +43,7 @@ class KeyWildVertex(Vertex):
     def path_segment(self):
         return ".*"
 
-    def match(self, parent_match: Match, traverser) -> object:
+    def match(self, parent_match: TraverserStateMatch, traverser) -> Union[TraverserStateMatch, None]:
 
         remembered_catch_state = parent_match.remembered_catch_state
 

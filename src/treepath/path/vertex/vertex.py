@@ -1,6 +1,6 @@
-import typing
+from typing import Union, Callable
 
-from treepath.path.traverser.match import Match
+from treepath.path.traverser.traverser_state_match import TraverserStateMatch
 
 
 class Vertex:
@@ -48,11 +48,11 @@ class Vertex:
     def path_segment(self):
         return self.name
 
-    def traverse(self, visit: typing.Callable):
+    def traverse(self, visit: Callable):
         self.parent.traverse(visit)
         visit(self)
 
-    def match(self, parent_match: Match, traverser) -> Match:
+    def match(self, parent_match: TraverserStateMatch, traverser) -> Union[TraverserStateMatch, None]:
         raise NotImplementedError
 
     def __repr__(self):

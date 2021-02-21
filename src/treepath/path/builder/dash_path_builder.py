@@ -22,7 +22,7 @@ class DashPathBuilder(PathBuilder):
         return path_builder
 
 
-class DashRoot(DashPathBuilder):
+class DashPathRoot(DashPathBuilder):
     __slots__ = ()
 
     def __init__(self):

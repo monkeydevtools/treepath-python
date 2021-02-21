@@ -2,14 +2,10 @@ import typing
 
 
 class Match:
-    __slots__ = 'parent', \
-                'data_name', \
+    __slots__ = '_parent', \
+                '_data_name', \
                 'data', \
-                'vertex', \
-                'vertex_index', \
-                'remembered_catch_state', \
-                'remembered_on_catch_match', \
-                'remembered_on_catch_action', \
+                '_vertex', \
                 '_path_as_list', \
                 '_path'
 
@@ -18,17 +14,11 @@ class Match:
                  data_name,
                  data,
                  vertex,
-                 remembered_on_catch_match,
-                 remembered_on_catch_action
                  ):
-        self.parent = parent
-        self.data_name = data_name
+        self._parent = parent
+        self._data_name = data_name
         self.data = data
-        self.vertex = vertex
-        self.vertex_index = 0
-        self.remembered_catch_state = None
-        self.remembered_on_catch_match = remembered_on_catch_match
-        self.remembered_on_catch_action = remembered_on_catch_action
+        self._vertex = vertex
         self._path_as_list = self
         self._path = self
 
@@ -55,15 +45,28 @@ class Match:
             return path
 
         path_as_list = self.path_as_list
-        path = ''.join(match.path_segment() for match in path_as_list)
+        path = ''.join(match.path_segment for match in path_as_list)
         self._path = path
         return path
 
+    @property
     def path_segment(self):
         raise NotImplementedError
 
+    @property
+    def parent(self):
+        return self._parent
+
+    @property
+    def data_name(self):
+        return self._data_name
+
+    @property
+    def vertex(self):
+        return self._vertex
+
     def traverse(self, visit: typing.Callable):
-        self.parent.traverse(visit)
+        self._parent.traverse(visit)
         visit(self)
 
     def __repr__(self):

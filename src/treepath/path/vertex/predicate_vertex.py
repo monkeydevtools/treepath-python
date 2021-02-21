@@ -1,6 +1,8 @@
+from typing import Union
+
 from treepath.path.exceptions.traversing_error import TraversingError
 from treepath.path.traverser.empty_match import EmptyMatch
-from treepath.path.traverser.match import Match
+from treepath.path.traverser.traverser_state_match import TraverserStateMatch
 from treepath.path.vertex.vertex import Vertex
 
 
@@ -14,7 +16,7 @@ class PredicateVertex(Vertex):
     def path_segment(self):
         return f"[{self._predicate}]"
 
-    def match(self, parent_match: Match, traverser) -> object:
+    def match(self, parent_match: TraverserStateMatch, traverser) -> Union[TraverserStateMatch, None]:
 
         try:
             if self._predicate(parent_match):
