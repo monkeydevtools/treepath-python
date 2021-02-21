@@ -29,7 +29,7 @@ class MatchTraverser:
         result = None
         while not result:
             result = self._invoke_next_action()
-        return self.current_match
+        return Match(self.current_match)
 
     def remember_on_catch(self, match: TraverserStateMatch, remembered_catch_state):
         match.remembered_catch_state = remembered_catch_state
@@ -42,14 +42,14 @@ class MatchTraverser:
             match.remembered_on_catch_match = None
             match.remembered_on_catch_action = self.done_action()
         else:
-            parent = match.parent
+            parent = match.real_parent
             match.remembered_on_catch_match = parent.remembered_on_catch_match
             match.remembered_on_catch_action = parent.remembered_on_catch_action
 
     def init_action(self):
         vertex = self.vertex_path[0]
         root_match = RootMatch(
-            None,  # parent
+            None,  # real_parent
             vertex.name,
             self.root_data,  # data
             vertex,  # vertex

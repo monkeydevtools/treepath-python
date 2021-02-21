@@ -2,13 +2,14 @@ import os
 
 from treepath.path.exceptions.treepath_exception import TreepathException
 from treepath.path.traverser.match import Match
+from treepath.path.traverser.traverser_state_match import TraverserStateMatch
 
 
 class TraversingError(TreepathException, RuntimeError):
     """TraversingError is raised when path expression cannot traverse the data structure"""
 
-    def __init__(self, match: Match, error_msg):
-        self.match = match
+    def __init__(self, match: TraverserStateMatch, error_msg):
+        self.match = Match(match)
         self.error_msg = error_msg
         super().__init__(match.vertex)
 

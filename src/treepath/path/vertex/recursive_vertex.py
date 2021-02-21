@@ -1,9 +1,8 @@
 from typing import Union
 
-from treepath.path.traverser.empty_match import EmptyMatch
+from treepath.path.traverser.imaginary_match import ImaginaryMatch
 from treepath.path.traverser.key_match import KeyMatch
 from treepath.path.traverser.list_match import ListMatch
-from treepath.path.traverser.match import Match
 from treepath.path.traverser.traverser_state_match import TraverserStateMatch
 from treepath.path.vertex.vertex import Vertex
 
@@ -40,9 +39,9 @@ class RecursiveVertex(Vertex):
                 return None
             traverser.remember_on_catch(parent_match, remembered_catch_state)
 
-            match = EmptyMatch(
+            match = ImaginaryMatch(
                 parent_match,
-                "EmptyMatch",
+                "ImaginaryMatch",
                 parent_match.data,
                 self,
                 parent_match.remembered_on_catch_match,
@@ -71,7 +70,7 @@ class RecursiveVertex(Vertex):
             traverser.restore_on_catch(parent_match)
             return None
 
-    def _create_on_catch_state(self, parent_match: Match):
+    def _create_on_catch_state(self, parent_match: TraverserStateMatch):
         data = parent_match.data
         if isinstance(data, dict):
             return self._key_match(parent_match)
@@ -81,11 +80,11 @@ class RecursiveVertex(Vertex):
             return None
 
     @staticmethod
-    def _key_match(parent_match: Match) -> CatchState:
+    def _key_match(parent_match: TraverserStateMatch) -> CatchState:
         iterable = iter(parent_match.data.items())
         return CatchState(iterable, KeyMatch)
 
     @staticmethod
-    def _list_match(parent_match: Match) -> CatchState:
+    def _list_match(parent_match: TraverserStateMatch) -> CatchState:
         iterable = iter(enumerate(parent_match.data))
         return CatchState(iterable, ListMatch)

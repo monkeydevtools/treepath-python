@@ -1,76 +1,49 @@
-import typing
+from __future__ import annotations
+
+from typing import Union
+
+from treepath.path.traverser.traverser_state_match import TraverserStateMatch
+from treepath.path.vertex.vertex import Vertex
 
 
 class Match:
-    __slots__ = '_parent', \
-                '_data_name', \
-                'data', \
-                '_vertex', \
-                '_path_as_list', \
-                '_path'
+    __slots__ = '_traverser_state_match'
 
     def __init__(self,
-                 parent,
-                 data_name,
-                 data,
-                 vertex,
+                 traverser_state_match: TraverserStateMatch,
                  ):
-        self._parent = parent
-        self._data_name = data_name
-        self.data = data
-        self._vertex = vertex
-        self._path_as_list = self
-        self._path = self
+        self._traverser_state_match = traverser_state_match
 
     @property
     def path_as_list(self) -> list:
-        path_as_list = self._path_as_list
-        if path_as_list != self:
-            return path_as_list
-
-        path_as_list = []
-
-        def collect(vertex):
-            path_as_list.append(vertex)
-
-        self.traverse(collect)
-
-        self._path_as_list = path_as_list
-        return path_as_list
+        return self._traverser_state_match.path_as_list
 
     @property
-    def path(self):
-        path = self._path
-        if path != self:
-            return path
-
-        path_as_list = self.path_as_list
-        path = ''.join(match.path_segment for match in path_as_list)
-        self._path = path
-        return path
+    def path(self) -> str:
+        return self._traverser_state_match.path
 
     @property
-    def path_segment(self):
-        raise NotImplementedError
+    def parent(self) -> Union[Match, None]:
+        parent = self._traverser_state_match.parent
+        if parent:
+            return Match(parent)
+        else:
+            return None
 
     @property
-    def parent(self):
-        return self._parent
+    def data_name(self) -> str:
+        return self._traverser_state_match.data_name
 
     @property
-    def data_name(self):
-        return self._data_name
+    def data(self) -> Union[dict, list, str, int, float, True, False, None]:
+        return self._traverser_state_match.data
 
     @property
-    def vertex(self):
-        return self._vertex
-
-    def traverse(self, visit: typing.Callable):
-        self._parent.traverse(visit)
-        visit(self)
+    def vertex(self) -> Vertex:
+        return self._traverser_state_match.vertex
 
     def __repr__(self):
-        return f"{self.path}={self.data}"
+        return repr(self._traverser_state_match)
 
     def __str__(self):
-        return self.__repr__()
+        return repr(self._traverser_state_match)

@@ -1,7 +1,8 @@
 from typing import Union
 
 from treepath.path.exceptions.traversing_error import TraversingError
-from treepath.path.traverser.empty_match import EmptyMatch
+from treepath.path.traverser.imaginary_match import ImaginaryMatch
+from treepath.path.traverser.match import Match
 from treepath.path.traverser.traverser_state_match import TraverserStateMatch
 from treepath.path.vertex.vertex import Vertex
 
@@ -19,8 +20,8 @@ class PredicateVertex(Vertex):
     def match(self, parent_match: TraverserStateMatch, traverser) -> Union[TraverserStateMatch, None]:
 
         try:
-            if self._predicate(parent_match):
-                match = EmptyMatch(
+            if self._predicate(Match(parent_match)):
+                match = ImaginaryMatch(
                     parent_match,
                     "PredicateMatch",
                     parent_match.data,

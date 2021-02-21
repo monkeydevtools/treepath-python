@@ -1,4 +1,4 @@
-from treepath.path.traverser.empty_match import EmptyMatch
+from treepath.path.traverser.imaginary_match import ImaginaryMatch
 from treepath.path.traverser.match_traverser import MatchTraverser
 from treepath.path.traverser.traverser_state_match import TraverserStateMatch
 from treepath.path.vertex.vertex import Vertex
@@ -13,8 +13,8 @@ class NestedMatchTraverser(MatchTraverser):
 
     def init_action(self):
         vertex = self.vertex_path[0]
-        root_match = EmptyMatch(
-            self.nested_match,  # parent
+        root_match = ImaginaryMatch(
+            self.nested_match,  # real_parent
             vertex.name,
             self.root_data,  # data
             vertex,  # vertex
