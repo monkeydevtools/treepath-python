@@ -14,6 +14,7 @@ def get_dash() -> dict:
     data_dict = json_to_dict(data)
     return data_dict
 
+
 def get_keys_json() -> str:
     data = pkgutil.get_data(__name__, "keys.json")
     data = data.decode()
@@ -24,7 +25,6 @@ def get_keys() -> dict:
     data = get_keys_json()
     data_dict = json_to_dict(data)
     return data_dict
-
 
 
 def get_three_dimensional_list_json() -> str:
@@ -75,3 +75,13 @@ def get_all_data_types() -> dict:
     return data_list
 
 
+def get_solar_system_json() -> str:
+    data = pkgutil.get_data(__name__, "solar-system.json")
+    data = data.decode()
+    return data
+
+
+def get_solar_system() -> dict:
+    data = get_solar_system_json()
+    data_dict = json_to_dict(data)
+    return data_dict

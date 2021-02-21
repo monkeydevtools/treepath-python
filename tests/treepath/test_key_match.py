@@ -1,6 +1,6 @@
 from tests.utils.traverser_utils import *
-from treepath import get, exp, match, find, match_all, MatchNotFoundError
-from treepath.path.exceptions.traversing_error import TraversingError
+from treepath import get, exp, match, find, match_all
+from treepath.path.exceptions.match_not_found_error import MatchNotFoundError
 
 
 def test_empty_dict_index_MatchNotFoundError():

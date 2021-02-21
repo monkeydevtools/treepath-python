@@ -1,11 +1,9 @@
-from abc import ABC
-
 from treepath.path.traverser.list_match import ListMatch
 from treepath.path.traverser.match import Match
 from treepath.path.vertex.vertex import Vertex
 
 
-class ListVertex(Vertex, ABC):
+class ListVertex(Vertex):
     __slots__ = ()
 
     def __init__(self, parent, name):

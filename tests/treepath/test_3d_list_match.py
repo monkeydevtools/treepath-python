@@ -1,7 +1,8 @@
 import pytest
 
 from tests.utils.traverser_utils import assert_done_iterating, gen_test_data, naia, yaia, nyiy, yyia
-from treepath import get, exp, find, match_all, match, wildcard, MatchNotFoundError
+from treepath import get, exp, find, match_all, match, wildcard
+from treepath.path.exceptions.match_not_found_error import MatchNotFoundError
 
 
 def test_empty_list_index_MatchNotFoundError():
@@ -50,6 +51,7 @@ def test_3d_root(three_dimensional_list):
     expected = three_dimensional_list
     actual = get(exp, three_dimensional_list)
     assert actual == expected
+
 
 def test_3d_0(three_dimensional_list):
     expected = three_dimensional_list[0]

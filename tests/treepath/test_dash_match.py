@@ -1,5 +1,6 @@
 from tests.utils.traverser_utils import *
-from treepath import get, exp, match, expd, MatchNotFoundError
+from treepath import get, exp, match, expd
+from treepath.path.exceptions.match_not_found_error import MatchNotFoundError
 
 
 def test_dash_x_as_string(dash):

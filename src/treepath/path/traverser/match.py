@@ -1,8 +1,7 @@
 import typing
-from abc import ABC
 
 
-class Match(ABC):
+class Match:
     __slots__ = 'parent', \
                 'data_name', \
                 'data', \
