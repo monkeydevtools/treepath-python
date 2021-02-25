@@ -1,17 +1,17 @@
 from tests.utils.traverser_utils import *
-from treepath import get, exp, match, expd
+from treepath import get, path, match, expd
 from treepath.path.exceptions.match_not_found_error import MatchNotFoundError
 
 
 def test_dash_x_as_string(dash):
     expected = dash["-x"]
-    actual = get(exp["-x"], dash)
+    actual = get(path["-x"], dash)
     assert actual == expected
 
 
 def test_dash_x_as_string_path(dash):
     expected = dash["-x"]
-    actual = match(exp["-x"], dash)
+    actual = match(path["-x"], dash)
     assert repr(actual) == f"$.-x={expected}"
 
 

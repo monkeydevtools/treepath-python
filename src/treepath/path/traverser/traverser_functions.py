@@ -86,6 +86,6 @@ def match_all(expression: PathBuilder, data):
 
 def nested_match_all(expression: PathBuilder, parent_match: Match):
     vertex = get_vertex_from_path_builder(expression)
-    traverser = NestedMatchTraverser(parent_match._traverser_state_match, vertex)
+    traverser = NestedMatchTraverser(parent_match._traverser_match, vertex)
     traverser_iter = iter(traverser)
     return traverser_iter

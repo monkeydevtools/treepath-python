@@ -1,9 +1,9 @@
 import typing
 
-from treepath.path.traverser.traverser_state_match import TraverserStateMatch
+from treepath.path.traverser.traverser_match import TraverserMatch
 
 
-class ImaginaryMatch(TraverserStateMatch):
+class ImaginaryMatch(TraverserMatch):
     """
     An ImaginaryMatch purpose defines additional traversing state without moving the pointer to the vertex in the data tree
     structure.  The traversing algorithms use this object to assist in traversing the data tree structure without
@@ -25,7 +25,7 @@ class ImaginaryMatch(TraverserStateMatch):
 
     @property
     def parent(self):
-        raise self.real_parent.parent
+        return self.real_parent.parent
 
     def traverse(self, visit: typing.Callable):
         """

@@ -9,7 +9,7 @@ from treepath.path.traverser.traverser_functions import match as _match
 from treepath.path.traverser.traverser_functions import match as _match
 from treepath.path.traverser.traverser_functions import match_all as _match_all
 
-exp = RootPathBuilder()
+path = RootPathBuilder()
 expd = DashPathRoot()
 
 wildcard = _wildcard

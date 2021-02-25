@@ -3,7 +3,7 @@ from typing import Union
 from treepath.path.exceptions.traversing_error import TraversingError
 from treepath.path.traverser.imaginary_match import ImaginaryMatch
 from treepath.path.traverser.match import Match
-from treepath.path.traverser.traverser_state_match import TraverserStateMatch
+from treepath.path.traverser.traverser_match import TraverserMatch
 from treepath.path.vertex.vertex import Vertex
 
 
@@ -17,7 +17,7 @@ class PredicateVertex(Vertex):
     def path_segment(self):
         return f"[{self._predicate}]"
 
-    def match(self, parent_match: TraverserStateMatch, traverser) -> Union[TraverserStateMatch, None]:
+    def match(self, parent_match: TraverserMatch, traverser, vertex_index: int) -> Union[TraverserMatch, None]:
 
         try:
             if self._predicate(Match(parent_match)):
@@ -26,6 +26,7 @@ class PredicateVertex(Vertex):
                     "PredicateMatch",
                     parent_match.data,
                     self,
+                    vertex_index,
                     parent_match.remembered_on_catch_match,
                     parent_match.remembered_on_catch_action
                 )

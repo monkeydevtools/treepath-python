@@ -1,9 +1,9 @@
 import typing
 
-from treepath.path.traverser.traverser_state_match import TraverserStateMatch
+from treepath.path.traverser.traverser_match import TraverserMatch
 
 
-class RootMatch(TraverserStateMatch):
+class RootMatch(TraverserMatch):
     __slots__ = ()
 
     @property

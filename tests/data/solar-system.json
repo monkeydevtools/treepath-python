@@ -2,47 +2,51 @@
   "star": {
     "name": "Sun",
     "Equatorial diameter": 109.168,
-    "planets": [
-      {
-        "name": "Mercury",
-        "Equatorial diameter": 0.383,
-        "has-moons": false
-      },
-      {
-        "name": "Venus",
-        "Equatorial diameter": 0.949,
-        "has-moons": false
-      },
-      {
-        "name": "Earth",
-        "Equatorial diameter": 1.000,
-        "has-moons": true
-      },
-      {
-        "name": "Mars",
-        "Equatorial diameter": 0.532,
-        "has-moons": true
-      },
-      {
-        "name": "Jupiter",
-        "Equatorial diameter": 11.209,
-        "has-moons": true
-      },
-      {
-        "name": "Saturn",
-        "Equatorial diameter": 9.449,
-        "has-moons": true
-      },
-      {
-        "name": "Uranus",
-        "Equatorial diameter": 4.007,
-        "has-moons": true
-      },
-      {
-        "name": "Neptune",
-        "Equatorial diameter": 3.883,
-        "has-moons": true
-      }
-    ]
+    "planets": {
+      "inner": [
+        {
+          "name": "Mercury",
+          "Equatorial diameter": 0.383,
+          "has-moons": false
+        },
+        {
+          "name": "Venus",
+          "Equatorial diameter": 0.949,
+          "has-moons": false
+        },
+        {
+          "name": "Earth",
+          "Equatorial diameter": 1.000,
+          "has-moons": true
+        },
+        {
+          "name": "Mars",
+          "Equatorial diameter": 0.532,
+          "has-moons": true
+        }
+      ],
+      "outer": [
+        {
+          "name": "Jupiter",
+          "Equatorial diameter": 11.209,
+          "has-moons": true
+        },
+        {
+          "name": "Saturn",
+          "Equatorial diameter": 9.449,
+          "has-moons": true
+        },
+        {
+          "name": "Uranus",
+          "Equatorial diameter": 4.007,
+          "has-moons": true
+        },
+        {
+          "name": "Neptune",
+          "Equatorial diameter": 3.883,
+          "has-moons": true
+        }
+      ]
+    }
   }
 }

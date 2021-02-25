@@ -2,7 +2,7 @@ from typing import Union
 
 from treepath.path.traverser.key_match import KeyMatch
 from treepath.path.traverser.list_match import ListMatch
-from treepath.path.traverser.traverser_state_match import TraverserStateMatch
+from treepath.path.traverser.traverser_match import TraverserMatch
 from treepath.path.vertex.vertex import Vertex
 
 
@@ -26,7 +26,7 @@ class TupleVertex(Vertex):
     def path_segment(self):
         return repr(self._tuple)
 
-    def match(self, parent_match: TraverserStateMatch, traverser) -> Union[TraverserStateMatch, None]:
+    def match(self, parent_match: TraverserMatch, traverser, vertex_index: int) -> Union[TraverserMatch, None]:
 
         remembered_catch_state = parent_match.remembered_catch_state
         if not remembered_catch_state:
@@ -42,6 +42,7 @@ class TupleVertex(Vertex):
                 item[0],
                 item[1],
                 self,
+                vertex_index,
                 parent_match.remembered_on_catch_match,
                 parent_match.remembered_on_catch_action
             )
@@ -49,7 +50,7 @@ class TupleVertex(Vertex):
             traverser.restore_on_catch(parent_match)
             return None
 
-    def _create_on_catch_state(self, parent_match: TraverserStateMatch):
+    def _create_on_catch_state(self, parent_match: TraverserMatch):
         data = parent_match.data
         if isinstance(data, dict):
             return self._key_match(parent_match)
@@ -58,7 +59,7 @@ class TupleVertex(Vertex):
         else:
             return None
 
-    def _key_match(self, parent_match: TraverserStateMatch) -> CatchState:
+    def _key_match(self, parent_match: TraverserMatch) -> CatchState:
         tuple__ = self._tuple
 
         def my_iter():
@@ -74,7 +75,7 @@ class TupleVertex(Vertex):
         iterable = my_iter()
         return CatchState(iterable, KeyMatch)
 
-    def _list_match(self, parent_match: TraverserStateMatch) -> CatchState:
+    def _list_match(self, parent_match: TraverserMatch) -> CatchState:
         tuple__ = self._tuple
 
         def my_iter():

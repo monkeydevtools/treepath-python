@@ -1,7 +1,7 @@
 from treepath.path.exceptions.stop_traversing import StopTraversing
 from treepath.path.traverser.match import Match
 from treepath.path.traverser.root_match import RootMatch
-from treepath.path.traverser.traverser_state_match import TraverserStateMatch
+from treepath.path.traverser.traverser_match import TraverserMatch
 from treepath.path.vertex.vertex import Vertex
 
 
@@ -31,12 +31,12 @@ class MatchTraverser:
             result = self._invoke_next_action()
         return Match(self.current_match)
 
-    def remember_on_catch(self, match: TraverserStateMatch, remembered_catch_state):
+    def remember_on_catch(self, match: TraverserMatch, remembered_catch_state):
         match.remembered_catch_state = remembered_catch_state
         match.remembered_on_catch_match = match
         match.remembered_on_catch_action = self.match_action
 
-    def restore_on_catch(self, match: TraverserStateMatch):
+    def restore_on_catch(self, match: TraverserMatch):
         match.remembered_catch_state = None
         if self.root_match == match:
             match.remembered_on_catch_match = None
@@ -53,10 +53,10 @@ class MatchTraverser:
             vertex.name,
             self.root_data,  # data
             vertex,  # vertex
+            0,  # vertex_index
             None,  # remembered_on_catch_match
             self.done_action
         )
-        root_match.vertex_index = 0
         root_match.remembered_on_catch_match = root_match
         self.root_match = root_match
         self.current_match = root_match
@@ -69,10 +69,9 @@ class MatchTraverser:
         next_vertex = self.vertex_path[next_vertex_index]
 
         # apply the match
-        next_match = next_vertex.match(current_match, self)
+        next_match = next_vertex.match(current_match, self, next_vertex_index)
 
         if next_match:
-            next_match.vertex_index = next_vertex_index
             self.current_match = next_match
             self._invoke_next_action = self.report_action
         else:
