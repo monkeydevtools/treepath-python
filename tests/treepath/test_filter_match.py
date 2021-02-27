@@ -19,9 +19,9 @@ def test_keys_get_root_x_were_root_has_a_MatchNotFoundError(keys):
         get(path[has(path.a)].x, keys)
 
 
-def test_keys_get_root_x_were_root_has_x(keys):
+def test_keys_get_root_x_were_root_has_y(keys):
     expected = keys["x"]
-    actual = get(path[has(path.x)].x, keys)
+    actual = get(path[has(path.y)].x, keys)
     assert actual == expected
 
 

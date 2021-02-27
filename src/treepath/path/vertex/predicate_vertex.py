@@ -4,20 +4,32 @@ from treepath.path.exceptions.traversing_error import TraversingError
 from treepath.path.traverser.imaginary_match import ImaginaryMatch
 from treepath.path.traverser.match import Match
 from treepath.path.traverser.traverser_match import TraverserMatch
+from treepath.path.vertex.list_vertex import ListWildVertex
 from treepath.path.vertex.vertex import Vertex
 
 
+class PredicateListWildVertex(ListWildVertex):
+    pass
+
+
 class PredicateVertex(Vertex):
-    __slots__ = '_predicate'
+    __slots__ = '_predicate', \
+                '_predicate_list_wild_vertex'
 
     def __init__(self, parent, predicate):
         self._predicate = predicate
+        self._predicate_list_wild_vertex = PredicateListWildVertex(parent)
         super().__init__(parent, predicate)
 
     def path_segment(self):
         return f"[{self._predicate}]"
 
     def match(self, parent_match: TraverserMatch, traverser, vertex_index: int) -> Union[TraverserMatch, None]:
+
+        #  This code eliminates the wc before the has [wc][has(path.name)]
+        # if not isinstance(parent_match.vertex, PredicateListWildVertex) and isinstance(parent_match.data, list):
+        #     lwv = ListWildVertex(parent_match.vertex)
+        #     return lwv.match(parent_match, traverser, vertex_index - 1)
 
         try:
             if self._predicate(Match(parent_match)):
