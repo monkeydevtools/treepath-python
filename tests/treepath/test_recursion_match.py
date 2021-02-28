@@ -1,5 +1,5 @@
 from tests.utils.traverser_utils import *
-from treepath import find, path, match_all
+from treepath import find, path, find_matches
 
 
 def test_keys_recursive_find_all(keys):
@@ -14,7 +14,7 @@ def test_keys_recursive_find_all(keys):
 
 
 def test_keys_recursive_find_all_path(keys):
-    find_iter = match_all(path.recursive, keys)
+    find_iter = find_matches(path.recursive, keys)
     count = 0
     for expected_path, expected_value in gen_test_data(keys, yria, yaia, yaia, yaia):
         count += 1
@@ -25,7 +25,7 @@ def test_keys_recursive_find_all_path(keys):
 
 
 def test_keys_recursive_find_all_path_start_with_x(keys):
-    find_iter = match_all(path.x.recursive, keys)
+    find_iter = find_matches(path.x.recursive, keys)
     count = 0
     for expected_path, expected_value in gen_test_data(keys, yxix, yaia, yaia):
         count += 1
@@ -47,7 +47,7 @@ def test_3d_list_recursive_find_all(three_dimensional_list):
 
 
 def test_3d_list_recursive_find_all_path(three_dimensional_list):
-    find_iter = match_all(path.recursive, three_dimensional_list)
+    find_iter = find_matches(path.recursive, three_dimensional_list)
     count = 0
     for expected_path, expected_value in gen_test_data(three_dimensional_list, yria, yaia, yaia, yaia):
         count += 1
@@ -58,7 +58,7 @@ def test_3d_list_recursive_find_all_path(three_dimensional_list):
 
 
 def test_3d_list_recursive_find_all_path_start_with_0(three_dimensional_list):
-    find_iter = match_all(path[0].recursive, three_dimensional_list)
+    find_iter = find_matches(path[0].recursive, three_dimensional_list)
     count = 0
     for expected_path, expected_value in gen_test_data(three_dimensional_list, y0i0, yaia, yaia):
         count += 1
@@ -81,7 +81,7 @@ def test_k_a_a_k_a_a_a_k_recursive_find_all(k_a_a_k_a_a_a_k):
 
 
 def test_k_a_a_k_a_a_a_k_recursive_find_all_path(k_a_a_k_a_a_a_k):
-    find_iter = match_all(path.recursive, k_a_a_k_a_a_a_k)
+    find_iter = find_matches(path.recursive, k_a_a_k_a_a_a_k)
     count = 0
     for expected_path, expected_value in gen_test_data(k_a_a_k_a_a_a_k, yria, yaia, yaia, yaia, yaia, yaia, yaia, yaia,
                                                        yaia):
@@ -105,7 +105,7 @@ def test_a_k_k_a_k_k_k_a_recursive_find_all(a_k_k_a_k_k_k_a):
 
 
 def test_a_k_k_a_k_k_k_a_recursive_find_all_path(a_k_k_a_k_k_k_a):
-    find_iter = match_all(path.recursive, a_k_k_a_k_k_k_a)
+    find_iter = find_matches(path.recursive, a_k_k_a_k_k_k_a)
     count = 0
     for expected_path, expected_value in gen_test_data(a_k_k_a_k_k_k_a, yria, yaia, yaia, yaia, yaia, yaia, yaia, yaia,
                                                        yaia):
@@ -128,7 +128,7 @@ def test_keys_recursive_find_all_x(keys):
 
 
 def test_keys_recursive_find_all_x_path(keys):
-    find_iter = match_all(path.recursive.x, keys)
+    find_iter = find_matches(path.recursive.x, keys)
     count = 0
     for expected_path, expected_value in gen_test_data(keys, yxia, yxia, yxia):
         count += 1
@@ -150,7 +150,7 @@ def test_3d_list_recursive_find_all_0(three_dimensional_list):
 
 
 def test_3d_list_recursive_find_all_o_path(three_dimensional_list):
-    find_iter = match_all(path.recursive[0], three_dimensional_list)
+    find_iter = find_matches(path.recursive[0], three_dimensional_list)
     count = 0
     for expected_path, expected_value in gen_test_data(three_dimensional_list, y0ia, y0ia, y0ia):
         count += 1
@@ -172,7 +172,7 @@ def test_k_a_a_k_a_a_a_k_recursive_find_all_x(k_a_a_k_a_a_a_k):
 
 
 def test_k_a_a_k_a_a_a_k_recursive_find_all_x_path(k_a_a_k_a_a_a_k):
-    find_iter = match_all(path.recursive.x, k_a_a_k_a_a_a_k)
+    find_iter = find_matches(path.recursive.x, k_a_a_k_a_a_a_k)
     count = 0
     for expected_path, expected_value in gen_test_data(k_a_a_k_a_a_a_k, yxia, naia, naia, yxia, naia, naia, naia, yxia):
         count += 1
@@ -194,7 +194,7 @@ def test_a_k_k_a_k_k_k_a_recursive_find_all_x(a_k_k_a_k_k_k_a):
 
 
 def test_a_k_k_a_k_k_k_a_recursive_find_all_x_path(a_k_k_a_k_k_k_a):
-    find_iter = match_all(path.recursive.x, a_k_k_a_k_k_k_a)
+    find_iter = find_matches(path.recursive.x, a_k_k_a_k_k_k_a)
     count = 0
     for expected_path, expected_value in gen_test_data(a_k_k_a_k_k_k_a, naia, yxia, yxia, naia, yxia, yxia, yxia):
         count += 1
@@ -216,7 +216,7 @@ def test_k_a_a_k_a_a_a_k_recursive_find_all_0(k_a_a_k_a_a_a_k):
 
 
 def test_k_a_a_k_a_a_a_k_recursive_find_all_0_path(k_a_a_k_a_a_a_k):
-    find_iter = match_all(path.recursive[0], k_a_a_k_a_a_a_k)
+    find_iter = find_matches(path.recursive[0], k_a_a_k_a_a_a_k)
     count = 0
     for expected_path, expected_value in gen_test_data(k_a_a_k_a_a_a_k, naia, y0ia, y0ia, naia, y0ia, y0ia, y0ia):
         count += 1
@@ -238,7 +238,7 @@ def test_a_k_k_a_k_k_k_a_recursive_find_all_0(a_k_k_a_k_k_k_a):
 
 
 def test_a_k_k_a_k_k_k_a_recursive_find_all_0_path(a_k_k_a_k_k_k_a):
-    find_iter = match_all(path.recursive[0], a_k_k_a_k_k_k_a)
+    find_iter = find_matches(path.recursive[0], a_k_k_a_k_k_k_a)
     count = 0
     for expected_path, expected_value in gen_test_data(a_k_k_a_k_k_k_a, y0ia, naia, naia, y0ia, naia, naia, naia, y0ia):
         count += 1
@@ -260,7 +260,7 @@ def test_all_data_types_recursive_find_all_x(all_data_types):
 
 
 def test_all_data_types_recursive_find_all_x_path(all_data_types):
-    find_iter = match_all(path.recursive.x, all_data_types)
+    find_iter = find_matches(path.recursive.x, all_data_types)
     count = 0
     for expected_path, expected_value in gen_test_data(all_data_types, yxia, yxia, yxia, yxia, yxia, yxia, yxia):
         count += 1

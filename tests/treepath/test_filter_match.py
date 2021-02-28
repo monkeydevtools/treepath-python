@@ -1,5 +1,5 @@
 from tests.utils.traverser_utils import *
-from treepath import get, path, match_all, has, match, wc, find
+from treepath import get, path, find_matches, has, get_match, wc, find
 from treepath.path.exceptions.match_not_found_error import MatchNotFoundError
 from treepath.path.traverser.match import Match
 
@@ -27,7 +27,7 @@ def test_keys_get_root_x_were_root_has_y(keys):
 
 
 def test_keys_match_all_root_wc_has_x(keys):
-    result = match_all(path.wc[has(path.x)], keys)
+    result = find_matches(path.wc[has(path.x)], keys)
     for expected_path, expected_value in gen_test_data(keys, yaia):
         actual = next(result)
         assert str(actual) == f"{expected_path}={actual.data}"
@@ -35,12 +35,12 @@ def test_keys_match_all_root_wc_has_x(keys):
 
 
 def test_keys_match_all_root_wc_has_a(keys):
-    result = match_all(path.wc[has(path.a)], keys)
+    result = find_matches(path.wc[has(path.a)], keys)
     assert_done_iterating(result)
 
 
 def test_keys_match_all_all_has_x(keys):
-    exp_iter = match_all(path.rec[has(path.x)], keys)
+    exp_iter = find_matches(path.rec[has(path.x)], keys)
     count = 0
     for expected_path, expected_value in gen_test_data(keys, yria, yaia, yaia):
         count += 1
@@ -51,18 +51,18 @@ def test_keys_match_all_all_has_x(keys):
 
 
 def test_keys_match_all_all_has_a(keys):
-    exp_iter = match_all(path.rec[has(path.a)], keys)
+    exp_iter = find_matches(path.rec[has(path.a)], keys)
     assert_done_iterating(exp_iter)
 
 
 def test_keys_match_all_all_has_x_eq_1(keys):
-    exp_iter = match_all(path.rec.x[has(path.rec.x == "1")], keys)
+    exp_iter = find_matches(path.rec.x[has(path.rec.x == "1")], keys)
     actual = next(exp_iter)
-    expected = match(path.x, keys)
+    expected = get_match(path.x, keys)
     assert repr(actual) == repr(expected)
 
     actual = next(exp_iter)
-    expected = match(path.x.x, keys)
+    expected = get_match(path.x.x, keys)
     assert repr(actual) == repr(expected)
 
     assert_done_iterating(exp_iter)
@@ -128,7 +128,7 @@ def test_3d_list_get_root_1_were_root_has_1(three_dimensional_list):
 
 
 def test_3d_list_match_all_root_wc_has_1(three_dimensional_list):
-    result = match_all(path[wc][has(path[1])], three_dimensional_list)
+    result = find_matches(path[wc][has(path[1])], three_dimensional_list)
     for expected_path, expected_value in gen_test_data(three_dimensional_list, yaia):
         actual = next(result)
         assert str(actual) == f"{expected_path}={actual.data}"
@@ -136,12 +136,12 @@ def test_3d_list_match_all_root_wc_has_1(three_dimensional_list):
 
 
 def test_3d_list_match_all_root_wc_has_a(three_dimensional_list):
-    result = match_all(path[wc][has(path[4])], three_dimensional_list)
+    result = find_matches(path[wc][has(path[4])], three_dimensional_list)
     assert_done_iterating(result)
 
 
 def test_3d_list_match_all_all_has_1(three_dimensional_list):
-    exp_iter = match_all(path.rec[has(path[1])], three_dimensional_list)
+    exp_iter = find_matches(path.rec[has(path[1])], three_dimensional_list)
     count = 0
     for expected_path, expected_value in gen_test_data(three_dimensional_list, yria, yaia, yaia):
         count += 1
@@ -152,18 +152,18 @@ def test_3d_list_match_all_all_has_1(three_dimensional_list):
 
 
 def test_3d_list_match_all_all_has_a(three_dimensional_list):
-    exp_iter = match_all(path.rec[has(path[4])], three_dimensional_list)
+    exp_iter = find_matches(path.rec[has(path[4])], three_dimensional_list)
     assert_done_iterating(exp_iter)
 
 
 def test_3d_list_match_all_all_has_1_eq_1(three_dimensional_list):
-    exp_iter = match_all(path.rec[1][has(path.rec[1] == 14)], three_dimensional_list)
+    exp_iter = find_matches(path.rec[1][has(path.rec[1] == 14)], three_dimensional_list)
     actual = next(exp_iter)
-    expected = match(path[1], three_dimensional_list)
+    expected = get_match(path[1], three_dimensional_list)
     assert repr(actual) == repr(expected)
 
     actual = next(exp_iter)
-    expected = match(path[1][1], three_dimensional_list)
+    expected = get_match(path[1][1], three_dimensional_list)
     assert repr(actual) == repr(expected)
 
     assert_done_iterating(exp_iter)
@@ -207,8 +207,9 @@ def test_3d_list_ge(three_dimensional_list):
 
 
 def test_keys_custom_filter(keys):
-    def custom_filter(m: Match):
-        return m.data == "2"
+    def custom_filter(match: Match):
+        return match.data == "2"
+
     expected = "2"
     actual = get(path.x.x.wc[custom_filter], keys)
     assert actual == expected

@@ -59,7 +59,7 @@ class RecursiveVertex(Vertex):
                 item[0],
                 item[1],
                 self,
-                vertex_index - 1,  # reuse vertex on next match
+                vertex_index - 1,  # reuse vertex on next get_match
                 parent_match.remembered_on_catch_match,
                 parent_match.remembered_on_catch_action
             )

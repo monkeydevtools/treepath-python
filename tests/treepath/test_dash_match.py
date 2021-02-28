@@ -1,5 +1,5 @@
 from tests.utils.traverser_utils import *
-from treepath import get, path, match, expd
+from treepath import get, path, get_match, expd
 from treepath.path.exceptions.match_not_found_error import MatchNotFoundError
 
 
@@ -11,7 +11,7 @@ def test_dash_x_as_string(dash):
 
 def test_dash_x_as_string_path(dash):
     expected = dash["-x"]
-    actual = match(path["-x"], dash)
+    actual = get_match(path["-x"], dash)
     assert repr(actual) == f"$.-x={expected}"
 
 
@@ -23,7 +23,7 @@ def test_dash_x_as_syntax(dash):
 
 def test_dash_x_as_syntax_path(dash):
     expected = dash["-x"]
-    actual = match(expd._x, dash)
+    actual = get_match(expd._x, dash)
     assert repr(actual) == f"$.-x={expected}"
 
 

@@ -68,7 +68,7 @@ class MatchTraverser:
         next_vertex_index += 1
         next_vertex = self.vertex_path[next_vertex_index]
 
-        # apply the match
+        # apply the get_match
         next_match = next_vertex.match(current_match, self, next_vertex_index)
 
         if next_match:

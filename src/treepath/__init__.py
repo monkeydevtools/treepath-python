@@ -3,11 +3,10 @@ from treepath.path.builder.patch_constants import recursive as _recursive
 from treepath.path.builder.patch_constants import wildcard as _wildcard
 from treepath.path.builder.root_path_builder import RootPathBuilder
 from treepath.path.traverser.traverser_functions import find as _find
+from treepath.path.traverser.traverser_functions import find_matches as _find_matches
 from treepath.path.traverser.traverser_functions import get as _get
+from treepath.path.traverser.traverser_functions import get_match as _get_match
 from treepath.path.traverser.traverser_functions import has as _has
-from treepath.path.traverser.traverser_functions import match as _match
-from treepath.path.traverser.traverser_functions import match as _match
-from treepath.path.traverser.traverser_functions import match_all as _match_all
 
 path = RootPathBuilder()
 expd = DashPathRoot()
@@ -19,6 +18,6 @@ rec = recursive
 
 get = _get
 find = _find
-match = _match
-match_all = _match_all
+get_match = _get_match
+find_matches = _find_matches
 has = _has

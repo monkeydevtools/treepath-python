@@ -149,28 +149,3 @@ construct the same search algorithm.
 | List celestial bodies that have planets.     | //*[planets]/name                   | $..*[?(@.planets)].name                   | path.rec[has(path.planets)].name       |
 
 
-# Search Function
-### get
-### find
-### match
-### match_all
-### match object
-
-# Expressions
-## root
-## keys
-### wildcard
-### special characters
-## arrays
-### index
-### slice
-### comma delimited
-### wildcard
-## recursion
-## filters
-### has
-### Comparison Operators
-### type conversion
-### write a customer predicate
-
-

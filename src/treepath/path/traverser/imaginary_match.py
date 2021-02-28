@@ -29,6 +29,6 @@ class ImaginaryMatch(TraverserMatch):
 
     def traverse(self, visit: typing.Callable):
         """
-        Skip to the real_parent.  This match has
+        Skip to the real_parent.  This get_match has
         """
         self.real_parent.traverse(visit)

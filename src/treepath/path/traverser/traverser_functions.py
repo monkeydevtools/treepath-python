@@ -13,7 +13,7 @@ from treepath.path.util.decorator import do_nothing
 
 def get(expression: PathBuilder, data: Union[dict, list], must_match: bool = True
         ) -> Union[dict, list, str, int, float, bool, None]:
-    return match(expression, data, must_match=must_match).data
+    return get_match(expression, data, must_match=must_match).data
 
 
 def find(expression: PathBuilder, data: Union[dict, list]) -> Iterator[Any]:
@@ -72,7 +72,7 @@ def has(
     return create_has_predicate()
 
 
-def match(expression: PathBuilder, data: Union[dict, list], must_match: bool = True) -> Union[Match, None]:
+def get_match(expression: PathBuilder, data: Union[dict, list], must_match: bool = True) -> Union[Match, None]:
     vertex = get_vertex_from_path_builder(expression)
     traverser = MatchTraverser(data, vertex)
     traverser_iter = iter(traverser)
@@ -84,7 +84,7 @@ def match(expression: PathBuilder, data: Union[dict, list], must_match: bool = T
         return None
 
 
-def match_all(expression: PathBuilder, data: Union[dict, list]) -> Iterator[Match]:
+def find_matches(expression: PathBuilder, data: Union[dict, list]) -> Iterator[Match]:
     vertex = get_vertex_from_path_builder(expression)
     traverser = MatchTraverser(data, vertex)
     traverser_iter = iter(traverser)
