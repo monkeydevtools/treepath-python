@@ -16,11 +16,11 @@ class ImaginaryMatch(TraverserMatch):
         return [self]
 
     @property
-    def path(self):
+    def path(self) -> str:
         return self.real_parent.path
 
     @property
-    def path_segment(self):
+    def path_segment(self) -> str:
         return self.real_parent.path_segment
 
     @property

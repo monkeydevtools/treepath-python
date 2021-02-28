@@ -1,6 +1,7 @@
 from tests.utils.traverser_utils import *
 from treepath import get, path, match_all, has, match, wc, find
 from treepath.path.exceptions.match_not_found_error import MatchNotFoundError
+from treepath.path.traverser.match import Match
 
 
 def test_keys_get_root_has_a_MatchNotFoundError(keys):
@@ -202,4 +203,12 @@ def test_3d_list_gt(three_dimensional_list):
 def test_3d_list_ge(three_dimensional_list):
     expected = [v for v in range(14, 28)]
     actual = [v for v in find(path[wc][wc][wc][has(path >= 14)], three_dimensional_list)]
+    assert actual == expected
+
+
+def test_keys_custom_filter(keys):
+    def custom_filter(m: Match):
+        return m.data == "2"
+    expected = "2"
+    actual = get(path.x.x.wc[custom_filter], keys)
     assert actual == expected

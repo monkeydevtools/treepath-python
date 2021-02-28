@@ -17,10 +17,10 @@ class RootVertex(Vertex):
         return self._path_as_list
 
     @property
-    def path(self):
+    def path(self) -> str:
         return self.name
 
-    def traverse(self, visit: typing.Callable):
+    def traverse(self, visit: typing.Callable[[Vertex], None]):
         visit(self)
 
     def match(self, parent_match: TraverserMatch, traverser, vertex_index: int) -> typing.Union[TraverserMatch, None]:

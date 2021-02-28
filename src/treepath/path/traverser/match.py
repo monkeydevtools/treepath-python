@@ -35,7 +35,7 @@ class Match:
         return self._traverser_match.data_name
 
     @property
-    def data(self) -> Union[dict, list, str, int, float, True, False, None]:
+    def data(self) -> Union[dict, list, str, int, float,  bool, None]:
         return self._traverser_match.data
 
     @property

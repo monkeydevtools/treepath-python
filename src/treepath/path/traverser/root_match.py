@@ -11,12 +11,12 @@ class RootMatch(TraverserMatch):
         return [self]
 
     @property
-    def path(self):
+    def path(self) -> str:
         return self.data_name
 
     @property
-    def path_segment(self):
+    def path_segment(self) -> str:
         return self.data_name
 
-    def traverse(self, visit: typing.Callable):
+    def traverse(self, visit: typing.Callable[[TraverserMatch], None]):
         visit(self)

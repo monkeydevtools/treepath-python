@@ -1,5 +1,9 @@
+from __future__ import annotations
+from typing import Union, Callable, Match, Any
+
 from treepath.path.builder.patch_constants import wildcard
 from treepath.path.builder.path_builder_predicate import PathBuilderPredicate
+from treepath.path.builder.symbol import Symbol
 from treepath.path.exceptions.path_syntax_error import PathSyntaxError
 from treepath.path.vertex.key_vertex import KeyVertex, KeyWildVertex
 from treepath.path.vertex.list_vertex import ListIndexVertex, ListSliceVertex, ListWildVertex
@@ -15,7 +19,7 @@ _RESERVED_ATTR_FOR_VERTEX_DATA = "_RESERVED_ATTR_FOR_VERTEX_DATA"
 """
 
 
-def _build_key(parent_vertex, key):
+def _build_key(parent_vertex: Vertex, key: Union[int, slice, Symbol, str, tuple, Callable[[Match], Any]]):
     if isinstance(key, int):
         return ListIndexVertex(parent_vertex, key)
     elif isinstance(key, slice):
@@ -56,7 +60,7 @@ class PathBuilder(PathBuilderPredicate):
         """
         raise AttributeError(f"set __setattr__  {name} {value} not supported on {self.__name__}")
 
-    def __getitem__(self, key):
+    def __getitem__(self, key: Union[int, slice, Symbol, str, tuple, Callable[[Match], Any]]):
         """
         Overloads self[key]
         """

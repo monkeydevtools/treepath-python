@@ -75,11 +75,11 @@ When working with json data-structures, there is a need to fetch specific pieces
 approach to this problem is writing structural code.  This approach can become quite complex depending on the json 
 structure and search criteria.   
 
-A more declarative approach would be to use a query language which does a better job communicating the intent of what 
+A more declarative approach would be to use a query language as it does a better job at communicating the intent of what 
 is being searched for.  
 
 Here are two examples that fetched the planet Earth from the sample solar-system data defined above.   One is 
-structural code, and the other is using a treepath query.  
+structural code, and the other is query declaration.  
 
 <table>
 <tr>
@@ -124,20 +124,53 @@ earth = get(path.star.planets.inner[wc][has(path.name == 'Earth')], solar_system
 </tr>
 </table>
 
-Both examples will return the follwing results; however, the treepath example uses only one line of code to construct 
-the same search algorithm.  
+Both examples will return the following results; however, the declarative approach uses only one line of code to 
+construct the same search algorithm.  
 
 ```python
 {'name': 'Earth', 'Equatorial diameter': 1.0, 'has-moons': True}
 ```
 
 
-## Summary example.  
+## query example.  
 
  
-| question                                     | Xpath                               | jsonpath                                  | treepath                           |
+| Description                                 | Xpath                               | jsonpath                                  | treepath                            |
 |----------------------------------------------|-------------------------------------|-------------------------------------------|------------------------------------|
 | Find planet earth.                           | /star/planets/inner[name='Earth']   | $.star.planets.inner[?(@.name=='Earth')]  | path.star.planets.inner[wc][has(path.name == 'Earth')]   |
 | List the names of the inner planets.         | /star/planets/inner[*].name         | $.star.planets.inner[*].name              | path.star.planets.inner[wc].name   |
 | List the names of all planets.               | /star/planets/*/name                | $.star.planets.[*].name                   | path.star.planets.wc[wc].name      |
 | List the names of all the celestial bodies.  | //name                              | $..name                                   | path.rec.name                      |  
+| List all nodes in the tree Preorder          | //*                                 | $..                                       | path.rec                           |
+| Get the third rock from the sun              | /star/planets/inner[3]              | $.star.planets.inner[2]                   | path.star.planets.inner[2]         |
+| List first two inner planets                 | /star/plnaets.inner[position()<3]   | $.star.planets.inner[:2]                  | path.star.planets.inner[0:2]       |
+|                                              |                                     | $.star.planets.inner[0, 1]                | path.star.planets.inner[0, 2]      |
+| List planets smaller than earth              | /star/planets/inner[Equatorial_diameter < 1]   | $.star.planets.inner[?(@.['Equatorial diameter'] < 1)]              | path.star.planets.inner[wc][has(path["Equatorial diameter"] < 1)]       |
+| List celestial bodies that have planets.     | //*[planets]/name                   | $..*[?(@.planets)].name                   | path.rec[has(path.planets)].name       |
+
+
+# Search Function
+### get
+### find
+### match
+### match_all
+### match object
+
+# Expressions
+## root
+## keys
+### wildcard
+### special characters
+## arrays
+### index
+### slice
+### comma delimited
+### wildcard
+## recursion
+## filters
+### has
+### Comparison Operators
+### type conversion
+### write a customer predicate
+
+

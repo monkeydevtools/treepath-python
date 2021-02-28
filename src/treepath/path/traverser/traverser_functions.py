@@ -1,5 +1,6 @@
 import functools
 import operator
+from typing import Union, Iterator, Callable, Any
 
 from treepath.path.builder.path_builder import PathBuilder, get_vertex_from_path_builder
 from treepath.path.exceptions.match_not_found_error import MatchNotFoundError
@@ -10,11 +11,12 @@ from treepath.path.traverser.value_traverser import ValueTraverser
 from treepath.path.util.decorator import do_nothing
 
 
-def get(expression: PathBuilder, data):
-    return match(expression, data).data
+def get(expression: PathBuilder, data: Union[dict, list], must_match: bool = True
+        ) -> Union[dict, list, str, int, float, bool, None]:
+    return match(expression, data, must_match=must_match).data
 
 
-def find(expression: PathBuilder, data):
+def find(expression: PathBuilder, data: Union[dict, list]) -> Iterator[Any]:
     vertex = get_vertex_from_path_builder(expression)
     traverser = ValueTraverser(data, vertex)
     traverser_iter = iter(traverser)
@@ -52,7 +54,10 @@ def _has(has_func):
 
 
 @_has
-def has(expression, single_arg_operator, single_arg_convert_type):
+def has(
+        expression: PathBuilder,
+        single_arg_operator: Callable[[Any], bool],
+        single_arg_convert_type: Callable[[Any], Any]) -> Callable[[Match], Any]:
     match_iter = functools.partial(nested_match_all, expression)
 
     def create_has_predicate():
@@ -67,24 +72,26 @@ def has(expression, single_arg_operator, single_arg_convert_type):
     return create_has_predicate()
 
 
-def match(expression: PathBuilder, data) -> Match:
+def match(expression: PathBuilder, data: Union[dict, list], must_match: bool = True) -> Union[Match, None]:
     vertex = get_vertex_from_path_builder(expression)
     traverser = MatchTraverser(data, vertex)
     traverser_iter = iter(traverser)
     try:
         return next(traverser_iter)
     except StopIteration:
-        raise MatchNotFoundError(vertex)
+        if must_match:
+            raise MatchNotFoundError(vertex)
+        return None
 
 
-def match_all(expression: PathBuilder, data):
+def match_all(expression: PathBuilder, data: Union[dict, list]) -> Iterator[Match]:
     vertex = get_vertex_from_path_builder(expression)
     traverser = MatchTraverser(data, vertex)
     traverser_iter = iter(traverser)
     return traverser_iter
 
 
-def nested_match_all(expression: PathBuilder, parent_match: Match):
+def nested_match_all(expression: PathBuilder, parent_match: Match) -> Iterator[Match]:
     vertex = get_vertex_from_path_builder(expression)
     traverser = NestedMatchTraverser(parent_match._traverser_match, vertex)
     traverser_iter = iter(traverser)

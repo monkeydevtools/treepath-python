@@ -1,3 +1,5 @@
+from __future__ import annotations
+
 import typing
 
 
@@ -50,7 +52,7 @@ class TraverserMatch:
         return path_as_list
 
     @property
-    def path(self):
+    def path(self) -> str:
         path = self._path
         if path != self:
             return path
@@ -61,11 +63,11 @@ class TraverserMatch:
         return path
 
     @property
-    def path_segment(self):
+    def path_segment(self) -> str:
         raise NotImplementedError
 
     @property
-    def parent(self):
+    def parent(self) -> TraverserMatch:
         return self.real_parent
 
     def traverse(self, visit: typing.Callable):
