@@ -1,5 +1,5 @@
 from tests.utils.traverser_utils import *
-from treepath import get, path, get_match, find_matches
+from treepath import get, path, get_match, find_matches, wc
 from treepath.path.exceptions.match_not_found_error import MatchNotFoundError
 
 
@@ -19,18 +19,6 @@ def test_keys_x_x_parent_path(keys):
     expected = keys["x"]
     actual = get_match(path.x.y.parent, keys)
     assert str(actual) == f"$.x.y.<-x={expected}"
-
-
-def test_3d_list_x_parent_path(three_dimensional_list):
-    expected = three_dimensional_list
-    actual = get_match(path[0].parent, three_dimensional_list)
-    assert str(actual) == f"$[0][<-$]={expected}"
-
-
-def test_3d_list_x_x_parent_path(three_dimensional_list):
-    expected = three_dimensional_list[0]
-    actual = get_match(path[0][1].parent, three_dimensional_list)
-    assert str(actual) == f"$[0][1][<-0]={expected}"
 
 
 def test_keys_rec_parent_path(keys):
@@ -91,4 +79,28 @@ def test_keys_rec_x_parent_rec_path(keys):
 
     actual = [fm.path for fm in find_matches(path.rec.x.parent, keys)]
 
+    assert actual == expected
+
+
+def test_keys_wc_x_parent_path(keys):
+    expected = ['$.x.x.<-x', '$.y.x.<-y', '$.z.x.<-z']
+    actual = [fm.path for fm in find_matches(path.wc.x.parent, keys)]
+    assert actual == expected
+
+
+def test_3d_list_x_parent_path(three_dimensional_list):
+    expected = three_dimensional_list
+    actual = get_match(path[0].parent, three_dimensional_list)
+    assert str(actual) == f"$[0][<-$]={expected}"
+
+
+def test_3d_list_x_x_parent_path(three_dimensional_list):
+    expected = three_dimensional_list[0]
+    actual = get_match(path[0][1].parent, three_dimensional_list)
+    assert str(actual) == f"$[0][1][<-0]={expected}"
+
+
+def test_3d_list_wc_x_parent_path(three_dimensional_list):
+    expected = ['$[0][1][<-0]', '$[1][1][<-1]', '$[2][1][<-2]']
+    actual = [fm.path for fm in find_matches(path[wc][1].parent, three_dimensional_list)]
     assert actual == expected
