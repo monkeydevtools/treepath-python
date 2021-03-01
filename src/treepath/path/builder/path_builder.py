@@ -1,4 +1,5 @@
 from __future__ import annotations
+
 from typing import Union, Callable, Match, Any
 
 from treepath.path.builder.patch_constants import wildcard
@@ -7,6 +8,7 @@ from treepath.path.builder.symbol import Symbol
 from treepath.path.exceptions.path_syntax_error import PathSyntaxError
 from treepath.path.vertex.key_vertex import KeyVertex, KeyWildVertex
 from treepath.path.vertex.list_vertex import ListIndexVertex, ListSliceVertex, ListWildVertex
+from treepath.path.vertex.parent_vertex import ParentVertex
 from treepath.path.vertex.predicate_vertex import PredicateVertex
 from treepath.path.vertex.recursive_vertex import RecursiveVertex
 from treepath.path.vertex.tuple_vertex import TupleVertex
@@ -111,6 +113,13 @@ class PathBuilder(PathBuilderPredicate):
     @property
     def wc(self):
         return self.wildcard
+
+    @property
+    def parent(self):
+        parent_vertex = object.__getattribute__(self, _RESERVED_ATTR_FOR_VERTEX_DATA)
+        vertex = ParentVertex(parent_vertex)
+        path_builder = PathBuilder(vertex)
+        return path_builder
 
 
 def get_vertex_from_path_builder(path_builder: PathBuilder) -> Vertex:

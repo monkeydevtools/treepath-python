@@ -5,7 +5,7 @@ import typing
 
 class TraverserMatch:
     __slots__ = 'real_parent', \
-                'data_name', \
+                'real_data_name', \
                 'data', \
                 'vertex', \
                 'vertex_index', \
@@ -25,7 +25,7 @@ class TraverserMatch:
                  remembered_on_catch_action
                  ):
         self.real_parent = real_parent
-        self.data_name = data_name
+        self.real_data_name = data_name
         self.data = data
         self.vertex = vertex
         self.vertex_index = vertex_index
@@ -67,6 +67,10 @@ class TraverserMatch:
         raise NotImplementedError
 
     @property
+    def data_name(self) -> str:
+        return self.real_data_name
+
+    @property
     def parent(self) -> TraverserMatch:
         return self.real_parent
 
@@ -79,7 +83,7 @@ class TraverserMatch:
 
     def __str__(self):
         real_parent = id(self.real_parent)
-        data_name = self.data_name
+        data_name = self.real_data_name
         data = type(self.data).__name__
         vertex = type(self.vertex).__name__
         vertex_index = self.vertex_index
@@ -91,7 +95,7 @@ class TraverserMatch:
         return f"self={id(self)}" \
                f" self={type(self).__name__}" \
                f" parent={real_parent}" \
-               f" data_name={data_name}" \
+               f" real_data_name={data_name}" \
                f" data={data}" \
                f" vertex={vertex}" \
                f" vertex_index={vertex_index}" \

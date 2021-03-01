@@ -1,12 +1,12 @@
 **treepath** is a [query language](https://en.wikipedia.org/wiki/Query_language) for selecting 
 [nodes](https://en.wikipedia.org/wiki/Node_(computer_science)) from a 
 [json](https://docs.python.org/3/library/json.html) data-structure. The query expressions are similar to 
-[jsonpath](https://goessner.net/articles/JsonPath/) and  
+[jsonpath](https://goessner.net/articles/JsonPath/) and 
 [Xpath](https://en.wikipedia.org/wiki/XPath),  but are written in python syntax.  
 
 
 ### Solar System Sample Data
-The sample data use by the examples in this README.  
+Sample data used by the examples in this README.  
 <details><summary>solar_system = {  ... }</summary>
 <p>
 
@@ -71,15 +71,14 @@ The sample data use by the examples in this README.
 
 ## Typical example.  
 
-When working with json data-structures, there is a need to fetch specific pieces of data deep in the tree.   A common 
-approach to this problem is writing structural code.  This approach can become quite complex depending on the json 
+When working with json data-structures, there is a need to fetch specific pieces of data in the tree.   A common 
+approach to this problem is to write structural code.  This approach can become quite complex depending on the json 
 structure and search criteria.   
 
-A more declarative approach would be to use a query language as it does a better job at communicating the intent of what 
+A more declarative approach is to use a query language as it does a better job at communicating the intent of what 
 is being searched for.  
 
-Here are two examples that fetched the planet Earth from the sample solar-system data defined above.   One is 
-structural code, and the other is query declaration.  
+Here are two examples that fetched the planet Earth from the sample solar-system data.  
 
 <table>
 <tr>

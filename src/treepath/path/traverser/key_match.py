@@ -6,4 +6,4 @@ class KeyMatch(TraverserMatch):
 
     @property
     def path_segment(self):
-        return f".{self.data_name}"
+        return f".{self.real_data_name}"

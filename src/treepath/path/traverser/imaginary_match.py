@@ -16,6 +16,10 @@ class ImaginaryMatch(TraverserMatch):
         return [self]
 
     @property
+    def data_name(self) -> str:
+        return self.real_parent.data_name
+
+    @property
     def path(self) -> str:
         return self.real_parent.path
 
@@ -24,7 +28,7 @@ class ImaginaryMatch(TraverserMatch):
         return self.real_parent.path_segment
 
     @property
-    def parent(self):
+    def parent(self) -> TraverserMatch:
         return self.real_parent.parent
 
     def traverse(self, visit: typing.Callable):
