@@ -13,7 +13,10 @@ from treepath.path.util.decorator import do_nothing
 
 def get(expression: PathBuilder, data: Union[dict, list], must_match: bool = True
         ) -> Union[dict, list, str, int, float, bool, None]:
-    return get_match(expression, data, must_match=must_match).data
+    match = get_match(expression, data, must_match=must_match)
+    if match:
+        return match.data
+    return None
 
 
 def find(expression: PathBuilder, data: Union[dict, list]) -> Iterator[Any]:

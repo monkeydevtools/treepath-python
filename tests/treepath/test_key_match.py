@@ -15,9 +15,15 @@ def test_empty_dict_wildcard_MatchNotFoundError():
         get(path.wildcard, empty_dict)
 
 
-def test_keys_x_MatchNotFoundError(keys):
+def test_keys_a_MatchNotFoundError(keys):
     with pytest.raises(MatchNotFoundError):
         get(path.a, keys)
+
+
+def test_keys_a_None(keys):
+    expected = None
+    actual = get(path.a, keys, must_match=False)
+    assert actual == expected
 
 
 def test_keys_x_a_MatchNotFoundError(keys):
