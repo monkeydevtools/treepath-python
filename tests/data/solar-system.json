@@ -2,6 +2,7 @@
   "star": {
     "name": "Sun",
     "Equatorial diameter": 109.168,
+    "age": null,
     "planets": {
       "inner": [
         {

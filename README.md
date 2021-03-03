@@ -4,6 +4,8 @@
 [jsonpath](https://goessner.net/articles/JsonPath/) and 
 [Xpath](https://en.wikipedia.org/wiki/XPath),  but are written in python syntax.  
 
+https://jsonpath.herokuapp.com
+http://xpather.com
 
 ### Solar System Sample Data
 Sample data used by the examples in this README.  
@@ -146,5 +148,35 @@ construct the same search algorithm.
 |                                              |                                     | $.star.planets.inner[0, 1]                | path.star.planets.inner[0, 2]      |
 | List planets smaller than earth              | /star/planets/inner[Equatorial_diameter < 1]   | $.star.planets.inner[?(@.['Equatorial diameter'] < 1)]              | path.star.planets.inner[wc][has(path["Equatorial diameter"] < 1)]       |
 | List celestial bodies that have planets.     | //*[planets]/name                   | $..*[?(@.planets)].name                   | path.rec[has(path.planets)].name       |
+
+
+# Search Function
+### get
+```python
+
+
+```
+
+### find
+### get_match
+### find_matches
+### match result
+
+# Expressions
+## root
+## keys
+### wildcard
+### special characters
+## arrays
+### index
+### slice
+### comma delimited
+### wildcard
+## recursion
+## filters
+### has
+### Comparison Operators
+### type conversion
+### write a customer predicate
 
 

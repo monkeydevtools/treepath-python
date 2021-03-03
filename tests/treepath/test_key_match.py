@@ -21,8 +21,8 @@ def test_keys_a_MatchNotFoundError(keys):
 
 
 def test_keys_a_None(keys):
-    expected = None
-    actual = get(path.a, keys, must_match=False)
+    expected = "abc123"
+    actual = get(path.a, keys, default="abc123")
     assert actual == expected
 
 

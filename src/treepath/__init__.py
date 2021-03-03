@@ -7,6 +7,8 @@ from treepath.path.traverser.traverser_functions import find_matches as _find_ma
 from treepath.path.traverser.traverser_functions import get as _get
 from treepath.path.traverser.traverser_functions import get_match as _get_match
 from treepath.path.traverser.traverser_functions import has as _has
+from treepath.path.traverser.traverser_functions import nested_find_matches as _nested_find_matches
+from treepath.path.traverser.traverser_functions import nested_get_match as _nested_get_match
 
 path = RootPathBuilder()
 expd = DashPathRoot()
@@ -18,6 +20,11 @@ rec = recursive
 
 get = _get
 find = _find
+
 get_match = _get_match
 find_matches = _find_matches
+
+nested_get_match = _nested_get_match
+nested_find_matches = _nested_find_matches
+
 has = _has
