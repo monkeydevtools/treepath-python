@@ -1,5 +1,5 @@
 from tests.utils.traverser_utils import gen_test_data, yria, yaia
-from treepath import path, find, wc, get, has, get_match, find_matches, nested_get_match
+from treepath import path, find, wc, get, has, get_match, find_matches, nested_get_match, pathd
 from treepath.path.exceptions.match_not_found_error import MatchNotFoundError
 
 
@@ -150,27 +150,65 @@ def test_func__nested_find_matches(solar_system):
 
 def test_func_match_class(solar_system):
     match = get_match(path.star.name, solar_system)
+
+    # The string representation of match = [path=value]
     assert repr(match) == "$.star.name=Sun"
+
+    # A list containing each match in the path
     assert match.path_as_list == [match.parent.parent, match.parent, match]
+
+    # The string representation of path the match represents
     assert match.path == "$.star.name"
-    assert match.data_name == "name"
+
+    # Key that points to the match value.  Key can be index if the parent is a list
+    assert match.data_name == "name" and match.parent.data[match.data_name] == match.data
+
+    # the value match path maps to.
     assert match.data == "Sun"
+
+    # The parent of this match
     assert match.parent.path == "$.star"
 
 
 def test_path_root(solar_system):
-    pass
+    # path  point to root of the tree
+    match = get_match(path, solar_system)
+
+    assert match.data == solar_system
+
+    # In a filter path point to the current element
+    match = get_match(path.star.name[has(path == 'Sun')], solar_system)
+
+    assert match.data == 'Sun'
 
 
 def test_path_keys(solar_system):
-    pass
+    # dict key are dynamic attribute on a path
+    inner_from_attribute = get(path.star.planets.inner, solar_system)
+    inner_from_string_keys = get(path["star"]["planets"]["inner"], solar_system)
 
-
-def test_path_keys_wildcard(solar_system):
-    pass
+    assert inner_from_attribute == inner_from_string_keys == solar_system["star"]["planets"]["inner"]
 
 
 def test_path_keys_special_characters(solar_system):
+    # dick keys that are not valid python syntax can be referenced as strings
+    sun_equatorial_diameter = get(path.star["Equatorial diameter"], solar_system)
+
+    assert sun_equatorial_diameter == solar_system["star"]["Equatorial diameter"]
+
+    # dick keys that are not valid python syntax can be referenced as strings
+    mercury_has_moons = get(path.star.planets.inner[0]["has-moons"], solar_system)
+
+    assert mercury_has_moons == solar_system["star"]["planets"]["inner"][0]["has-moons"]
+
+    # If the json has alot of attribute with dashes the pathd can used to make python syntax friendly attributes
+    value = repr(pathd.star.planets.inner[0].has_moons)
+    mercury_has_moons = get(pathd.star.planets.inner[0].has_moons, solar_system)
+
+    assert mercury_has_moons == solar_system["star"]["planets"]["inner"][0]["has-moons"]
+
+
+def test_path_keys_wildcard(solar_system):
     pass
 
 

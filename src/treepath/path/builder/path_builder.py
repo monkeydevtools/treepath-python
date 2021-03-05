@@ -2,6 +2,7 @@ from __future__ import annotations
 
 from typing import Union, Callable, Match, Any
 
+from treepath.path.builder.abstract_class_builder import AbstractPathBuilder
 from treepath.path.builder.patch_constants import wildcard
 from treepath.path.builder.path_builder_predicate import PathBuilderPredicate
 from treepath.path.builder.symbol import Symbol
@@ -38,10 +39,10 @@ def _build_key(parent_vertex: Vertex, key: Union[int, slice, Symbol, str, tuple,
         raise PathSyntaxError(parent_vertex, f" [{type(key)}] indices must be int, slice, str or PathBuilder")
 
 
-class PathBuilder(PathBuilderPredicate):
+class PathBuilder(PathBuilderPredicate, AbstractPathBuilder):
     __slots__ = _RESERVED_ATTR_FOR_VERTEX_DATA
 
-    def __init__(self, vertex):
+    def __init__(self, vertex, ):
         object.__setattr__(self, _RESERVED_ATTR_FOR_VERTEX_DATA, vertex)
 
     def __getattr__(self, name):
@@ -51,8 +52,8 @@ class PathBuilder(PathBuilderPredicate):
         self.name
         """
         parent_vertex = object.__getattribute__(self, _RESERVED_ATTR_FOR_VERTEX_DATA)
-        vertex = KeyVertex(parent_vertex, name)
-        path_builder = PathBuilder(vertex)
+        vertex = KeyVertex(parent_vertex, self.tranform_attribute_name(name))
+        path_builder = self.create_path_builder(vertex)
         return path_builder
 
     def __setattr__(self, name, value):
@@ -68,7 +69,7 @@ class PathBuilder(PathBuilderPredicate):
         """
         parent_vertex = object.__getattribute__(self, _RESERVED_ATTR_FOR_VERTEX_DATA)
         vertex = _build_key(parent_vertex, key)
-        path_builder = PathBuilder(vertex)
+        path_builder = self.create_path_builder(vertex)
         return path_builder
 
     def __setitem__(self, key, value):
@@ -87,6 +88,12 @@ class PathBuilder(PathBuilderPredicate):
     def __dir__(self):
         pass
 
+    def create_path_builder(self, *args, **kwargs):
+        return PathBuilder(*args, **kwargs)
+
+    def tranform_attribute_name(self, name):
+        return name
+
     @property
     def recursive(self):
         parent_vertex = object.__getattribute__(self, _RESERVED_ATTR_FOR_VERTEX_DATA)
@@ -96,7 +103,7 @@ class PathBuilder(PathBuilderPredicate):
                 parent_vertex,
                 "Successive recursive vertices are not allowed in the path expression."
             )
-        path_builder = PathBuilder(vertex)
+        path_builder = self.create_path_builder(vertex)
         return path_builder
 
     @property
@@ -107,7 +114,7 @@ class PathBuilder(PathBuilderPredicate):
     def wildcard(self):
         parent_vertex = object.__getattribute__(self, _RESERVED_ATTR_FOR_VERTEX_DATA)
         vertex = KeyWildVertex(parent_vertex)
-        path_builder = PathBuilder(vertex)
+        path_builder = self.create_path_builder(vertex)
         return path_builder
 
     @property
@@ -118,7 +125,7 @@ class PathBuilder(PathBuilderPredicate):
     def parent(self):
         parent_vertex = object.__getattribute__(self, _RESERVED_ATTR_FOR_VERTEX_DATA)
         vertex = ParentVertex(parent_vertex)
-        path_builder = PathBuilder(vertex)
+        path_builder = self.create_path_builder(vertex)
         return path_builder
 
 

@@ -11,7 +11,7 @@ from treepath.path.traverser.traverser_functions import nested_find_matches as _
 from treepath.path.traverser.traverser_functions import nested_get_match as _nested_get_match
 
 path = RootPathBuilder()
-expd = DashPathRoot()
+pathd = DashPathRoot()
 
 wildcard = _wildcard
 wc = wildcard
