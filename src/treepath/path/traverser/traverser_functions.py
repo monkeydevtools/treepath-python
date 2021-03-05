@@ -36,9 +36,11 @@ def get_match(expression: PathBuilder, data: Union[dict, list], must_match: bool
     try:
         return next(traverser_iter)
     except StopIteration:
-        if must_match:
-            raise MatchNotFoundError(vertex)
-        return None
+        pass
+    if must_match:
+        raise MatchNotFoundError(vertex)
+    return None
+
 
 
 def find_matches(expression: PathBuilder, data: Union[dict, list]) -> Iterator[Match]:
@@ -55,9 +57,11 @@ def nested_get_match(expression: PathBuilder, parent_match: Match, must_match: b
     try:
         return next(traverser_iter)
     except StopIteration:
-        if must_match:
-            raise MatchNotFoundError(vertex)
-        return None
+        pass
+    if must_match:
+        raise MatchNotFoundError(vertex)
+    return None
+
 
 
 def nested_find_matches(expression: PathBuilder, parent_match: Match) -> Iterator[Match]:
@@ -69,45 +73,37 @@ def nested_find_matches(expression: PathBuilder, parent_match: Match) -> Iterato
 
 def _has(has_func):
     """
-    A decorator for has to allow for dynamic args
-    (expression, operator_, convert_type)
-    (expression, operator_, )
-    (expression)
-    ((expression, operator_), convert_type) maps to (expression, operator_, convert_type)
-    ((expression, operator_)) maps to (expression, operator_)
+    A decorator for unpacking a tuple that might be hidden in first arg
     """
 
     def _unpack(*args):
-        outer_length = len(args)
         first_arg = args[0]
-        expression = first_arg
-        single_arg_operator = operator.truth
-        single_arg_convert_type = do_nothing
-        if outer_length > 1:
-            single_arg_operator = args[1]
-            single_arg_convert_type = single_arg_operator
+        path = first_arg
+        new_args = []
         if isinstance(first_arg, tuple):
-            expression = first_arg[0]
-            single_arg_operator = first_arg[1]
-        if outer_length > 2:
-            single_arg_convert_type = args[2]
-
-        return has_func(expression, single_arg_operator, single_arg_convert_type)
-
+            path = first_arg[0]
+            hidden_single_arg_function = first_arg[1]
+            new_args.append(hidden_single_arg_function)
+        for single_arg_function  in args[1:]:
+            new_args.append(single_arg_function)
+        return has_func(path, *new_args)
     return _unpack
 
 
 @_has
-def has(
-        expression: PathBuilder,
-        single_arg_operator: Callable[[Any], bool],
-        single_arg_convert_type: Callable[[Any], Any]) -> Callable[[Match], Any]:
-    match_iter = functools.partial(nested_find_matches, expression)
+def has(path: PathBuilder, *single_arg_function: [Callable[[Any], Any]]) -> Callable[[Match], Any]:
+    match_iter = functools.partial(nested_find_matches, path)
 
     def create_has_predicate():
         def has_predicate(parent_match: Match):
             for next_match in match_iter(parent_match):
-                if single_arg_operator(single_arg_convert_type(next_match.data)):
+                if len(single_arg_function) == 0:
+                    return True
+
+                value = next_match.data
+                for function in single_arg_function[::-1]:
+                    value = function(value)
+                if value:
                     return True
             return False
 

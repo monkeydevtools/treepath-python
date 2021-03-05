@@ -1,5 +1,5 @@
 from tests.utils.traverser_utils import gen_test_data, yria, yaia
-from treepath import path, find, wc, get, has, get_match, find_matches, nested_get_match, pathd
+from treepath import path, find, wc, get, has, get_match, find_matches, nested_get_match, pathd, wildcard
 from treepath.path.exceptions.match_not_found_error import MatchNotFoundError
 
 
@@ -22,18 +22,6 @@ def test_get_earth(solar_system):
 def test_list_names_of_all_inner_planets(solar_system):
     expected = ['Mercury', 'Venus', 'Earth', 'Mars']
     actual = [p for p in find(path.star.planets.inner[wc].name, solar_system)]
-    assert actual == expected
-
-
-def test_list_names_of_all_planets_wc(solar_system):
-    expected = ['Mercury', 'Venus', 'Earth', 'Mars', 'Jupiter', 'Saturn', 'Uranus', 'Neptune']
-    actual = [p for p in find(path.star.planets.wc[wc].name, solar_system)]
-    assert actual == expected
-
-
-def test_names_of_all_the_celestial_bodies(solar_system):
-    expected = ['Sun', 'Mercury', 'Venus', 'Earth', 'Mars', 'Jupiter', 'Saturn', 'Uranus', 'Neptune']
-    actual = [p for p in find(path.rec.name, solar_system)]
     assert actual == expected
 
 
@@ -201,7 +189,8 @@ def test_path_keys_special_characters(solar_system):
 
     assert mercury_has_moons == solar_system["star"]["planets"]["inner"][0]["has-moons"]
 
-    # If the json has alot of attribute with dashes the pathd can used to make python syntax friendly attributes
+    # If the json has a lot of attribute with dashes, pathd can be use to interpret underscore as dashes
+    # in attribute names.
     value = repr(pathd.star.planets.inner[0].has_moons)
     mercury_has_moons = get(pathd.star.planets.inner[0].has_moons, solar_system)
 
@@ -209,39 +198,119 @@ def test_path_keys_special_characters(solar_system):
 
 
 def test_path_keys_wildcard(solar_system):
-    pass
+    # wildcard is useful for iterating over attributes
+    star_children = [child for child in find(path.star.wildcard, solar_system)]
+    assert star_children == [solar_system["star"]["name"],
+                             solar_system["star"]["Equatorial diameter"],
+                             solar_system["star"]["age"],
+                             solar_system["star"]["planets"], ]
+
+    # wc for short
+    star_children = [child for child in find(path.star.wc, solar_system)]
+    assert star_children == [solar_system["star"]["name"],
+                             solar_system["star"]["Equatorial diameter"],
+                             solar_system["star"]["age"],
+                             solar_system["star"]["planets"], ]
 
 
 def test_path_list(solar_system):
-    pass
+    # list can be access using index
+    earth = get(path.star.planets.inner[2], solar_system)
+    assert earth == solar_system["star"]["planets"]["inner"][2]
 
 
 def test_path_list_slice(solar_system):
-    pass
+    # list can be access using slices
+    # first to planets
+    first_two = [planet for planet in find(path.star.planets.outer[:2].name, solar_system)]
+    assert first_two == ["Jupiter", "Saturn"]
+
+    # last to planets
+    last_two = [planet for planet in find(path.star.planets.outer[-2:].name, solar_system)]
+    assert last_two == ["Uranus", "Neptune"]
+
+    # all outer planets reversed
+    last_two = [planet for planet in find(path.star.planets.outer[::-1].name, solar_system)]
+    assert last_two == ["Neptune", "Uranus", "Saturn", "Jupiter"]
+
+    # The last inner planet and the last outer planet
+    # The inner and outer list are still treated a separate list
+    # notice the wildcard
+    last_two = [planet for planet in find(path.star.wc.wc[-1:].name, solar_system)]
+    assert last_two == ["Mars", "Neptune"]
 
 
 def test_path_list_comma_delimited(solar_system):
-    pass
+    # comma delimited index work too.
+    last_and_first = [planet for planet in find(path.star.planets.outer[3, 0].name, solar_system)]
+    assert last_and_first == ["Neptune", "Jupiter"]
 
 
 def test_path_list_wildcard(solar_system):
-    pass
+    # wildcard can be used as a list index
+    all_outer = [planet for planet in find(path.star.planets.outer[wildcard].name, solar_system)]
+    assert all_outer == ["Jupiter", "Saturn", "Uranus", "Neptune"]
+
+    # wc for short
+    all_outer = [planet for planet in find(path.star.planets.outer[wc].name, solar_system)]
+    assert all_outer == ["Jupiter", "Saturn", "Uranus", "Neptune"]
+
+    # combine dict wildcard and list wildcard
+    all_planets = [p for p in find(path.star.planets.wc[wc].name, solar_system)]
+    assert all_planets == ['Mercury', 'Venus', 'Earth', 'Mars', 'Jupiter', 'Saturn', 'Uranus', 'Neptune']
 
 
 def test_path_recursion(solar_system):
-    pass
+    # using recursive search to find all the planet names
+    all_planets = [p for p in find(path.star.planets.recursive.name, solar_system)]
+    assert all_planets == ['Mercury', 'Venus', 'Earth', 'Mars', 'Jupiter', 'Saturn', 'Uranus', 'Neptune']
 
+    # rec for short
+    all_planets = [p for p in find(path.star.planets.rec.name, solar_system)]
+    assert all_planets == ['Mercury', 'Venus', 'Earth', 'Mars', 'Jupiter', 'Saturn', 'Uranus', 'Neptune']
 
-def test_path_filter(solar_system):
-    pass
+    # using recursive search to find all the celestial bodies names
+    all_celestial_bodies = [p for p in find(path.rec.name, solar_system)]
+    assert all_celestial_bodies == ['Sun', 'Mercury', 'Venus', 'Earth', 'Mars', 'Jupiter', 'Saturn', 'Uranus',
+                                    'Neptune']
 
 
 def test_path_filter_has(solar_system):
-    pass
+    # filters can be used filter on attribute existence
+    # celestial bodies that have planets
+    sun = get(path.rec[has(path.planets)].name, solar_system)
+    assert sun == "Sun"
+
+    # filter all celestial bodies that have a has-moon attribute
+    all_celestial_bodies_moon_attribute = [planet for planet in find(path.rec[has(pathd.has_moons)].name, solar_system)]
+    assert all_celestial_bodies_moon_attribute == ['Mercury', 'Venus', 'Earth', 'Mars', 'Jupiter', 'Saturn', 'Uranus',
+                                                   'Neptune']
+
+    # filter all celestial bodies that have a moons
+    all_celestial_bodies_moon_attribute = [planet for planet in find(path.rec[has(pathd.has_moons == True)].name, solar_system)]
+    assert all_celestial_bodies_moon_attribute == ['Earth', 'Mars', 'Jupiter', 'Saturn', 'Uranus', 'Neptune']
 
 
 def test_path_filter_comparison_operators(solar_system):
-    pass
+
+    # filters with comparison operators
+    earth = [planet for planet in find(path.rec[has(pathd["Equatorial diameter"] == 1.000)].name, solar_system)]
+    assert earth == ['Earth']
+
+    earth = [planet for planet in find(path.rec[has(pathd["Equatorial diameter"] != 1.000)].name, solar_system)]
+    assert earth == ['Sun', 'Mercury', 'Venus', 'Mars', 'Jupiter', 'Saturn', 'Uranus', 'Neptune']
+
+    earth = [planet for planet in find(path.rec[has(pathd["Equatorial diameter"] > 1.000)].name, solar_system)]
+    assert earth == ['Sun', 'Jupiter', 'Saturn', 'Uranus', 'Neptune']
+
+    earth = [planet for planet in find(path.rec[has(pathd["Equatorial diameter"] >= 1.000)].name, solar_system)]
+    assert earth == ['Sun', 'Earth', 'Jupiter', 'Saturn', 'Uranus', 'Neptune']
+
+    earth = [planet for planet in find(path.rec[has(pathd["Equatorial diameter"] < 1.000)].name, solar_system)]
+    assert earth == ['Mercury', 'Venus', 'Mars']
+
+    earth = [planet for planet in find(path.rec[has(pathd["Equatorial diameter"] <= 1.000)].name, solar_system)]
+    assert earth == ['Mercury', 'Venus', 'Earth', 'Mars']
 
 
 def test_path_filter_comparison_type_conversion(solar_system):

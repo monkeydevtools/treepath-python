@@ -8,7 +8,7 @@ from treepath.path.traverser.traverser_match import TraverserMatch
 class TraversingError(TreepathException, RuntimeError):
     """TraversingError is raised when path expression cannot traverse the data structure"""
 
-    def __init__(self, get_match: TraverserMatch, error_msg):
+    def __init__(self, match: TraverserMatch, error_msg):
         self.match = Match(match)
         self.error_msg = error_msg
         super().__init__(match.vertex)
