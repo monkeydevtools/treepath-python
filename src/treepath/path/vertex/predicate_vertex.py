@@ -1,6 +1,7 @@
 from typing import Union
 
 from treepath.path.exceptions.traversing_error import TraversingError
+from treepath.path.exceptions.treepath_exception import TreepathException
 from treepath.path.traverser.imaginary_match import ImaginaryMatch
 from treepath.path.traverser.match import Match
 from treepath.path.traverser.traverser_match import TraverserMatch
@@ -31,7 +32,7 @@ class PredicateVertex(Vertex):
                     parent_match.remembered_on_catch_action
                 )
                 return match
-        except TraversingError as te:
+        except TreepathException as te:
             raise te
         except Exception as e:
             error_message = f"Evaluation of predicate failed because of error: {e}"

@@ -74,6 +74,10 @@ class TraverserMatch:
     def parent(self) -> TraverserMatch:
         return self.real_parent
 
+    @property
+    def remembered_parent(self):
+        return self.parent
+
     def traverse(self, visit: typing.Callable):
         self.real_parent.traverse(visit)
         visit(self)

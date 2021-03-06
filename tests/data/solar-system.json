@@ -1,50 +1,58 @@
 {
   "star": {
     "name": "Sun",
-    "Equatorial diameter": 109.168,
+    "diameter": 1391016,
     "age": null,
     "planets": {
       "inner": [
         {
           "name": "Mercury",
-          "Equatorial diameter": 0.383,
+          "Number of Moons": "0",
+          "diameter": 4879,
           "has-moons": false
         },
         {
           "name": "Venus",
-          "Equatorial diameter": 0.949,
+          "Number of Moons": "0",
+          "diameter": 12104,
           "has-moons": false
         },
         {
           "name": "Earth",
-          "Equatorial diameter": 1.000,
+          "Number of Moons": "1",
+          "diameter": 12756,
           "has-moons": true
         },
         {
           "name": "Mars",
-          "Equatorial diameter": 0.532,
+          "Number of Moons": "2",
+         "diameter": 6792,
           "has-moons": true
         }
       ],
       "outer": [
         {
           "name": "Jupiter",
-          "Equatorial diameter": 11.209,
+          "Number of Moons": "79",
+          "diameter": 142984,
           "has-moons": true
         },
         {
           "name": "Saturn",
-          "Equatorial diameter": 9.449,
+          "Number of Moons": "82",
+          "diameter": 120536,
           "has-moons": true
         },
         {
           "name": "Uranus",
-          "Equatorial diameter": 4.007,
+          "Number of Moons": "27",
+          "diameter": 51118,
           "has-moons": true
         },
         {
           "name": "Neptune",
-          "Equatorial diameter": 3.883,
+          "Number of Moons": "14",
+          "diameter": 49528,
           "has-moons": true
         }
       ]

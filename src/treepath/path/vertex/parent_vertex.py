@@ -1,7 +1,6 @@
 from typing import Union
 
-from treepath.path.traverser.key_match import KeyMatch
-from treepath.path.traverser.list_match import ListMatch
+from treepath.path.traverser.parent_match import ParentMatch
 from treepath.path.traverser.traverser_match import TraverserMatch
 from treepath.path.vertex.vertex import Vertex
 
@@ -16,25 +15,16 @@ class ParentVertex(Vertex):
         return f".{self.name}"
 
     def match(self, parent_match: TraverserMatch, traverser, vertex_index: int) -> Union[TraverserMatch, None]:
+        remembered_parent = parent_match.remembered_parent
 
-        grand_parent = parent_match.parent
-
-        if not grand_parent:
+        if not remembered_parent:
             return None
 
-        grand_parent_data = grand_parent.data
-
-        if isinstance(grand_parent_data, dict):
-            constructor = KeyMatch
-        elif isinstance(grand_parent_data, list):
-            constructor = ListMatch
-        else:
-            return None
-
-        return constructor(
+        return ParentMatch(
+            remembered_parent,
             parent_match,
-            f"<-{grand_parent.data_name}",
-            grand_parent_data,
+            remembered_parent.data_name,
+            remembered_parent.data,
             self,
             vertex_index,
             parent_match.remembered_on_catch_match,

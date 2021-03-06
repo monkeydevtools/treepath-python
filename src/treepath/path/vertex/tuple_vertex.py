@@ -1,5 +1,6 @@
 from typing import Union
 
+from treepath.path.exceptions.path_syntax_error import PathSyntaxError
 from treepath.path.traverser.key_match import KeyMatch
 from treepath.path.traverser.list_match import ListMatch
 from treepath.path.traverser.traverser_match import TraverserMatch
@@ -22,9 +23,17 @@ class TupleVertex(Vertex):
         self._tuple = tuple_
         super().__init__(parent, tuple_)
         self.is_catch_vertex = True
+        self.validate_tuple()
 
     def path_segment(self):
         return repr(self._tuple)
+
+    def validate_tuple(self):
+        for value in self._tuple:
+            if not (isinstance(value, int) or isinstance(value, str)):
+                raise PathSyntaxError(self,
+                                      f" [{type(self.name)}] indices must be int"
+                                      f" or str PathBuilder")
 
     def match(self, parent_match: TraverserMatch, traverser, vertex_index: int) -> Union[TraverserMatch, None]:
 

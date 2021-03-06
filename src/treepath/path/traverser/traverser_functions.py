@@ -1,14 +1,14 @@
 import functools
-import operator
 from typing import Union, Iterator, Callable, Any
 
 from treepath.path.builder.path_builder import PathBuilder, get_vertex_from_path_builder
+from treepath.path.builder.path_builder_predicate import PathBuilderPredicate
+from treepath.path.builder.path_predicate import PathPredicate
 from treepath.path.exceptions.match_not_found_error import MatchNotFoundError
 from treepath.path.traverser.match import Match
 from treepath.path.traverser.match_traverser import MatchTraverser
 from treepath.path.traverser.nested_match_traverser import NestedMatchTraverser
 from treepath.path.traverser.value_traverser import ValueTraverser
-from treepath.path.util.decorator import do_nothing
 
 _not_set = dict()
 
@@ -42,7 +42,6 @@ def get_match(expression: PathBuilder, data: Union[dict, list], must_match: bool
     return None
 
 
-
 def find_matches(expression: PathBuilder, data: Union[dict, list]) -> Iterator[Match]:
     vertex = get_vertex_from_path_builder(expression)
     traverser = MatchTraverser(data, vertex)
@@ -63,7 +62,6 @@ def nested_get_match(expression: PathBuilder, parent_match: Match, must_match: b
     return None
 
 
-
 def nested_find_matches(expression: PathBuilder, parent_match: Match) -> Iterator[Match]:
     vertex = get_vertex_from_path_builder(expression)
     traverser = NestedMatchTraverser(parent_match._traverser_match, vertex)
@@ -71,42 +69,62 @@ def nested_find_matches(expression: PathBuilder, parent_match: Match) -> Iterato
     return traverser_iter
 
 
-def _has(has_func):
-    """
-    A decorator for unpacking a tuple that might be hidden in first arg
-    """
+def has(
+        path: Union[PathBuilderPredicate, PathPredicate],
+        *single_arg_functions: [Callable[[Any], Any]]) -> Callable[[Match], Any]:
+    if isinstance(path, PathPredicate):
+        real_path = path.path
+        single_arg_operation = path.operation
+    else:
+        real_path = path
+        single_arg_operation = None
 
-    def _unpack(*args):
-        first_arg = args[0]
-        path = first_arg
-        new_args = []
-        if isinstance(first_arg, tuple):
-            path = first_arg[0]
-            hidden_single_arg_function = first_arg[1]
-            new_args.append(hidden_single_arg_function)
-        for single_arg_function  in args[1:]:
-            new_args.append(single_arg_function)
-        return has_func(path, *new_args)
-    return _unpack
+    match_iter = functools.partial(nested_find_matches, real_path)
 
-
-@_has
-def has(path: PathBuilder, *single_arg_function: [Callable[[Any], Any]]) -> Callable[[Match], Any]:
-    match_iter = functools.partial(nested_find_matches, path)
-
-    def create_has_predicate():
+    if single_arg_operation and single_arg_functions:
         def has_predicate(parent_match: Match):
             for next_match in match_iter(parent_match):
-                if len(single_arg_function) == 0:
-                    return True
 
                 value = next_match.data
-                for function in single_arg_function[::-1]:
+                for function in single_arg_functions[::-1]:
                     value = function(value)
+
+                value = single_arg_operation(value)
+
                 if value:
                     return True
             return False
 
         return has_predicate
 
-    return create_has_predicate()
+    if not single_arg_operation and single_arg_functions:
+        def has_predicate(parent_match: Match):
+            for next_match in match_iter(parent_match):
+
+                value = next_match.data
+                for function in single_arg_functions[::-1]:
+                    value = function(value)
+
+                if value:
+                    return True
+            return False
+
+        return has_predicate
+
+    if single_arg_operation and not single_arg_functions:
+        def has_predicate(parent_match: Match):
+            for next_match in match_iter(parent_match):
+                value = single_arg_operation(next_match.data)
+                if value:
+                    return True
+            return False
+
+        return has_predicate
+
+    else:
+        def has_predicate(parent_match: Match):
+            for next_match in match_iter(parent_match):
+                return True
+            return False
+
+        return has_predicate

@@ -36,7 +36,9 @@ def _build_key(parent_vertex: Vertex, key: Union[int, slice, Symbol, str, tuple,
     elif callable(key):
         return PredicateVertex(parent_vertex, key)
     else:
-        raise PathSyntaxError(parent_vertex, f" [{type(key)}] indices must be int, slice, str or PathBuilder")
+        raise PathSyntaxError(parent_vertex,
+                              f" [{type(key)}] indices must be int, slice, tuple, str, "
+                              f"wildcard, has(function), or callable")
 
 
 class PathBuilder(PathBuilderPredicate, AbstractPathBuilder):
