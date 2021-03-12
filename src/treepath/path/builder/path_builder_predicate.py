@@ -1,38 +1,39 @@
 import operator
 
 from treepath.path.builder.path_predicate import PathPredicate
-
-
-def create_partial_operator(operator_, b):
-    def partial_operator_(a):
-        return operator_(a, b)
-
-    return partial_operator_
+from treepath.path.util.decorator import pretty_rep
+from treepath.path.util.function import create_partial_operator
 
 
 class PathBuilderPredicate:
     __slots__ = ()
 
-    def __lt__(self, other):
+    def __lt__(self, other) -> PathPredicate:
         operator_ = create_partial_operator(operator.__lt__, other)
-        return PathPredicate(self, operator_)
+        pretty = pretty_rep(lambda: f"< {other}")
+        return PathPredicate(self, pretty(operator_))
 
-    def __le__(self, other):
+    def __le__(self, other) -> PathPredicate:
         operator_ = create_partial_operator(operator.__le__, other)
-        return PathPredicate(self, operator_)
+        pretty = pretty_rep(lambda: f"<= {other}")
+        return PathPredicate(self, pretty(operator_))
 
-    def __eq__(self, other):
+    def __eq__(self, other) -> PathPredicate:
         operator_ = create_partial_operator(operator.__eq__, other)
-        return PathPredicate(self, operator_)
+        pretty = pretty_rep(lambda: f"== {other}")
+        return PathPredicate(self, pretty(operator_))
 
-    def __ne__(self, other):
+    def __ne__(self, other) -> PathPredicate:
         operator_ = create_partial_operator(operator.__ne__, other)
-        return PathPredicate(self, operator_)
+        pretty = pretty_rep(lambda: f"!= {other}")
+        return PathPredicate(self, pretty(operator_))
 
-    def __gt__(self, other):
+    def __gt__(self, other) -> PathPredicate:
         operator_ = create_partial_operator(operator.__gt__, other)
-        return PathPredicate(self, operator_)
+        pretty = pretty_rep(lambda: f"> {other}")
+        return PathPredicate(self, pretty(operator_))
 
-    def __ge__(self, other):
+    def __ge__(self, other) -> PathPredicate:
         operator_ = create_partial_operator(operator.__ge__, other)
-        return PathPredicate(self, operator_)
+        pretty = pretty_rep(lambda: f">= {other}")
+        return PathPredicate(self, pretty(operator_))

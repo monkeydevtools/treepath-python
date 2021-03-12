@@ -1,10 +1,3 @@
-def create_partial_operator(operator_, b):
-    def partial_operator_(a):
-        return operator_(a, b)
-
-    return partial_operator_
-
-
 class AbstractPathBuilder:
     __slots__ = ()
 

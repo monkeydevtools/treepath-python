@@ -1,4 +1,4 @@
-from treepath import path, wildcard, wc
+from treepath import path, wildcard, wc, has
 
 
 def test_root():
@@ -169,4 +169,71 @@ def test_root_rec():
 def test_root_a_rec():
     expected = "$.a.."
     actual = str(path.a.rec)
+    assert actual == expected
+
+
+def test_root_a_has_b():
+    expected = "$.a[has($.b)]"
+    actual = str(path.a[has(path.b)])
+    assert actual == expected
+
+
+def test_root_a_has_b_lt():
+    expected = "$.a[has($.b < 1)]"
+    actual = str(path.a[has(path.b < 1)])
+    assert actual == expected
+
+
+def test_root_a_has_b_le():
+    expected = "$.a[has($.b <= 1)]"
+    actual = str(path.a[has(path.b <= 1)])
+    assert actual == expected
+
+
+def test_root_a_has_b_eq():
+    expected = "$.a[has($.b == 1)]"
+    actual = str(path.a[has(path.b == 1)])
+    assert actual == expected
+
+
+def test_root_a_has_b_ne():
+    expected = "$.a[has($.b != 1)]"
+    actual = str(path.a[has(path.b != 1)])
+    assert actual == expected
+
+
+def test_root_a_has_b_gt():
+    expected = "$.a[has($.b > 1)]"
+    actual = str(path.a[has(path.b > 1)])
+    assert actual == expected
+
+
+def test_root_a_has_b_ge():
+    expected = "$.a[has($.b >= 1)]"
+    actual = str(path.a[has(path.b >= 1)])
+    assert actual == expected
+
+
+def test_root_a_has_b_one_func():
+    expected = f"$.a[has($.b, {int})]"
+    actual = str(path.a[has(path.b, int)])
+    assert actual == expected
+
+
+def test_root_a_has_b_two_func():
+    expected = f"$.a[has($.b, {float}, {float})]"
+    actual = str(path.a[has(path.b, float, float)])
+    assert actual == expected
+
+
+def test_root_a_has_b_three_func():
+    expected = f"$.a[has($.b, {test_root_a_has_b_three_func}, {test_root_a_has_b_three_func}, {test_root_a_has_b_three_func})]"
+    actual = str(
+        path.a[has(path.b, test_root_a_has_b_three_func, test_root_a_has_b_three_func, test_root_a_has_b_three_func)])
+    assert actual == expected
+
+
+def test_root_a_has_b_eq_one_func():
+    expected = f"$.a[has($.b == 1, {int})]"
+    actual = str(path.a[has(path.b == 1, int)])
     assert actual == expected

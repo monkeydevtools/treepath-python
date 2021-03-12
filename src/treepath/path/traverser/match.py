@@ -50,9 +50,10 @@ class Match:
 
     def __eq__(self, other):
         return self is other \
-               or (isinstance(other, Match)
-                   and (self._traverser_match is other._traverser_match)
-                   or (self.data == other.data) and (self.parent == other.parent))
+               or isinstance(other, Match) and \
+               ((self._traverser_match is other._traverser_match)
+                or (self.data == other.data) and (self.parent == other.parent)
+                )
 
     def __ne__(self, other):
         return not self.__eq__(other)

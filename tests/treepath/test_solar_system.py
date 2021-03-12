@@ -1,3 +1,5 @@
+import re
+
 from tests.utils.traverser_utils import gen_test_data, yria, yaia
 from treepath import path, find, wc, get, has, get_match, find_matches, nested_get_match, pathd, wildcard
 from treepath.path.exceptions.match_not_found_error import MatchNotFoundError
@@ -176,12 +178,12 @@ def test_path_keys(solar_system):
 
 
 def test_path_keys_special_characters(solar_system):
-    # dick keys that are not valid python syntax can be referenced as strings
+    # dict keys that are not valid python syntax can be referenced as strings
     sun_equatorial_diameter = get(path.star.planets.inner[0]["Number of Moons"], solar_system)
 
     assert sun_equatorial_diameter == solar_system["star"]["planets"]["inner"][0]["Number of Moons"]
 
-    # dick keys that are not valid python syntax can be referenced as strings
+    # dict keys that are not valid python syntax can be referenced as strings
     mercury_has_moons = get(path.star.planets.inner[0]["has-moons"], solar_system)
 
     assert mercury_has_moons == solar_system["star"]["planets"]["inner"][0]["has-moons"]
@@ -240,6 +242,12 @@ def test_path_list_comma_delimited(solar_system):
     # comma delimited index work too.
     last_and_first = [planet for planet in find(path.star.planets.outer[3, 0].name, solar_system)]
     assert last_and_first == ["Neptune", "Jupiter"]
+
+    # comma delimited keys works too.
+    last_and_first = [planet for planet in find(path.star["diameter", "name"], solar_system)]
+    assert last_and_first == [1391016, "Sun"]
+
+
 
 
 def test_path_list_wildcard(solar_system):
@@ -351,3 +359,13 @@ def test_path_filter_customer_predicate(solar_system):
 
     earth = [planet for planet in find(path.rec[my_neighbor_is_earth].name, solar_system)]
     assert earth == ['Venus', 'Mars']
+
+
+
+def test_path_filter_regex(solar_system):
+
+    # match values by regular expression
+    # Find the planets that end with s
+    pattern = re.compile(r"\w+s")
+    earth = [planet for planet in find(path.rec[has(path.name, pattern.match)].name, solar_system)]
+    assert earth == ['Venus', 'Mars', 'Uranus']
