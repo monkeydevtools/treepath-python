@@ -31,7 +31,7 @@ class MatchTraverser:
         count = 1000000000
         while result is None:
             result = self._invoke_next_action()
-            count = count - 1
+            count -= 1
             if count < 0:
                 raise InfiniteLoopDetected(
                     self.current_match,

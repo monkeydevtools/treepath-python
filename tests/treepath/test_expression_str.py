@@ -227,7 +227,9 @@ def test_root_a_has_b_two_func():
 
 
 def test_root_a_has_b_three_func():
-    expected = f"$.a[has($.b, {test_root_a_has_b_three_func}, {test_root_a_has_b_three_func}, {test_root_a_has_b_three_func})]"
+    expected = f"$.a[has($.b, {test_root_a_has_b_three_func}, " \
+               f"{test_root_a_has_b_three_func}, " \
+               f"{test_root_a_has_b_three_func})]"
     actual = str(
         path.a[has(path.b, test_root_a_has_b_three_func, test_root_a_has_b_three_func, test_root_a_has_b_three_func)])
     assert actual == expected
