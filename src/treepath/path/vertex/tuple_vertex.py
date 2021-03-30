@@ -25,6 +25,7 @@ class TupleVertex(Vertex):
         self.is_catch_vertex = True
         self.validate_tuple()
 
+    @property
     def path_segment(self):
         return repr(self._tuple)
 

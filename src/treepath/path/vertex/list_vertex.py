@@ -11,6 +11,7 @@ class _ListVertex(Vertex):
     def __init__(self, parent, name):
         super().__init__(parent, name)
 
+    @property
     def path_segment(self):
         return f"[{self.name}]"
 
@@ -53,6 +54,7 @@ class ListSliceVertex(_ListVertex):
         super().__init__(parent, slice_)
         self.is_catch_vertex = True
 
+    @property
     def path_segment(self):
         slice_ = self._slice
         start = slice_.start
@@ -101,6 +103,7 @@ class ListWildVertex(_ListVertex):
         super().__init__(parent, '*')
         self.is_catch_vertex = True
 
+    @property
     def path_segment(self):
         return "[*]"
 

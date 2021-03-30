@@ -1,6 +1,6 @@
 from __future__ import annotations
 
-import typing
+from typing import List, Any, Callable
 
 
 class TraverserMatch:
@@ -36,7 +36,7 @@ class TraverserMatch:
         self.remembered_on_catch_action = remembered_on_catch_action
 
     @property
-    def path_as_list(self) -> list:
+    def path_as_list(self) -> List[TraverserMatch]:
         path_as_list = self._path_as_list
         if path_as_list != self:
             return path_as_list
@@ -78,7 +78,7 @@ class TraverserMatch:
     def remembered_parent(self):
         return self.parent
 
-    def traverse(self, visit: typing.Callable):
+    def traverse(self, visit: Callable[[Any], None]):
         self.real_parent.traverse(visit)
         visit(self)
 

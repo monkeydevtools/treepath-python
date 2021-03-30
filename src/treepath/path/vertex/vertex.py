@@ -1,3 +1,5 @@
+from __future__ import annotations
+
 from typing import Union, Callable
 
 from treepath.path.traverser.traverser_match import TraverserMatch
@@ -41,10 +43,11 @@ class Vertex:
             return path
 
         path_as_list = self.path_as_list
-        path = ''.join(vertex.path_segment() for vertex in path_as_list)
+        path = ''.join(vertex.path_segment for vertex in path_as_list)
         self._path = path
         return path
 
+    @property
     def path_segment(self):
         return self.name
 

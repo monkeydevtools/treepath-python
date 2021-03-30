@@ -11,6 +11,7 @@ class ParentVertex(Vertex):
     def __init__(self, parent):
         super().__init__(parent, "parent")
 
+    @property
     def path_segment(self):
         return f".{self.name}"
 

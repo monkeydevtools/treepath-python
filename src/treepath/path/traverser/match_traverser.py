@@ -1,3 +1,5 @@
+from typing import Callable
+
 from treepath.path.exceptions.infinite_loop_detected import InfiniteLoopDetected
 from treepath.path.exceptions.stop_traversing import StopTraversing
 from treepath.path.traverser.match import Match
@@ -12,15 +14,21 @@ class MatchTraverser:
                 'root_data', \
                 '_invoke_next_action', \
                 'current_match', \
-                'root_match'
+                'root_match', \
+                'trace'
 
-    def __init__(self, root_data, leaf_vertex: Vertex):
+    def __init__(self,
+                 root_data,
+                 leaf_vertex: Vertex,
+                 trace: Callable[[Match, Match, Vertex], None] = None
+                 ):
         self.vertex_path = leaf_vertex.path_as_list
         self.leaf_vertex = leaf_vertex
         self.root_data = root_data
         self._invoke_next_action = self.done_action
         self.current_match = None
         self.root_match = None
+        self.trace = trace
 
     def __iter__(self):
         self._invoke_next_action = self.init_action
@@ -31,8 +39,8 @@ class MatchTraverser:
         count = 1000000000
         while result is None:
             result = self._invoke_next_action()
-            count -= 1
-            if count < 0:
+            count += -1
+            if not count:
                 raise InfiniteLoopDetected(
                     self.current_match,
                     "A 1000000000 iteration have occurred since the __next__ last return.   Possible infinite loop "
@@ -78,6 +86,9 @@ class MatchTraverser:
 
         # apply the get_match
         next_match = next_vertex.match(current_match, self, next_vertex_index)
+
+        if self.trace:
+            self.trace(Match(current_match), Match(next_match), next_vertex)
 
         if next_match:
             self.current_match = next_match

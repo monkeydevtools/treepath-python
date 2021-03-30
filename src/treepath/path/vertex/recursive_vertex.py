@@ -23,12 +23,13 @@ class RecursiveVertex(Vertex):
         super().__init__(parent, ".")
         self.is_catch_vertex = True
 
+    @property
     def path_segment(self):
         return f"."
 
     @property
     def path(self):
-        return ''.join(vertex.path_segment() for vertex in self.path_as_list) + "."
+        return ''.join(vertex.path_segment for vertex in self.path_as_list) + "."
 
     def match(self, parent_match: TraverserMatch, traverser, vertex_index: int) -> Union[TraverserMatch, None]:
 

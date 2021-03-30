@@ -11,6 +11,7 @@ class KeyVertex(Vertex):
     def __init__(self, parent, name):
         super().__init__(parent, name)
 
+    @property
     def path_segment(self):
         return f".{self.name}"
 
@@ -41,6 +42,7 @@ class KeyWildVertex(Vertex):
         super().__init__(parent, '*')
         self.is_catch_vertex = True
 
+    @property
     def path_segment(self):
         return ".*"
 
