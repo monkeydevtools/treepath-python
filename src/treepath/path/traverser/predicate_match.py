@@ -11,10 +11,17 @@ class PredicateMatch(Match):
 
     @property
     def trace(self):
-        def predicate_trace(last_match: Match, next_match: Match, next_vertex: Vertex, predicate_match: Match = None):
-            if predicate_match:
-                self._trace(last_match, next_match, next_vertex, predicate_match=predicate_match)
-            else:
-                self._trace(last_match, next_match, next_vertex, predicate_match=self)
 
-        return predicate_trace
+        trace = self._trace
+
+        if trace:
+            def predicate_trace(last_match: Match, next_match: Match, next_vertex: Vertex,
+                                predicate_match: Match = None):
+                if predicate_match:
+                    trace(last_match, next_match, next_vertex, predicate_match=predicate_match)
+                else:
+                    trace(last_match, next_match, next_vertex, predicate_match=self)
+
+            return predicate_trace
+        else:
+            return None
