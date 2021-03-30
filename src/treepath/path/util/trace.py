@@ -26,7 +26,6 @@ def _log(log: Callable[[str], None], last_match: Match, next_match: Match, next_
         predicate_path = f" at {predicate_match.path}"
         message = message.replace(predicate_path, " has".ljust(len(predicate_path)), 1)
 
-
     log(message)
 
 
