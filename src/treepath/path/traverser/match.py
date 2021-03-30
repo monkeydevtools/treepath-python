@@ -1,6 +1,4 @@
-from __future__ import annotations
-
-from typing import Union, List
+from typing import Union, List, Any
 
 from treepath.path.traverser.traverser_match import TraverserMatch
 from treepath.path.vertex.vertex import Vertex
@@ -15,7 +13,7 @@ class Match:
         self._traverser_match = traverser_match
 
     @property
-    def path_as_list(self) -> List[Match]:
+    def path_as_list(self) -> List[Any]:
         return [Match(traverser_match) for traverser_match in self._traverser_match.path_as_list]
 
     @property
@@ -27,7 +25,7 @@ class Match:
         return self._traverser_match.path_segment
 
     @property
-    def parent(self) -> Union[Match, None]:
+    def parent(self) -> Union[Any, None]:
         parent = self._traverser_match.parent
         if parent:
             return Match(parent)

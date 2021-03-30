@@ -1,5 +1,3 @@
-from __future__ import annotations
-
 from typing import Union, Callable
 
 from treepath.path.traverser.traverser_match import TraverserMatch

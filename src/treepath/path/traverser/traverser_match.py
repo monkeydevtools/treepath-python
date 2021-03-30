@@ -1,5 +1,3 @@
-from __future__ import annotations
-
 from typing import List, Any, Callable
 
 
@@ -36,7 +34,7 @@ class TraverserMatch:
         self.remembered_on_catch_action = remembered_on_catch_action
 
     @property
-    def path_as_list(self) -> List[TraverserMatch]:
+    def path_as_list(self) -> List[Any]:
         path_as_list = self._path_as_list
         if path_as_list != self:
             return path_as_list
@@ -71,7 +69,7 @@ class TraverserMatch:
         return self.real_data_name
 
     @property
-    def parent(self) -> TraverserMatch:
+    def parent(self):
         return self.real_parent
 
     @property

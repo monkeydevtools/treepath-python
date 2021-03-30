@@ -1,5 +1,3 @@
-from __future__ import annotations
-
 from typing import Union, Callable, Match, Any
 
 from treepath.path.builder.abstract_class_builder import AbstractPathBuilder
