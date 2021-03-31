@@ -11,10 +11,10 @@ from treepath.path.traverser.match_traverser import MatchTraverser
 from treepath.path.traverser.nested_match_traverser import NestedMatchTraverser
 from treepath.path.traverser.nested_value_traverser import NestedValueTraverser
 from treepath.path.traverser.predicate_match import PredicateMatch
+from treepath.path.traverser.trace import Trace
 from treepath.path.traverser.value_traverser import ValueTraverser
 from treepath.path.util.decorator import pretty_rep
 from treepath.path.util.function import tuple_iterable
-from treepath.path.vertex.vertex import Vertex
 
 _not_set = dict()
 
@@ -23,7 +23,7 @@ def get(
         expression: PathBuilder,
         data: Union[dict, list, Match],
         default=_not_set,
-        trace: Callable[[Match, Match, Vertex], None] = None
+        trace: Callable[[Trace], None] = None
 ) -> Union[dict, list, str, int, float, bool, None]:
     must_match = (default is _not_set)
     match = get_match(expression, data, must_match=must_match, trace=trace)
@@ -35,7 +35,7 @@ def get(
 def find(
         expression: PathBuilder,
         data: Union[dict, list, Match],
-        trace: Callable[[Match, Match, Vertex], None] = None
+        trace: Callable[[Trace], None] = None
 ) -> Iterator[Union[dict, list, str, int, float, bool, None]]:
     if isinstance(data, Match):
         return nested_find(expression, data, trace=trace)
@@ -50,7 +50,7 @@ def get_match(
         expression: PathBuilder,
         data: Union[dict, list, Match],
         must_match: bool = True,
-        trace: Callable[[Match, Match, Vertex], None] = None
+        trace: Callable[[Trace], None] = None
 ) -> Union[Match, None]:
     if isinstance(data, Match):
         return nested_get_match(expression, data, must_match=must_match, trace=trace)
@@ -70,7 +70,7 @@ def get_match(
 def find_matches(
         expression: PathBuilder,
         data: Union[dict, list, Match],
-        trace: Callable[[Match, Match, Vertex], None] = None
+        trace: Callable[[Trace], None] = None
 ) -> Iterator[Match]:
     if isinstance(data, Match):
         return nested_find_matches(expression, data, trace=trace)
@@ -84,7 +84,7 @@ def find_matches(
 def nested_find(
         expression: PathBuilder,
         parent_match: Match,
-        trace: Callable[[Match, Match, Vertex], None] = None
+        trace: Callable[[Trace], None] = None
 ) -> Iterator[Union[dict, list, str, int, float, bool, None]]:
     if isinstance(parent_match, PredicateMatch):
         trace = parent_match.trace
@@ -99,7 +99,7 @@ def nested_get_match(
         expression: PathBuilder,
         parent_match: Match,
         must_match: bool = True,
-        trace: Callable[[Match, Match, Vertex], None] = None
+        trace: Callable[[Trace], None] = None
 ) -> Union[Match, None]:
     if isinstance(parent_match, PredicateMatch):
         trace = parent_match.trace
@@ -119,7 +119,7 @@ def nested_get_match(
 def nested_find_matches(
         expression: PathBuilder,
         parent_match: Match,
-        trace: Callable[[Match, Match, Vertex], None] = None
+        trace: Callable[[Trace], None] = None
 ) -> Iterator[Match]:
     if isinstance(parent_match, PredicateMatch):
         trace = parent_match.trace

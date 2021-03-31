@@ -1,8 +1,8 @@
 from typing import Callable
 
-from treepath import Match
 from treepath.path.traverser.imaginary_match import ImaginaryMatch
 from treepath.path.traverser.match_traverser import MatchTraverser
+from treepath.path.traverser.trace import Trace
 from treepath.path.traverser.traverser_match import TraverserMatch
 from treepath.path.vertex.vertex import Vertex
 
@@ -13,7 +13,7 @@ class NestedMatchTraverser(MatchTraverser):
     def __init__(self,
                  nested_match: TraverserMatch,
                  leaf_vertex: Vertex,
-                 trace: Callable[[Match, Match, Vertex], None] = None
+                 trace: Callable[[Trace], None] = None
                  ):
         super().__init__(nested_match.data, leaf_vertex, trace=trace)
         self.nested_match = nested_match

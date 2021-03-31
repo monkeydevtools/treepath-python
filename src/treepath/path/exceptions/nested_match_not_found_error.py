@@ -1,5 +1,5 @@
-from treepath import Match
 from treepath.path.exceptions.match_not_found_error import MatchNotFoundError
+from treepath.path.traverser.match import Match
 from treepath.path.vertex.vertex import Vertex
 
 

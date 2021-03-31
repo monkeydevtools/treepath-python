@@ -5,6 +5,7 @@ from treepath.path.builder.patch_constants import wc
 from treepath.path.builder.patch_constants import wildcard
 from treepath.path.builder.root_path_builder import RootPathBuilder
 from treepath.path.traverser.match import Match
+from treepath.path.traverser.trace import log_to
 from treepath.path.traverser.traverser_functions import find
 from treepath.path.traverser.traverser_functions import find_matches
 from treepath.path.traverser.traverser_functions import get
