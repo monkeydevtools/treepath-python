@@ -37,7 +37,7 @@ class MatchTraverser:
 
     def __next__(self) -> Match:
         result = None
-        count = 1000000000
+        count = 1000000
         while result is None:
             result = self._invoke_next_action()
             count += -1

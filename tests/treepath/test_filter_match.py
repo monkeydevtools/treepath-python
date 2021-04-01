@@ -1,6 +1,7 @@
 from tests.utils.traverser_utils import *
 from treepath import get, path, find_matches, has, get_match, wc, find
 from treepath.path.exceptions.match_not_found_error import MatchNotFoundError
+from treepath.path.traverser.imaginary_match import ImaginaryMatch
 from treepath.path.traverser.match import Match
 
 
@@ -24,6 +25,12 @@ def test_keys_get_root_x_were_root_has_y(keys):
     expected = keys["x"]
     actual = get(path[has(path.y)].x, keys)
     assert actual == expected
+
+
+def test_keys_get_match_rec_verify_imaginary_match_path_as_list_correct(keys):
+    actual = get_match(path.x.x.rec, keys)
+    assert isinstance(actual._traverser_match, ImaginaryMatch)
+    assert actual.path_as_list == [actual.parent.parent, actual.parent, actual]
 
 
 def test_keys_match_all_root_wc_has_x(keys):

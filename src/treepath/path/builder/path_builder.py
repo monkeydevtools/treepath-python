@@ -37,8 +37,10 @@ def _build_key(parent_vertex: Vertex, key: Union[int, slice, Symbol, str, tuple,
         return PredicateVertex(parent_vertex, key)
     else:
         raise PathSyntaxError(parent_vertex,
-                              f" [{type(key)}] indices must be int, slice, tuple, str, "
-                              f"wildcard, has(function), or callable")
+                              f"Unsupported indices: [{type(key)}].  Indices must be either an int, slice, tuple, "
+                              f"str, wildcard, has(function), or callable.",
+                              f"[{key}]"
+                              )
 
 
 class PathBuilder(PathBuilderPredicate, AbstractPathBuilder):
@@ -87,9 +89,6 @@ class PathBuilder(PathBuilderPredicate, AbstractPathBuilder):
     def __str__(self):
         return self.__repr__()
 
-    def __dir__(self):
-        pass
-
     def create_path_builder(self, *args, **kwargs):
         return PathBuilder(*args, **kwargs)
 
@@ -103,7 +102,8 @@ class PathBuilder(PathBuilderPredicate, AbstractPathBuilder):
         if isinstance(parent_vertex, RecursiveVertex):
             raise PathSyntaxError(
                 parent_vertex,
-                "Successive recursive vertices are not allowed in the path expression."
+                "Successive recursive vertices are not allowed in the path expression.",
+                "recursive"
             )
         path_builder = self.create_path_builder(vertex)
         return path_builder
