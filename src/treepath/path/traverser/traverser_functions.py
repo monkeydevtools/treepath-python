@@ -13,7 +13,7 @@ from treepath.path.traverser.nested_value_traverser import NestedValueTraverser
 from treepath.path.traverser.predicate_match import PredicateMatch
 from treepath.path.traverser.trace import Trace
 from treepath.path.traverser.value_traverser import ValueTraverser
-from treepath.path.util.decorator import pretty_rep
+from treepath.path.util.decorator import pretty_repr
 from treepath.path.util.function import tuple_iterable
 
 _not_set = dict()
@@ -86,9 +86,6 @@ def nested_find(
         parent_match: Match,
         trace: Callable[[Trace], None] = None
 ) -> Iterator[Union[dict, list, str, int, float, bool, None]]:
-    if isinstance(parent_match, PredicateMatch):
-        trace = parent_match.trace
-
     vertex = get_vertex_from_path_builder(expression)
     traverser = NestedValueTraverser(parent_match._traverser_match, vertex, trace=trace)
     traverser_iter = iter(traverser)
@@ -142,7 +139,7 @@ def has(
     match_iter = functools.partial(nested_find_matches, real_path)
 
     if single_arg_operation and single_arg_functions:
-        @pretty_rep(
+        @pretty_repr(
             lambda: f"has({real_path} {single_arg_operation}, {', '.join(tuple_iterable(single_arg_functions))})")
         def has_predicate(parent_match: Match):
             for next_match in match_iter(parent_match):
@@ -160,7 +157,7 @@ def has(
         return has_predicate
 
     if not single_arg_operation and single_arg_functions:
-        @pretty_rep(lambda: f"has({real_path}, {', '.join(tuple_iterable(single_arg_functions))})")
+        @pretty_repr(lambda: f"has({real_path}, {', '.join(tuple_iterable(single_arg_functions))})")
         def has_predicate(parent_match: Match):
             for next_match in match_iter(parent_match):
 
@@ -175,7 +172,7 @@ def has(
         return has_predicate
 
     if single_arg_operation and not single_arg_functions:
-        @pretty_rep(lambda: f"has({real_path} {single_arg_operation})")
+        @pretty_repr(lambda: f"has({real_path} {single_arg_operation})")
         def has_predicate(parent_match: Match):
             for next_match in match_iter(parent_match):
                 value = single_arg_operation(next_match.data)
@@ -186,7 +183,7 @@ def has(
         return has_predicate
 
     else:
-        @pretty_rep(lambda: f"has({real_path})")
+        @pretty_repr(lambda: f"has({real_path})")
         def has_predicate(parent_match: Match):
             for next_match in match_iter(parent_match):
                 return True

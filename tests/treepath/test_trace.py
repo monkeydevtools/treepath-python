@@ -125,7 +125,6 @@ def test_keys_find_rec_x_trace(keys):
         ' at $.x. got no match'
     ]
 
-
     actual_trace_messages = []
 
     def mock_print(message):
@@ -134,4 +133,38 @@ def test_keys_find_rec_x_trace(keys):
     for _ in find(path.x.rec.x, keys, trace=log_to(mock_print)):
         pass
 
+    assert actual_trace_messages == expected_trace_messages
+
+
+def test_a_k_k_a_k_k_k_a_multiple_has(a_k_k_a_k_k_k_a):
+    expected_trace_messages = [
+        " at $[0] got [0] == {'x': {'x': [{'x': {...",
+        "    has .x got .x == {'x': [{'x': {'x': {...",
+        "    has .x.x got .x == [{'x': {'x': {'x': [...",
+        "    has .x.x[1] got [1] == {'x': {'x': {'x': ['...",
+        " at $[0][has($.x.x[1])] got [0] == {'x': {'x': [{'x': {...",
+        " at $[0].y got .y == {'x': [{'x': {'x': {...",
+        " at $[0].y.y got .y == [{'x': {'x': {'x': [...",
+        " at $[0].y.y[0] got [0] == {'x': {'x': {'x': ['...",
+        "           has .x got .x == {'x': {'x': ['973', ...",
+        "           has .x.x got .x == {'x': ['973', '974',...",
+        "               has .z got .z == ['979', '980', '981'...",
+        "           has .x.x[has($.z)] got .x == {'x': ['973', '974',...",
+        "           has .x.x.x got .x == ['973', '974', '975'...",
+        "           has .x.x.x[1] got [1] == '974'",
+        " at $[0].y.y[0][has($.x.x[has($.z)].x[1])] got [0] == {'x': {'x': {'x': ['...",
+        " at $[0].y.y[0].y got .y == {'x': {'x': ['1000',...",
+        " at $[0].y.y[0].y.y got .y == {'x': ['1009', '1010...",
+        " at $[0].y.y[0].y.y.y got .y == ['1012', '1013', '10...",
+        " at $[0].y.y[0].y.y.y[0] got [0] == '1012'"
+    ]
+
+    actual_trace_messages = []
+
+    def mock_print(message):
+        actual_trace_messages.append(message)
+
+    a = get(path[0][has(path.x.x[1])].y.y[0][has(path.x.x[has(path.z)].x[1])].y.y.y[0], a_k_k_a_k_k_k_a,
+            trace=log_to(mock_print))
+    assert a == '1012'
     assert actual_trace_messages == expected_trace_messages

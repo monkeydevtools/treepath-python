@@ -127,7 +127,7 @@ def test_func_nested_get_match(solar_system):
     assert match is None
 
 
-def test_func__nested_find_matches(solar_system):
+def test_func_nested_find_matches(solar_system):
     # find_matches returns an Iterator of all matches
     # The match object knows its index
     for planet_match in find_matches(path.star.planets.inner[wc], solar_system):

@@ -9,7 +9,7 @@ def do_nothing(value):
     return value
 
 
-def pretty_rep(pretty_rep_: Callable[[], str]):
+def pretty_repr(pretty_rep_: Callable[[], str]):
     class PrettyRep:
         __slots__ = '_operator', '_pretty_rep'
 

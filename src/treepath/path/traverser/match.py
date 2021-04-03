@@ -50,7 +50,7 @@ class Match:
         return repr(self._traverser_match)
 
     def __str__(self):
-        return repr(self._traverser_match)
+        return self.__repr__()
 
     def __eq__(self, other):
         return self is other \
