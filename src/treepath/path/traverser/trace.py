@@ -1,4 +1,3 @@
-import logging
 from typing import Callable
 
 from treepath.path.traverser.match import Match
@@ -60,5 +59,3 @@ def log_to(out: Callable[[str], None]):
         _log(out, trace)
 
     return to_out
-
-

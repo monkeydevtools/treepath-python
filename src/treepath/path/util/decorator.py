@@ -17,8 +17,8 @@ def pretty_repr(pretty_rep_: Callable[[], str]):
             self._operator = operator_
             self._pretty_rep = pretty_rep_
 
-        def __call__(self, arg):
-            return self._operator(arg)
+        def __call__(self, *args):
+            return self._operator(*args)
 
         def __repr__(self):
             return self._pretty_rep()

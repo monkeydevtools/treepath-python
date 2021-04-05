@@ -1,4 +1,3 @@
-import functools
 from typing import Union, Iterator, Callable, Any
 
 from treepath.path.builder.path_builder import PathBuilder, get_vertex_from_path_builder
@@ -6,6 +5,7 @@ from treepath.path.builder.path_builder_predicate import PathBuilderPredicate
 from treepath.path.builder.path_predicate import PathPredicate
 from treepath.path.exceptions.match_not_found_error import MatchNotFoundError
 from treepath.path.exceptions.nested_match_not_found_error import NestedMatchNotFoundError
+from treepath.path.traverser.has_function import create_has_predicate
 from treepath.path.traverser.match import Match
 from treepath.path.traverser.match_traverser import MatchTraverser
 from treepath.path.traverser.nested_match_traverser import NestedMatchTraverser
@@ -13,8 +13,6 @@ from treepath.path.traverser.nested_value_traverser import NestedValueTraverser
 from treepath.path.traverser.predicate_match import PredicateMatch
 from treepath.path.traverser.trace import Trace
 from treepath.path.traverser.value_traverser import ValueTraverser
-from treepath.path.util.decorator import pretty_repr
-from treepath.path.util.function import tuple_iterable
 
 _not_set = dict()
 
@@ -129,64 +127,22 @@ def nested_find_matches(
 def has(
         path: Union[PathBuilderPredicate, PathPredicate],
         *single_arg_functions: [Callable[[Any], Any]]) -> Callable[[Match], Any]:
-    if isinstance(path, PathPredicate):
-        real_path = path.path
-        single_arg_operation = path.operation
-    else:
-        real_path = path
-        single_arg_operation = None
+    return create_has_predicate(nested_find_matches, path, *single_arg_functions)
 
-    match_iter = functools.partial(nested_find_matches, real_path)
 
-    if single_arg_operation and single_arg_functions:
-        @pretty_repr(
-            lambda: f"has({real_path} {single_arg_operation}, {', '.join(tuple_iterable(single_arg_functions))})")
-        def has_predicate(parent_match: Match):
-            for next_match in match_iter(parent_match):
+def has_args(*args):
+    def process_arg(arg):
+        if isinstance(arg, tuple):
+            return create_has_predicate(nested_find_matches, *arg)
+        else:
+            return create_has_predicate(nested_find_matches, arg)
 
-                value = next_match.data
-                for function in single_arg_functions[::-1]:
-                    value = function(value)
+    has_predicates = [process_arg(arg) for arg in args]
 
-                value = single_arg_operation(value)
+    def wrap(function):
+        def predecate(parent_match):
+            return function(parent_match, *has_predicates)
 
-                if value:
-                    return True
-            return False
+        return predecate
 
-        return has_predicate
-
-    if not single_arg_operation and single_arg_functions:
-        @pretty_repr(lambda: f"has({real_path}, {', '.join(tuple_iterable(single_arg_functions))})")
-        def has_predicate(parent_match: Match):
-            for next_match in match_iter(parent_match):
-
-                value = next_match.data
-                for function in single_arg_functions[::-1]:
-                    value = function(value)
-
-                if value:
-                    return True
-            return False
-
-        return has_predicate
-
-    if single_arg_operation and not single_arg_functions:
-        @pretty_repr(lambda: f"has({real_path} {single_arg_operation})")
-        def has_predicate(parent_match: Match):
-            for next_match in match_iter(parent_match):
-                value = single_arg_operation(next_match.data)
-                if value:
-                    return True
-            return False
-
-        return has_predicate
-
-    else:
-        @pretty_repr(lambda: f"has({real_path})")
-        def has_predicate(parent_match: Match):
-            for next_match in match_iter(parent_match):
-                return True
-            return False
-
-        return has_predicate
+    return wrap
