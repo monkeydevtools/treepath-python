@@ -24,3 +24,11 @@ def pretty_repr(pretty_rep_: Callable[[], str]):
             return self._pretty_rep()
 
     return PrettyRep
+
+
+def add_attr(attr_name, attr_value):
+    def _add_attr(func):
+        setattr(func, attr_name, attr_value)
+        return func
+
+    return _add_attr

@@ -42,7 +42,7 @@ def _log(log: Callable[[str], None], trace: Trace):
         next_match_path_segment = trace.next_match.path_segment
         data = repr(trace.next_match.data)
         trunc_data = data if len(data) < 20 else data[:20] + '...'
-        result = f"{next_match_path_segment} == {trunc_data}"
+        result = f"{trunc_data}"
     else:
         result = 'no match'
     message = f" at {last_path}{vertex_path_segment} got {result}"

@@ -5,10 +5,6 @@ from treepath.path.builder.path_builder_predicate import PathBuilderPredicate
 from treepath.path.builder.path_predicate import PathPredicate
 from treepath.path.traverser.match import Match
 from treepath.path.util.decorator import pretty_repr
-from treepath.path.util.function import tuple_iterable
-
-
-
 
 
 def create_has_predicate(
@@ -48,7 +44,7 @@ def _create_has_predecate_with_single_arg_operator_and_value_remap(
         value_remap
 ):
     @pretty_repr(
-        lambda: f"has({real_path} {single_arg_operator}, {', '.join(tuple_iterable(value_remap))})")
+        lambda: f"has({real_path} {single_arg_operator}, {', '.join(map(repr, value_remap))})")
     def has_predicate(parent_match: Match):
         for next_match in match_iter(parent_match):
 
@@ -66,7 +62,7 @@ def _create_has_predecate_with_single_arg_operator_and_value_remap(
 
 
 def _create_has_predecate_with_value_remap(real_path, match_iter, value_remap):
-    @pretty_repr(lambda: f"has({real_path}, {', '.join(tuple_iterable(value_remap))})")
+    @pretty_repr(lambda: f"has({real_path}, {', '.join(map(repr, value_remap))})")
     def has_predicate(parent_match: Match):
         for next_match in match_iter(parent_match):
 

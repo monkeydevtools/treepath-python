@@ -13,6 +13,7 @@ from treepath.path.traverser.nested_value_traverser import NestedValueTraverser
 from treepath.path.traverser.predicate_match import PredicateMatch
 from treepath.path.traverser.trace import Trace
 from treepath.path.traverser.value_traverser import ValueTraverser
+from treepath.path.util.decorator import pretty_repr, add_attr
 
 _not_set = dict()
 
@@ -23,6 +24,9 @@ def get(
         default=_not_set,
         trace: Callable[[Trace], None] = None
 ) -> Union[dict, list, str, int, float, bool, None]:
+    """
+
+    """
     must_match = (default is _not_set)
     match = get_match(expression, data, must_match=must_match, trace=trace)
     if match:
@@ -35,6 +39,9 @@ def find(
         data: Union[dict, list, Match],
         trace: Callable[[Trace], None] = None
 ) -> Iterator[Union[dict, list, str, int, float, bool, None]]:
+    """
+
+    """
     if isinstance(data, Match):
         return nested_find(expression, data, trace=trace)
 
@@ -50,6 +57,9 @@ def get_match(
         must_match: bool = True,
         trace: Callable[[Trace], None] = None
 ) -> Union[Match, None]:
+    """
+
+    """
     if isinstance(data, Match):
         return nested_get_match(expression, data, must_match=must_match, trace=trace)
 
@@ -70,6 +80,9 @@ def find_matches(
         data: Union[dict, list, Match],
         trace: Callable[[Trace], None] = None
 ) -> Iterator[Match]:
+    """
+
+    """
     if isinstance(data, Match):
         return nested_find_matches(expression, data, trace=trace)
 
@@ -84,6 +97,9 @@ def nested_find(
         parent_match: Match,
         trace: Callable[[Trace], None] = None
 ) -> Iterator[Union[dict, list, str, int, float, bool, None]]:
+    """
+
+    """
     vertex = get_vertex_from_path_builder(expression)
     traverser = NestedValueTraverser(parent_match._traverser_match, vertex, trace=trace)
     traverser_iter = iter(traverser)
@@ -96,6 +112,9 @@ def nested_get_match(
         must_match: bool = True,
         trace: Callable[[Trace], None] = None
 ) -> Union[Match, None]:
+    """
+
+    """
     if isinstance(parent_match, PredicateMatch):
         trace = parent_match.trace
 
@@ -116,6 +135,9 @@ def nested_find_matches(
         parent_match: Match,
         trace: Callable[[Trace], None] = None
 ) -> Iterator[Match]:
+    """
+
+    """
     if isinstance(parent_match, PredicateMatch):
         trace = parent_match.trace
     vertex = get_vertex_from_path_builder(expression)
@@ -124,13 +146,10 @@ def nested_find_matches(
     return traverser_iter
 
 
-def has(
-        path: Union[PathBuilderPredicate, PathPredicate],
-        *single_arg_functions: [Callable[[Any], Any]]) -> Callable[[Match], Any]:
-    return create_has_predicate(nested_find_matches, path, *single_arg_functions)
-
-
 def has_args(*args):
+    """
+
+    """
     def process_arg(arg):
         if isinstance(arg, tuple):
             return create_has_predicate(nested_find_matches, *arg)
@@ -140,9 +159,21 @@ def has_args(*args):
     has_predicates = [process_arg(arg) for arg in args]
 
     def wrap(function):
+        @pretty_repr(
+            lambda: f"{', '.join(map(repr, has_predicates))}")
         def predecate(parent_match):
             return function(parent_match, *has_predicates)
 
         return predecate
 
     return wrap
+
+
+@add_attr("args", has_args)
+def has(
+        path: Union[PathBuilderPredicate, PathPredicate],
+        *single_arg_functions: [Callable[[Any], Any]]) -> Callable[[Match], Any]:
+    """
+
+    """
+    return create_has_predicate(nested_find_matches, path, *single_arg_functions)
