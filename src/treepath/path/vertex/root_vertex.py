@@ -24,4 +24,4 @@ class RootVertex(Vertex):
         visit(self)
 
     def match(self, parent_match: TraverserMatch, traverser, vertex_index: int) -> typing.Union[TraverserMatch, None]:
-        raise TraversingError(parent_match, f"The path {self.name} is not traversable.  ")
+        raise TraversingError(parent_match, f"Possible Bug.  The root match method should never be called.")

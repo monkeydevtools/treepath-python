@@ -1,14 +1,6 @@
 from typing import Callable
 
 
-def do_nothing(value):
-    """
-    Return the argument
-    return the argument value
-    """
-    return value
-
-
 def pretty_repr(pretty_rep_: Callable[[], str]):
     class PrettyRep:
         __slots__ = '_operator', '_pretty_rep'

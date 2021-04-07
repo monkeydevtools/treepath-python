@@ -1,9 +1,10 @@
 from __future__ import annotations
 
+from abc import abstractmethod, ABC, abstractproperty
 from typing import List, Any, Callable
 
 
-class TraverserMatch:
+class TraverserMatch(ABC):
     __slots__ = 'real_parent', \
                 'real_data_name', \
                 'data', \
@@ -63,6 +64,7 @@ class TraverserMatch:
         return path
 
     @property
+    @abstractmethod
     def path_segment(self) -> str:
         raise NotImplementedError
 

@@ -87,7 +87,8 @@ class PathBuilder(PathBuilderPredicate, AbstractPathBuilder):
         return repr(vertex)
 
     def __str__(self):
-        return self.__repr__()
+        vertex = object.__getattribute__(self, _RESERVED_ATTR_FOR_VERTEX_DATA)
+        return str(vertex)
 
     def create_path_builder(self, *args, **kwargs):
         return PathBuilder(*args, **kwargs)

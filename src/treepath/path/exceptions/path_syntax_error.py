@@ -7,10 +7,10 @@ from treepath.path.vertex.vertex import Vertex
 class PathSyntaxError(TreepathException, SyntaxError):
     """PathSyntaxError is raised when there is an syntax issue with the path"""
 
-    def __init__(self, vertex: Vertex, error_msg, invalid_path_segment):
+    def __init__(self, parent_vertex: Vertex, error_msg, invalid_path_segment):
         self.error_msg = error_msg
         self.invalid_path_segment = invalid_path_segment
-        super().__init__(vertex)
+        super().__init__(parent_vertex)
 
     def _resolve_msg(self):
         path = repr(self.vertex)

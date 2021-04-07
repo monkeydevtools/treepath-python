@@ -161,10 +161,10 @@ def has_args(*args):
     def wrap(function):
         @pretty_repr(
             lambda: f"{', '.join(map(repr, has_predicates))}")
-        def predecate(parent_match):
+        def predicate(parent_match):
             return function(parent_match, *has_predicates)
 
-        return predecate
+        return predicate
 
     return wrap
 
