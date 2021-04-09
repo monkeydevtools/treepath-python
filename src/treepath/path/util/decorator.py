@@ -15,6 +15,9 @@ def pretty_repr(pretty_rep_: Callable[[], str]):
         def __repr__(self):
             return self._pretty_rep()
 
+        def __str__(self):
+            return self._pretty_rep()
+
     return PrettyRep
 
 

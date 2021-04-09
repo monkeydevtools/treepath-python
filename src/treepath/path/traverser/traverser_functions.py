@@ -1,4 +1,4 @@
-from typing import Union, Iterator, Callable, Any
+from typing import Union, Iterator, Callable, Any, Tuple
 
 from treepath.path.builder.path_builder import PathBuilder, get_vertex_from_path_builder
 from treepath.path.builder.path_builder_predicate import PathBuilderPredicate
@@ -146,21 +146,21 @@ def nested_find_matches(
     return traverser_iter
 
 
-def has_args(*args):
+def has_these(*args: Tuple[Union[PathBuilderPredicate, PathPredicate, Callable[[Match], Any]]], repr_join_key=', '):
     """
 
     """
-    def process_arg(arg):
+
+    def process_has_arg(arg):
         if isinstance(arg, tuple):
             return create_has_predicate(nested_find_matches, *arg)
         else:
             return create_has_predicate(nested_find_matches, arg)
 
-    has_predicates = [process_arg(arg) for arg in args]
+    has_predicates = [process_has_arg(arg) for arg in args]
 
     def wrap(function):
-        @pretty_repr(
-            lambda: f"{', '.join(map(repr, has_predicates))}")
+        @pretty_repr(lambda: f"{repr_join_key.join(map(repr, has_predicates))}")
         def predicate(parent_match):
             return function(parent_match, *has_predicates)
 
@@ -169,9 +169,39 @@ def has_args(*args):
     return wrap
 
 
-@add_attr("args", has_args)
+def has_all(*args: Union[PathBuilderPredicate, PathPredicate, Callable[[Match], Any]]):
+    """
+
+    """
+
+    @has.these(*args, repr_join_key=' and ')
+    def and_predicate(parent_match: Match, *predicates) -> Any:
+        for predicate in predicates:
+            if not predicate(parent_match):
+                return False
+        return True
+
+    return and_predicate
+
+
+def has_any(*args: Union[PathBuilderPredicate, PathPredicate, Callable[[Match], Any]]):
+    """
+
+    """
+
+    @has.these(*args, repr_join_key=' or ')
+    def or_predicate(parent_match: Match, *predicates) -> Any:
+        for predicate in predicates:
+            if predicate(parent_match):
+                return True
+        return False
+
+    return or_predicate
+
+
+@add_attr("these", has_these)
 def has(
-        path: Union[PathBuilderPredicate, PathPredicate],
+        path: Union[PathBuilderPredicate, PathPredicate, Callable[[Match], Any]],
         *single_arg_functions: [Callable[[Any], Any]]) -> Callable[[Match], Any]:
     """
 

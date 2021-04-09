@@ -1,13 +1,24 @@
+import os
+
 from tests.utils.traverser_utils import *
-from treepath import get, path, find_matches, has, get_match, wc, find
-from treepath.path.exceptions.match_not_found_error import MatchNotFoundError
+from treepath import get, path, find_matches, has, get_match, wc, find, MatchNotFoundError, PathSyntaxError, Match, \
+    has_all, has_any
 from treepath.path.traverser.imaginary_match import ImaginaryMatch
-from treepath.path.traverser.match import Match
 
 
 def test_keys_get_root_has_a_MatchNotFoundError(keys):
     with pytest.raises(MatchNotFoundError):
         get(path[has(path.a)], keys)
+
+
+def test_PathSyntaxError_validate_message(keys):
+    expected = "PathSyntaxError(Invalid  path [<class 'int'>] argument.   Expecting PathBuilderPredicate, " \
+               f"PathPredicate,  or Callable[[Match], Any]]{os.linesep}" \
+               "  path: None)"
+    with pytest.raises(PathSyntaxError) as exc_info:
+        has(1)
+
+    assert repr(exc_info.value) == expected
 
 
 def test_keys_get_root_has_x(keys):
@@ -220,3 +231,128 @@ def test_keys_custom_filter(keys):
     expected = "2"
     actual = get(path.x.x.wc[custom_filter], keys)
     assert actual == expected
+
+
+def test_keys_get_root_has_x_and_y_and_z(keys):
+    expected = keys
+    actual = get(path[has_all(path.x, path.y, path.z)], keys)
+    assert actual == expected
+
+
+def test_keys_get_root_has_x_and_y_and_a(keys):
+    with pytest.raises(MatchNotFoundError):
+        get(path[has_all(path.x, path.y, path.a)], keys)
+
+
+def test_keys_get_root_has_x_or_y_or_z(keys):
+    expected = keys
+    actual = get(path[has_any(path.x, path.b, path.c)], keys)
+    assert actual == expected
+
+    actual = get(path[has_any(path.a, path.y, path.c)], keys)
+    assert actual == expected
+
+    actual = get(path[has_any(path.a, path.b, path.z)], keys)
+    assert actual == expected
+
+
+def test_keys_get_root_has_a_or_b_and_c(keys):
+    with pytest.raises(MatchNotFoundError):
+        get(path[has_any(path.a, path.b, path.c)], keys)
+
+
+def test_keys_get_root_has_these_order_one(keys):
+    keys["a"] = {"b": {"c": ':)'}}
+
+    def zp(parent_match: Match):
+        return parent_match.data.get('z', None) == '27'
+
+    @has.these((path.x == 1, int), path.y == '14', path.c, zp)
+    def predicate(parent_match: Match, one, two, three, four):
+        return one(parent_match) or two(parent_match) or three(parent_match) or four(parent_match)
+
+    itr = find(path.wc.wc[predicate], keys)
+    actual = next(itr)
+    assert actual == {"x": "1", "y": "2", "z": "3"}
+
+    actual = next(itr)
+    assert actual == {'x': '13', 'y': '14', 'z': '15'}
+
+    actual = next(itr)
+    assert actual == {"x": "25", "y": "26", "z": "27"}
+
+    actual = next(itr)
+    assert actual == {"c": ':)'}
+
+
+def test_keys_get_root_has_these_order_two(keys):
+    keys["a"] = {"b": {"c": ':)'}}
+
+    def zp(parent_match: Match):
+        return parent_match.data.get('z', None) == '27'
+
+    @has.these(zp, (path.x == 1, int), path.y == '14', path.c)
+    def predicate(parent_match: Match, one, two, three, four):
+        return one(parent_match) or two(parent_match) or three(parent_match) or four(parent_match)
+
+    itr = find(path.wc.wc[predicate], keys)
+
+    actual = next(itr)
+    assert actual == {"x": "1", "y": "2", "z": "3"}
+
+    actual = next(itr)
+    assert actual == {'x': '13', 'y': '14', 'z': '15'}
+
+    actual = next(itr)
+    assert actual == {"x": "25", "y": "26", "z": "27"}
+
+    actual = next(itr)
+    assert actual == {"c": ':)'}
+
+
+def test_keys_get_root_has_these_order_three(keys):
+    keys["a"] = {"b": {"c": ':)'}}
+
+    def zp(parent_match: Match):
+        return parent_match.data.get('z', None) == '27'
+
+    @has.these(path.c, zp, (path.x == 1, int), path.y == '14')
+    def predicate(parent_match: Match, one, two, three, four):
+        return one(parent_match) or two(parent_match) or three(parent_match) or four(parent_match)
+
+    itr = find(path.wc.wc[predicate], keys)
+    actual = next(itr)
+    assert actual == {"x": "1", "y": "2", "z": "3"}
+
+    actual = next(itr)
+    assert actual == {'x': '13', 'y': '14', 'z': '15'}
+
+    actual = next(itr)
+    assert actual == {"x": "25", "y": "26", "z": "27"}
+
+    actual = next(itr)
+    assert actual == {"c": ':)'}
+
+
+def test_keys_get_root_has_these_order_four(keys):
+    keys["a"] = {"b": {"c": ':)'}}
+
+    def zp(parent_match: Match):
+        return parent_match.data.get('z', None) == '27'
+
+    @has.these(path.y == '14', path.c, zp, (path.x == 1, int))
+    def predicate(parent_match: Match, one, two, three, four):
+        return one(parent_match) or two(parent_match) or three(parent_match) or four(parent_match)
+
+    itr = find(path.wc.wc[predicate], keys)
+    actual = next(itr)
+    assert actual == {"x": "1", "y": "2", "z": "3"}
+
+    actual = next(itr)
+    assert actual == {'x': '13', 'y': '14', 'z': '15'}
+
+    actual = next(itr)
+    assert actual == {"x": "25", "y": "26", "z": "27"}
+
+    actual = next(itr)
+    assert actual == {"c": ':)'}

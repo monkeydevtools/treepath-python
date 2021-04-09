@@ -3,20 +3,29 @@ from typing import Union, Callable, Any
 
 from treepath.path.builder.path_builder_predicate import PathBuilderPredicate
 from treepath.path.builder.path_predicate import PathPredicate
+from treepath.path.exceptions.path_syntax_error import PathSyntaxError
 from treepath.path.traverser.match import Match
 from treepath.path.util.decorator import pretty_repr
 
 
 def create_has_predicate(
         nested_find_matches,
-        path: Union[PathBuilderPredicate, PathPredicate],
+        path: Union[PathBuilderPredicate, PathPredicate,  Callable[[Match], Any]],
         *value_remap: [Callable[[Any], Any]]) -> Callable[[Match], Any]:
     if isinstance(path, PathPredicate):
         real_path = path.path
         single_arg_operator = path.operation
-    else:
+    elif isinstance(path, PathBuilderPredicate):
         real_path = path
         single_arg_operator = None
+    elif isinstance(path, Callable):
+        return path
+    else:
+        raise PathSyntaxError(
+            parent_vertex=None,
+            error_msg=f"Invalid  path [{type(path)}] argument.   Expecting PathBuilderPredicate, PathPredicate,  or "
+                      'Callable[[Match], Any]]',
+            invalid_path_segment='')
 
     match_iter = functools.partial(nested_find_matches, real_path)
 

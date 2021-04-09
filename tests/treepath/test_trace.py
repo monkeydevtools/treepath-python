@@ -1,6 +1,6 @@
 from typing import Any
 
-from treepath import path, get, find, log_to, has, Match
+from treepath import path, get, find, log_to, has, Match, has_any, has_all
 
 
 def test_keys_get_x_y_z_trace(keys):
@@ -189,11 +189,47 @@ def test_keys_find_x_has_x_eq_1_and_has_y_trace(keys):
     def mock_print(message):
         actual_trace_messages.append(message)
 
-    @has.args((path.x == 1, int), path.y)
+    @has.these((path.x == 1, int), path.y)
     def predicate(parent_match: Match, x, y) -> Any:
         return x(parent_match) and y(parent_match)
 
     compiled_one = path.x[has(path.z)].x[predicate].x
     get(compiled_one, keys, trace=log_to(mock_print))
+
+    assert actual_trace_messages == expected_trace_messages
+
+
+def test_keys_get_root_has_a_or_b_or_z_trace(keys):
+    expected_trace_messages = [
+        ' has .a got no match',
+        ' has .b got no match',
+        " has .z got {'x': {'x': '19', 'y...",
+        " at $[has($.a) or has($.b) or has($.z)] got {'x': {'x': {'x': '1..."
+    ]
+    actual_trace_messages = []
+
+    def mock_print(message):
+        actual_trace_messages.append(message)
+
+    expected = keys
+    get(path[has_any(path.a, path.b, path.z)], keys, trace=log_to(mock_print))
+
+    assert actual_trace_messages == expected_trace_messages
+
+
+def test_keys_get_root_has_x_and_y_and_z_trace(keys):
+    expected_trace_messages = [
+        " has .x got {'x': {'x': '1', 'y'...",
+        " has .y got {'x': {'x': '10', 'y...",
+        " has .z got {'x': {'x': '19', 'y...",
+        " at $[has($.x) and has($.y) and has($.z)] got {'x': {'x': {'x': '1..."
+    ]
+    actual_trace_messages = []
+
+    def mock_print(message):
+        actual_trace_messages.append(message)
+
+    expected = keys
+    get(path[has_all(path.x, path.y, path.z)], keys, trace=log_to(mock_print))
 
     assert actual_trace_messages == expected_trace_messages
