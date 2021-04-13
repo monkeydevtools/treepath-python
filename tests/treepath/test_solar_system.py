@@ -1,24 +1,159 @@
+"""**treepath** uses [declarative programming](https://en.wikipedia.org/wiki/Declarative_programming) approach for
+extracting data from a [json](https://docs.python.org/3/library/json.html) data structure.  The expressions are a
+[query language](https://en.wikipedia.org/wiki/Query_language) similar to
+[jsonpath](https://goessner.net/articles/JsonPath/), and [Xpath](https://en.wikipedia.org/wiki/XPath), but are
+written in native python syntax.
+"""
+import inspect
+import os
 import re
+import textwrap
 
 from tests.utils.traverser_utils import gen_test_data, yria, yaia
-from treepath import path, find, wc, get, has, get_match, find_matches, nested_get_match, pathd, wildcard
-from treepath.path.exceptions.match_not_found_error import MatchNotFoundError
-from treepath.path.traverser.match import Match
+from treepath import path, find, wc, get, has, get_match, find_matches, nested_get_match, pathd, wildcard, \
+    MatchNotFoundError, Match
 
 
-def test_get_earth(solar_system):
-    def get_planet(name, the_solar_system):
+class Readme:
+
+    def __init__(self, readme_file: str):
+        self._readme_file = open(readme_file, 'w')
+
+    def append(self, data):
+        self._readme_file.write(data)
+
+    def append_doc(self, data):
+        dedent_data = textwrap.dedent(data)
+        self.append(dedent_data)
+
+    def append_python_src(self, python_src):
+        dedent_python_src = textwrap.dedent(python_src)
+        self.append(f"```python {dedent_python_src}```")
+
+    @staticmethod
+    def extract_doc_string(python_entity):
+        doc_string = python_entity.__doc__
+        return doc_string
+
+    def extract_python_src(self, python_entity):
+        doc_string = python_entity.__doc__
+        source = inspect.getsource(python_entity)
+
+        index_of_doc = source.index(doc_string)
+        source_start = index_of_doc + len(doc_string) + 3
+        python_src = source[source_start:]
+
+        return python_src
+
+    def process_python_src(self, python_src: str):
+        dedent_python_src = textwrap.dedent(python_src)
+        lines_itr = iter(dedent_python_src.splitlines(keepends=True))
+        line = next(lines_itr)
+        self.process_python_src_segment(line, lines_itr)
+
+    def process_python_src_segment(self, line, lines_itr):
+        buffer = f"{os.linesep}{line}"
+        for line in lines_itr:
+            if not line.startswith('#'):
+                buffer += line
+            else:
+                self.append_python_src(buffer)
+                self.process_comment_segment(line, lines_itr)
+                return
+        self.append_python_src(buffer)
+
+    def process_comment_segment(self, line, lines_itr):
+        buffer = f"{os.linesep}{line[1:]}"
+        for line in lines_itr:
+            if line.startswith('#'):
+                buffer += line[1:]
+            elif not line.strip():
+                buffer += line
+            else:
+                self.append_doc(buffer)
+                self.process_python_src_segment(line, lines_itr)
+                return
+        self.append_doc(buffer)
+
+    def append_function(self, function):
+        doc_string = self.extract_doc_string(function)
+        self.append_doc(doc_string)
+
+        python_src = self.extract_python_src(function)
+        self.process_python_src(python_src)
+
+        return function
+
+    def __iadd__(self, p2):
+        dedent_txt = textwrap.dedent(p2)
+        self.append(dedent_txt)
+        return self
+
+
+readme = Readme("/tmp/README.md")
+
+readme += __doc__
+
+readme += """
+# Quick comparison between Imperative and Declarative Solution
+
+To understand how treepath can differs from Imperative solution, here is an example problem showing both an Imperative
+and declarative solution.
+
+The problem is:  given the solar system json document fetch the planet by name.
+
+The example solar system json document can be found [Here](# Solar System Json document)
+"""
+
+
+@readme.append_function
+def test_get_earth_imperative_solution(solar_system):
+    """
+    ## Imperative Solution
+
+    The first example uses flow control statements to define a
+    [Imperative Solution]( https://en.wikipedia.org/wiki/Imperative_programming).   This is a
+    very common approach to solving problems.
+
+    """
+    def get_planet_by_name(name, the_solar_system):
         try:
-            inner = the_solar_system['star']['planets']['inner']
-            for planet in inner:
-                if name == planet.get('name', None):
-                    return planet
+            planets = the_solar_system['star']['planets']
+            for arc in planets.values():
+                for planet in arc:
+                    if name == planet.get('name', None):
+                        return planet
         except KeyError:
             pass
-        raise Exception(f"The planet {name} not found")
+        return None
 
-    earth = get(path.star.planets.inner[wc][has(path.name == 'Earth')], solar_system)
-    assert earth == get_planet('Earth', solar_system)
+    actual = get_planet_by_name('Earth', solar_system)
+    expected = {'Number of Moons': '1', 'diameter': 12756, 'has-moons': True, 'name': 'Earth'}
+    assert actual == expected
+
+
+@readme.append_function
+def test_get_earth_declarative_solution(solar_system):
+    """
+    ## Declarative  Solution
+
+    The second example uses treepath to define a
+    [declarative solution](https://en.wikipedia.org/wiki/Declarative_programming).
+    It solves the same problem without defining any flow control statements.    This keeps the Cyclomatic and
+    Cognitive Complexity low.
+
+    """
+
+    def get_planet_by_name(name: str, the_solar_system):
+        return get(
+            path.star.planets.wc[wc][has(path.name == name)],
+            the_solar_system,
+            default=None
+        )
+
+    actual = get_planet_by_name('Earth', solar_system)
+    expected = {'Number of Moons': '1', 'diameter': 12756, 'has-moons': True, 'name': 'Earth'}
+    assert actual == expected
 
 
 def test_list_names_of_all_inner_planets(solar_system):
@@ -248,8 +383,6 @@ def test_path_list_comma_delimited(solar_system):
     assert last_and_first == [1391016, "Sun"]
 
 
-
-
 def test_path_list_wildcard(solar_system):
     # wildcard can be used as a list index
     all_outer = [planet for planet in find(path.star.planets.outer[wildcard].name, solar_system)]
@@ -356,14 +489,11 @@ def test_path_filter_customer_predicate(solar_system):
 
         return False
 
-
     earth = [planet for planet in find(path.rec[my_neighbor_is_earth].name, solar_system)]
     assert earth == ['Venus', 'Mars']
 
 
-
 def test_path_filter_regex(solar_system):
-
     # match values by regular expression
     # Find the planets that end with s
     pattern = re.compile(r"\w+s")

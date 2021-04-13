@@ -1,12 +1,25 @@
-**treepath** is a [query language](https://en.wikipedia.org/wiki/Query_language) for selecting
-[nodes](https://en.wikipedia.org/wiki/Node_(computer_science)) from a
-[json](https://docs.python.org/3/library/json.html) data-structure. The query expressions are similar to
-[jsonpath](https://goessner.net/articles/JsonPath/) and
-[Xpath](https://en.wikipedia.org/wiki/XPath), but are written in python syntax.
+**treepath** uses [declarative programming](https://en.wikipedia.org/wiki/Declarative_programming) approach for 
+extracting data from a [json](https://docs.python.org/3/library/json.html) data structure.  The expressions are a 
+[query language](https://en.wikipedia.org/wiki/Query_language) similar to 
+[jsonpath](https://goessner.net/articles/JsonPath/), and [Xpath](https://en.wikipedia.org/wiki/XPath), but are
+written in native python syntax.   
 
-### Solar System Sample Data
 
-Sample data used by the examples in this README.
+# Quick comparison between Imperative and Declarative Solution
+
+To understand how treepath can differs from Imperative solution, here is an example problem showing both an Imperative 
+and declarative solution.  
+
+The problem is:  given the solar system json document fetch the planet by name. 
+
+The example solar system json document can be found [Here](# Solar System Json document)
+
+
+
+
+# Solar System Json document
+
+The examples shown is this README use the following json document.  It describes our solar system.
 <details><summary>solar_system = {  ... }</summary>
 <p>
 
@@ -78,67 +91,6 @@ Sample data used by the examples in this README.
 </p>
 </details>
 
-## Typical example.
-
-When working with json data-structures, there is a need to fetch specific pieces of data in the tree. A common approach
-to this problem is to write structural code. This approach can become quite complex depending on the json structure and
-search criteria.
-
-A more declarative approach is to use a query language.   It does a better job at communicating the intent of what is
-being searched for.
-
-Here are two examples that fetched the planet Earth from the sample solar-system data.
-
-<table>
-<tr>
-<th>Structured Python Syntax</th>
-<th>declarative Python Syntax Using treepath</th>
-</tr>
-<tr>
-<td>
-
-```python
-def get_planet(name, the_solar_system):
-    try:
-        inner = the_solar_system['star']['planets']['inner']
-        for planet in inner:
-            if name == planet.get('name', None):
-                return planet
-    except KeyError:
-        pass
-    raise Exception(f"The planet {name} not found")
-
-
-earth = get_planet('Earth', solar_system)
-```
-
-</td>
-<td>
-
-```python
-earth = get(path.star.planets.inner[wc][has(path.name == 'Earth')], solar_system)
-
-
-
-
-
-
-
-
-
-
-```
-
-</td>
-</tr>
-</table>
-
-Both examples will return the following results; however, the declarative approach uses only one line of code to
-construct the same search algorithm.
-
-```python
-{'name': 'Earth', 'Equatorial diameter': 1.0, 'has-moons': True}
-```
 
 ## query example.
 
@@ -161,6 +113,7 @@ construct the same search algorithm.
 
 Get the star name from the solar_system.
 ```python
+from treepath import *
 sun = get(path.star.name, solar_system)
 assert sun == 'Sun'
 ```
