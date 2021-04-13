@@ -20,7 +20,7 @@ The example solar system json document can be found [Here](# Solar System Json d
 # Solar System Json document
 
 The examples shown is this README use the following json document.  It describes our solar system.
-<details><summary>solar_system = {  ... }</summary>
+<details><summary>solar_system = {...}</summary>
 <p>
 
 ```json

@@ -1,7 +1,7 @@
 import pytest
 
 from tests.data.data import get_keys, get_three_dimensional_list, get_a_k_k_a_k_k_k_a, get_k_a_a_k_a_a_a_k, \
-    get_all_data_types, get_dash, get_solar_system
+    get_all_data_types, get_dash, get_solar_system, get_solar_system_json
 
 
 @pytest.fixture
@@ -37,3 +37,7 @@ def all_data_types() -> dict:
 @pytest.fixture
 def solar_system() -> dict:
     return get_solar_system()
+
+@pytest.fixture
+def solar_system_json() -> str:
+    return get_solar_system_json()

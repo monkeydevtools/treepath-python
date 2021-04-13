@@ -24,11 +24,11 @@ class Readme:
 
     def append_doc(self, data):
         dedent_data = textwrap.dedent(data)
-        self.append(dedent_data)
+        self.append(f"{os.linesep}{dedent_data}")
 
     def append_python_src(self, python_src):
         dedent_python_src = textwrap.dedent(python_src)
-        self.append(f"```python {dedent_python_src}```")
+        self.append(f"{os.linesep}```python{os.linesep}{dedent_python_src}```")
 
     @staticmethod
     def extract_doc_string(python_entity):
@@ -52,18 +52,19 @@ class Readme:
         self.process_python_src_segment(line, lines_itr)
 
     def process_python_src_segment(self, line, lines_itr):
-        buffer = f"{os.linesep}{line}"
+        buffer = line
         for line in lines_itr:
             if not line.startswith('#'):
                 buffer += line
             else:
-                self.append_python_src(buffer)
+                if not buffer.isspace():
+                    self.append_python_src(buffer)
                 self.process_comment_segment(line, lines_itr)
                 return
         self.append_python_src(buffer)
 
     def process_comment_segment(self, line, lines_itr):
-        buffer = f"{os.linesep}{line[1:]}"
+        buffer = line[1:]
         for line in lines_itr:
             if line.startswith('#'):
                 buffer += line[1:]
@@ -114,8 +115,8 @@ def test_get_earth_imperative_solution(solar_system):
     The first example uses flow control statements to define a
     [Imperative Solution]( https://en.wikipedia.org/wiki/Imperative_programming).   This is a
     very common approach to solving problems.
-
     """
+
     def get_planet_by_name(name, the_solar_system):
         try:
             planets = the_solar_system['star']['planets']
@@ -141,7 +142,6 @@ def test_get_earth_declarative_solution(solar_system):
     [declarative solution](https://en.wikipedia.org/wiki/Declarative_programming).
     It solves the same problem without defining any flow control statements.    This keeps the Cyclomatic and
     Cognitive Complexity low.
-
     """
 
     def get_planet_by_name(name: str, the_solar_system):
@@ -156,29 +156,82 @@ def test_get_earth_declarative_solution(solar_system):
     assert actual == expected
 
 
-def test_list_names_of_all_inner_planets(solar_system):
+def test_solar_system_json(solar_system_json):
+    global readme
+    readme += """
+    # Solar System Json document
+    
+    The examples shown in this README use the following json document.  It describes our solar system.
+    <details><summary>solar_system = {...}</summary>
+    <p>
+
+    ```json
+    """
+    readme += solar_system_json
+    readme += """
+    ```
+
+    </p>
+    </details>
+    """
+
+
+readme += """
+# query examples.
+
+| Description                                 | Xpath                               | jsonpath                                  | treepath                            |
+|----------------------------------------------|-------------------------------------|-------------------------------------------|------------------------------------|
+| Find planet earth.                           | /star/planets/inner[name='Earth']   | $.star.planets.inner[?(@.name=='Earth')]  | path.star.planets.inner[wc][has(path.name == 'Earth')]   |
+| List the names of all inner planets.         | /star/planets/inner[*].name         | $.star.planets.inner[*].name              | path.star.planets.inner[wc].name   |
+| List the names of all planets.               | /star/planets/*/name                | $.star.planets.[*].name                   | path.star.planets.wc[wc].name      |
+| List the names of all celestial bodies       | //name                              | $..name                                   | path.rec.name                      |  
+| List all nodes in the tree Preorder          | //*                                 | $..                                       | path.rec                           |
+| Get the third rock from the sun              | /star/planets/inner[3]              | $.star.planets.inner[2]                   | path.star.planets.inner[2]         |
+| List first two inner planets                 | /star/plnaets.inner[position()<3]   | $.star.planets.inner[:2]                  | path.star.planets.inner[0:2]       |
+|                                              |                                     | $.star.planets.inner[0, 1]                | path.star.planets.inner[0, 2]      |
+| List planets smaller than earth              | /star/planets/inner[Equatorial_diameter < 1]   | $.star.planets.inner[?(@.['Equatorial diameter'] < 1)]              | path.star.planets.inner[wc][has(path["Equatorial diameter"] < 1)]       |
+| List celestial bodies that have planets.     | //*[planets]/name                   | $..*[?(@.planets)].name                   | path.rec[has(path.planets)].name       |
+"""
+
+
+def test_query_examples_list_the_names_of_all_inner_planets(solar_system):
     inner_planets = [p for p in find(path.star.planets.inner[wc].name, solar_system)]
     assert inner_planets == ['Mercury', 'Venus', 'Earth', 'Mars']
 
 
-def test_preorder_tree_traversal(solar_system):
+def test_query_examples_list_the_names_of_all_planets(solar_system):
+    all_planets = [p for p in find(path.star.planets.wc[wc].name, solar_system)]
+    assert all_planets == ['Mercury', 'Venus', 'Earth', 'Mars', 'Jupiter', 'Saturn', 'Uranus', 'Neptune']
+
+
+def test_query_examples_list_the_names_of_all_celestial_bodies(solar_system):
+    all_celestial_bodies = [p for p in find(path.rec.name, solar_system)]
+    assert all_celestial_bodies == ['Sun', 'Mercury', 'Venus', 'Earth', 'Mars', 'Jupiter', 'Saturn', 'Uranus',
+                                    'Neptune']
+
+
+def test_query_examples_list_all_nodes_in_the_tree_preorder(solar_system):
     expected = [ss for _, ss in gen_test_data(solar_system, yria, yaia, yaia, yaia, yaia, yaia)]
     actual = [p for p in find(path.rec, solar_system)]
     assert actual == expected
 
 
-def test_third_rock_from_the_sun(solar_system):
+def test_query_examples_get_third_rock_from_the_sun(solar_system):
     earth = get(path.star.planets.inner[2], solar_system)
     assert earth == solar_system["star"]["planets"]["inner"][2]
 
 
-def test_list_first_two_inner_planets(solar_system):
+def test_query_examples_list_first_two_inner_planets(solar_system):
+    expected = [solar_system["star"]["planets"]["inner"][0],
+                solar_system["star"]["planets"]["inner"][1]]
+    first_two_planets = [p for p in find(path.star.planets.inner[0:2], solar_system)]
+    assert first_two_planets == expected
+
     first_two_planets = [p for p in find(path.star.planets.inner[0, 1], solar_system)]
-    assert first_two_planets == [solar_system["star"]["planets"]["inner"][0],
-                                 solar_system["star"]["planets"]["inner"][1]]
+    assert first_two_planets == expected
 
 
-def test_list_planets_smaller_than_earth(solar_system):
+def test_query_examples_list_planets_smaller_than_earth(solar_system):
     planets_smaller_than_earth = [p for p in
                                   find(path.star.planets.inner[wc][has(path.diameter < 12756)], solar_system)]
     assert planets_smaller_than_earth == [solar_system["star"]["planets"]["inner"][0],
@@ -186,12 +239,22 @@ def test_list_planets_smaller_than_earth(solar_system):
                                           solar_system["star"]["planets"]["inner"][3]]
 
 
-def test_list_celestial_bodies_that_have_planets(solar_system):
+def test_query_examples_list_celestial_bodies_that_have_planets(solar_system):
     sun = [p for p in find(path.rec[has(path.planets)].name, solar_system)]
     assert sun == ['Sun']
 
 
-def test_func_get(solar_system):
+readme += """
+# Traversal Functions
+
+"""
+
+
+@readme.append_function
+def test_traversal_function_get(solar_system):
+    """
+    ## get
+    """
     # get the star name from the solar_system
     sun = get(path.star.name, solar_system)
     assert sun == 'Sun'
@@ -208,14 +271,22 @@ def test_func_get(solar_system):
     assert human_population == 0
 
 
-def test_func_find(solar_system):
+@readme.append_function
+def test_traversal_function_find(solar_system):
+    """
+    ## find
+    """
     # find returns an Iterator of all matches
     # Each match is found just in time
     inner_planets = [planet for planet in find(path.star.planets.inner[wc].name, solar_system)]
     assert len(inner_planets) == 4
 
 
-def test_func_get_match(solar_system):
+@readme.append_function
+def test_traversal_function_get_match(solar_system):
+    """
+    ## get_match
+    """
     # get the star age.
     # get_match returns a match object, where get return the value
     # The match object tells us the age attribute exist but it value is None.
@@ -236,14 +307,22 @@ def test_func_get_match(solar_system):
     assert match is None
 
 
-def test_func_find_matches(solar_system):
+@readme.append_function
+def test_traversal_function_find_matches(solar_system):
+    """
+    ## find_matches
+    """
     # find_matches returns an Iterator of all matches
     # The match object knows its index
     for match in find_matches(path.star.planets.inner[wc], solar_system):
         assert match.data == solar_system["star"]["planets"]["inner"][match.data_name]
 
 
-def test_func_nested_get_match(solar_system):
+@readme.append_function
+def test_traversal_function_nested_get_match(solar_system):
+    """
+    ## get_match
+    """
     # nested_get_match allows the next match to start the search relative from another match
     parent_match = get_match(path.star.planets.inner, solar_system)
     earth_match = nested_get_match(path[2].name, parent_match)
@@ -262,7 +341,11 @@ def test_func_nested_get_match(solar_system):
     assert match is None
 
 
-def test_func_nested_find_matches(solar_system):
+@readme.append_function
+def test_traversal_function_nested_find_matches(solar_system):
+    """
+    ## find_matches
+    """
     # find_matches returns an Iterator of all matches
     # The match object knows its index
     for planet_match in find_matches(path.star.planets.inner[wc], solar_system):
@@ -270,7 +353,11 @@ def test_func_nested_find_matches(solar_system):
         assert name_match.data == solar_system["star"]["planets"]["inner"][name_match.parent.data_name]["name"]
 
 
-def test_func_match_class(solar_system):
+@readme.append_function
+def test_traversal_function_match_class(solar_system):
+    """
+    ## The Match class
+    """
     match = get_match(path.star.name, solar_system)
 
     # The string representation of match = [path=value]
