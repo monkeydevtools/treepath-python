@@ -10,7 +10,7 @@ import re
 import textwrap
 
 from tests.utils.traverser_utils import gen_test_data, yria, yaia
-from treepath import path, find, wc, get, has, get_match, find_matches, nested_get_match, pathd, wildcard, \
+from treepath import path, find, wc, get, has, get_match, find_matches, pathd, wildcard, \
     MatchNotFoundError, Match
 
 
@@ -255,20 +255,28 @@ def test_traversal_function_get(solar_system):
     """
     ## get
     """
-    # get the star name from the solar_system
+
+    # The **get** function returns the first value the path leads to.
+
+    # Get the star name from the solar_system
     sun = get(path.star.name, solar_system)
     assert sun == 'Sun'
 
-    # When there is no match MatchNotFoundError is thrown
+    # When there is no match, MatchNotFoundError is thrown.
     try:
         get(path.star.human_population, solar_system)
         assert False, "Not expecting humans on the sun"
     except MatchNotFoundError:
         pass
 
-    # return a default value when match is not found
+    # Return a default value when match is not found.
     human_population = get(path.star.human_population, solar_system, default=0)
     assert human_population == 0
+
+    # The data source can be a json data structure or a [Match](#The-Match-class).
+    parent_match = get_match(path.star.planets.inner, solar_system)
+    name = get(path[2].name, parent_match)
+    assert name == "Earth"
 
 
 @readme.append_function
@@ -276,10 +284,18 @@ def test_traversal_function_find(solar_system):
     """
     ## find
     """
-    # find returns an Iterator of all matches
-    # Each match is found just in time
+
+    # The **find** function returns an Iterator that iterates to each value the path leads to.  Each value is
+    # determine on its iteration.
+
+    # Find all of the planet names.
     inner_planets = [planet for planet in find(path.star.planets.inner[wc].name, solar_system)]
-    assert len(inner_planets) == 4
+    assert inner_planets == ['Mercury', 'Venus', 'Earth', 'Mars']
+
+    # The data source can be a json data structure or a [Match](#The-Match-class).
+    parent_match = get_match(path.star.planets.inner, solar_system)
+    inner_planets = [planet for planet in find(path[wc].name, parent_match)]
+    assert inner_planets == ['Mercury', 'Venus', 'Earth', 'Mars']
 
 
 @readme.append_function
@@ -287,24 +303,29 @@ def test_traversal_function_get_match(solar_system):
     """
     ## get_match
     """
-    # get the star age.
-    # get_match returns a match object, where get return the value
-    # The match object tells us the age attribute exist but it value is None.
-    # The match object lots of metadata about the match.
-    match = get_match(path.star.age, solar_system)
-    assert match is not None
-    assert match.data is None
 
-    # When there is no match MatchNotFoundError is thrown
+    # The **get_match** function returns the first [Match](#The-Match-class) the path leads to.
+
+    # Get the star name from the solar_system
+    match = get_match(path.star.name, solar_system)
+    assert match.data == 'Sun'
+
+    # When there is no match, MatchNotFoundError is thrown.
     try:
         get_match(path.star.human_population, solar_system)
         assert False, "Not expecting humans on the sun"
     except MatchNotFoundError:
         pass
 
-    # get the sun from the solar_system
+    # Return a None when match is not found.
     match = get_match(path.star.human_population, solar_system, must_match=False)
     assert match is None
+
+    # The data source can be a json data structure or a [Match](#The-Match-class).
+    parent_match = get_match(path.star.planets.inner, solar_system)
+    earth_match = get_match(path[2].name, parent_match)
+    assert earth_match.path == "$.star.planets.inner[2].name"
+    assert earth_match.data == "Earth"
 
 
 @readme.append_function
@@ -312,45 +333,27 @@ def test_traversal_function_find_matches(solar_system):
     """
     ## find_matches
     """
-    # find_matches returns an Iterator of all matches
-    # The match object knows its index
+    # The **find_matches** function returns an Iterator that iterates to each match the path leads to.  Each match is
+    # determine on its iteration.
+
+    # Find the path to each of the inner planets.
     for match in find_matches(path.star.planets.inner[wc], solar_system):
-        assert match.data == solar_system["star"]["planets"]["inner"][match.data_name]
+        assert match.path in [
+            '$.star.planets.inner[0]',
+            '$.star.planets.inner[1]',
+            '$.star.planets.inner[2]',
+            '$.star.planets.inner[3]',
+        ]
 
-
-@readme.append_function
-def test_traversal_function_nested_get_match(solar_system):
-    """
-    ## get_match
-    """
-    # nested_get_match allows the next match to start the search relative from another match
+    # The data source can be a json data structure or a [Match](#The-Match-class).
     parent_match = get_match(path.star.planets.inner, solar_system)
-    earth_match = nested_get_match(path[2].name, parent_match)
-    assert earth_match.path == "$.star.planets.inner[2].name"
-    assert earth_match.data == "Earth"
-
-    # When there is no match MatchNotFoundError is thrown
-    try:
-        nested_get_match(path[5].name, parent_match)
-        assert False, "Not expecting humans on the sun"
-    except MatchNotFoundError:
-        pass
-
-    # get the sun from the solar_system
-    match = nested_get_match(path[5].name, parent_match, must_match=False)
-    assert match is None
-
-
-@readme.append_function
-def test_traversal_function_nested_find_matches(solar_system):
-    """
-    ## find_matches
-    """
-    # find_matches returns an Iterator of all matches
-    # The match object knows its index
-    for planet_match in find_matches(path.star.planets.inner[wc], solar_system):
-        name_match = nested_get_match(path.name, planet_match)
-        assert name_match.data == solar_system["star"]["planets"]["inner"][name_match.parent.data_name]["name"]
+    for match in find_matches(path[wc], parent_match):
+        assert match.path in [
+            '$.star.planets.inner[0]',
+            '$.star.planets.inner[1]',
+            '$.star.planets.inner[2]',
+            '$.star.planets.inner[3]',
+        ]
 
 
 @readme.append_function
@@ -558,18 +561,18 @@ def test_path_filter_customer_predicate(solar_system):
 
     # write your own predicate
     def my_neighbor_is_earth(match: Match):
-        i_am_planet = nested_get_match(path.parent.parent.parent.planets, match, must_match=False)
+        i_am_planet = get_match(path.parent.parent.parent.planets, match, must_match=False)
         if not i_am_planet:
             return False
 
         index_before_planet = match.data_name - 1
-        before_planet = nested_get_match(path[index_before_planet][has(path.name == "Earth")], match.parent,
+        before_planet = get_match(path[index_before_planet][has(path.name == "Earth")], match.parent,
                                          must_match=False)
         if before_planet:
             return True
 
         index_after_planet = match.data_name + 1
-        before_planet = nested_get_match(path[index_after_planet][has(path.name == "Earth")], match.parent,
+        before_planet = get_match(path[index_after_planet][has(path.name == "Earth")], match.parent,
                                          must_match=False)
         if before_planet:
             return True
