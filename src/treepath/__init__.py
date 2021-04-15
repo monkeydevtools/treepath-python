@@ -12,6 +12,7 @@ from treepath.path.exceptions.stop_traversing import StopTraversing
 from treepath.path.exceptions.traversing_error import TraversingError
 from treepath.path.exceptions.treepath_exception import TreepathException
 from treepath.path.traverser.match import Match
+from treepath.path.traverser.trace import Trace
 from treepath.path.traverser.trace import log_to
 from treepath.path.traverser.traverser_functions import find
 from treepath.path.traverser.traverser_functions import find_matches
@@ -20,8 +21,6 @@ from treepath.path.traverser.traverser_functions import get_match
 from treepath.path.traverser.traverser_functions import has
 from treepath.path.traverser.traverser_functions import has_all
 from treepath.path.traverser.traverser_functions import has_any
-
-
 from treepath.path.traverser.traverser_functions import nested_find_matches
 from treepath.path.traverser.traverser_functions import nested_get_match
 
