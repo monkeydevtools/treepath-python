@@ -1,3 +1,4 @@
+from abc import abstractmethod
 from typing import Union
 
 from treepath.path.traverser.list_match import ListMatch
@@ -15,6 +16,7 @@ class _ListVertex(Vertex):
     def path_segment(self):
         return f"[{self.name}]"
 
+    @abstractmethod
     def match(self, parent_match: TraverserMatch, traverser, vertex_index: int) -> Union[TraverserMatch, None]:
         raise NotImplementedError
 

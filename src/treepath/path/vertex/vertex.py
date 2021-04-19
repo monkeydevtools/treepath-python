@@ -1,9 +1,10 @@
+from abc import ABC, abstractmethod
 from typing import Union, Callable
 
 from treepath.path.traverser.traverser_match import TraverserMatch
 
 
-class Vertex:
+class Vertex(ABC):
     __slots__ = 'parent', \
                 'name', \
                 'is_catch_vertex', \
@@ -53,6 +54,7 @@ class Vertex:
         self.parent.traverse(visit)
         visit(self)
 
+    @abstractmethod
     def match(self, parent_match: TraverserMatch, traverser, vertex_index: int) -> Union[TraverserMatch, None]:
         raise NotImplementedError
 

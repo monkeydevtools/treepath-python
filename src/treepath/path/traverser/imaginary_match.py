@@ -13,7 +13,7 @@ class ImaginaryMatch(TraverserMatch):
 
     @property
     def path_as_list(self) -> list:
-        return [self]
+        return self.real_parent.path_as_list
 
     @property
     def data_name(self) -> str:

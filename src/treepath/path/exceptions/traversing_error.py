@@ -16,4 +16,4 @@ class TraversingError(TreepathException, RuntimeError):
     def _resolve_msg(self):
         path = repr(self.vertex)
         match = repr(self.match)
-        return f"""{self.error_msg}{os.linesep}  path: {path}{os.linesep}  get_match: {match}"""
+        return f"""TraversingError({self.error_msg}{os.linesep}  path: {path}{os.linesep}  last_match: {match})"""

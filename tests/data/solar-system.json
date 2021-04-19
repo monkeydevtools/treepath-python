@@ -26,7 +26,7 @@
         {
           "name": "Mars",
           "Number of Moons": "2",
-         "diameter": 6792,
+          "diameter": 6792,
           "has-moons": true
         }
       ],

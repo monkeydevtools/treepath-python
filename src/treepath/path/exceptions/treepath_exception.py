@@ -21,4 +21,4 @@ class TreepathException(Exception):
     def _resolve_msg(self):
         self.is_msg_resolved = True
         path = repr(self.vertex)
-        return f"TreepathException on path: {path}"
+        return f"TreepathException(path: {path})"

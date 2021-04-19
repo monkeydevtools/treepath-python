@@ -4,6 +4,7 @@ from treepath.path.exceptions.infinite_loop_detected import InfiniteLoopDetected
 from treepath.path.exceptions.stop_traversing import StopTraversing
 from treepath.path.traverser.match import Match
 from treepath.path.traverser.root_match import RootMatch
+from treepath.path.traverser.trace import Trace
 from treepath.path.traverser.traverser_match import TraverserMatch
 from treepath.path.vertex.vertex import Vertex
 
@@ -20,7 +21,7 @@ class MatchTraverser:
     def __init__(self,
                  root_data,
                  leaf_vertex: Vertex,
-                 trace: Callable[[Match, Match, Vertex], None] = None
+                 trace: Callable[[Trace], None] = None
                  ):
         self.vertex_path = leaf_vertex.path_as_list
         self.leaf_vertex = leaf_vertex
@@ -36,7 +37,7 @@ class MatchTraverser:
 
     def __next__(self) -> Match:
         result = None
-        count = 1000000000
+        count = 1000000
         while result is None:
             result = self._invoke_next_action()
             count += -1
@@ -88,7 +89,13 @@ class MatchTraverser:
         next_match = next_vertex.match(current_match, self, next_vertex_index)
 
         if self.trace:
-            self.trace(Match(current_match), Match(next_match), next_vertex)
+            self.trace(
+                Trace(
+                    Match( current_match),
+                    Match(next_match) if next_match else None,
+                    next_vertex
+                )
+            )
 
         if next_match:
             self.current_match = next_match

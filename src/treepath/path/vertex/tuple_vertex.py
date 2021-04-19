@@ -27,14 +27,16 @@ class TupleVertex(Vertex):
 
     @property
     def path_segment(self):
-        return repr(self._tuple)
+        tuple_ = self._tuple
+        return f"[{', '.join(map(repr, tuple_))}]"
 
     def validate_tuple(self):
         for value in self._tuple:
             if not (isinstance(value, int) or isinstance(value, str)):
-                raise PathSyntaxError(self,
-                                      f" [{type(self.name)}] indices must be int"
-                                      f" or str PathBuilder")
+                raise PathSyntaxError(self.parent,
+                                      f"Unsupported indices: {self.path_segment}.  Comma serrated indices can be "
+                                      f"a combination of int and str values.",
+                                      self.path_segment)
 
     def match(self, parent_match: TraverserMatch, traverser, vertex_index: int) -> Union[TraverserMatch, None]:
 

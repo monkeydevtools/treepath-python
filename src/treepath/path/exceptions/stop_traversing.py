@@ -6,4 +6,4 @@ class StopTraversing(TreepathException, StopIteration):
 
     def _resolve_msg(self):
         path = repr(self.vertex)
-        return f"Traversing has completed on path: {path}"
+        return f"StopTraversing(Traversing has completed on path: {path})"

@@ -32,8 +32,6 @@ class PredicateVertex(Vertex):
                     parent_match.remembered_on_catch_action
                 )
                 return match
-        except TreepathException as te:
-            raise te
         except Exception as e:
-            error_message = f"Evaluation of predicate failed because of error: {e}"
+            error_message = f"Evaluation of predicate failed because of error: {repr(e)}"
             raise TraversingError(parent_match, error_message) from e

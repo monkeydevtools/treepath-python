@@ -8,4 +8,4 @@ class MatchNotFoundError(TreepathException, LookupError):
 
     def _resolve_msg(self):
         path = repr(self.vertex)
-        return f"No get_match occurred on path: {path}"
+        return f"MatchNotFoundError(No get_match occurred on path: {path})"

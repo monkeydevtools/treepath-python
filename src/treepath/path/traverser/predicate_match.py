@@ -1,5 +1,5 @@
 from treepath.path.traverser.match import Match
-from treepath.path.vertex.vertex import Vertex
+from treepath.path.traverser.trace import Trace
 
 
 class PredicateMatch(Match):
@@ -11,16 +11,11 @@ class PredicateMatch(Match):
 
     @property
     def trace(self):
-
-        trace = self._trace
-
-        if trace:
-            def predicate_trace(last_match: Match, next_match: Match, next_vertex: Vertex,
-                                predicate_match: Match = None):
-                if predicate_match:
-                    trace(last_match, next_match, next_vertex, predicate_match=predicate_match)
-                else:
-                    trace(last_match, next_match, next_vertex, predicate_match=self)
+        trace_function = self._trace
+        if trace_function:
+            def predicate_trace(trace: Trace):
+                trace.predicate_match = self
+                trace_function(trace)
 
             return predicate_trace
         else:
