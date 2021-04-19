@@ -18,7 +18,7 @@ def test_PathSyntaxError_on_invalid_indices():
 
 
 def test_AttributeError_on_indices_assignment():
-    expected = "AttributeError('set __setitem__  0 not supported on $.__name__')"
+    expected = "AttributeError('set __setitem__  0 not supported on $.__name__',)"
     with pytest.raises(AttributeError) as exc_info:
         path[0] = 1
 
@@ -26,7 +26,7 @@ def test_AttributeError_on_indices_assignment():
 
 
 def test_AttributeError_on_attr_assignment():
-    expected = "AttributeError('set __setattr__  a 1 not supported on $.__name__')"
+    expected = "AttributeError('set __setattr__  a 1 not supported on $.__name__',)"
     with pytest.raises(AttributeError) as exc_info:
         path.a = 1
 
