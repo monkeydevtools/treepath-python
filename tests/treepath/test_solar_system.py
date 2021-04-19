@@ -1,102 +1,33 @@
-"""**treepath** uses [declarative programming](https://en.wikipedia.org/wiki/Declarative_programming) approach for
-extracting data from a [json](https://docs.python.org/3/library/json.html) data structure.  The expressions are a
-[query language](https://en.wikipedia.org/wiki/Query_language) similar to
-[jsonpath](https://goessner.net/articles/JsonPath/), and [Xpath](https://en.wikipedia.org/wiki/XPath), but are
-written in native python syntax.
-"""
-import inspect
 import operator
-import os
 import re
-import textwrap
 from functools import partial
 
+import treepath
+from tests.utils.readme_generator import Readme
 from tests.utils.traverser_utils import gen_test_data, yria, yaia
 from treepath import path, find, wc, get, has, get_match, find_matches, pathd, wildcard, \
-    MatchNotFoundError, Match, log_to
-
-
-class Readme:
-
-    def __init__(self, readme_file: str):
-        self._readme_file = open(readme_file, 'w')
-
-    def append(self, data):
-        self._readme_file.write(data)
-
-    def append_doc(self, data):
-        dedent_data = textwrap.dedent(data)
-        self.append(f"{os.linesep}{dedent_data}")
-
-    def append_python_src(self, python_src):
-        dedent_python_src = textwrap.dedent(python_src)
-        self.append(f"{os.linesep}```python{os.linesep}{dedent_python_src}```")
-
-    @staticmethod
-    def extract_doc_string(python_entity):
-        doc_string = python_entity.__doc__
-        return doc_string
-
-    @staticmethod
-    def extract_python_src(python_entity):
-        doc_string = python_entity.__doc__
-        source = inspect.getsource(python_entity)
-
-        index_of_doc = source.index(doc_string)
-        source_start = index_of_doc + len(doc_string) + 3
-        python_src = source[source_start:]
-
-        return python_src
-
-    def process_python_src(self, python_src: str):
-        dedent_python_src = textwrap.dedent(python_src)
-        lines_itr = iter(dedent_python_src.splitlines(keepends=True))
-        line = next(lines_itr)
-        self.process_python_src_segment(line, lines_itr)
-
-    def process_python_src_segment(self, line, lines_itr):
-        buffer = line
-        for line in lines_itr:
-            if not line.startswith('#'):
-                buffer += line
-            else:
-                if not buffer.isspace():
-                    self.append_python_src(buffer)
-                self.process_comment_segment(line, lines_itr)
-                return
-        self.append_python_src(buffer)
-
-    def process_comment_segment(self, line, lines_itr):
-        buffer = line[1:]
-        for line in lines_itr:
-            if line.startswith('#'):
-                buffer += line[1:]
-            elif not line.strip():
-                buffer += line
-            else:
-                self.append_doc(buffer)
-                self.process_python_src_segment(line, lines_itr)
-                return
-        self.append_doc(buffer)
-
-    def append_function(self, function):
-        doc_string = self.extract_doc_string(function)
-        self.append_doc(doc_string)
-
-        python_src = self.extract_python_src(function)
-        self.process_python_src(python_src)
-
-        return function
-
-    def __iadd__(self, p2):
-        dedent_txt = textwrap.dedent(p2)
-        self.append(dedent_txt)
-        return self
-
+    MatchNotFoundError, Match, log_to, has_all, has_any, has_not
 
 readme = Readme("/tmp/README.md")
 
-readme += __doc__
+readme += treepath.__doc__
+
+
+def test_quick_start(solar_system):
+    """
+
+    """
+    from treepath import path, get
+    data = {
+        "a": {
+            "b": {
+                "c": 1
+            }
+        }
+    }
+    value = get(path.a.b.c, data)
+    assert value == 1
+
 
 readme += """
 # Quick comparison between Imperative and Declarative Solution
@@ -683,8 +614,8 @@ def test_path_has_filter_operators_as_single_argument_functions(solar_system):
 
     # Any single argument function can be used as an operator.  This example uses a Regular Expression to finds
     # planets that end with s.
-    pattern = re.compile(r"\w+s")
-    earth = [planet for planet in find(path.rec[has(path.name, pattern.match)].name, solar_system)]
+    name_ends_with_s = re.compile(r"\w+s").match
+    earth = [planet for planet in find(path.rec[has(path.name, name_ends_with_s)].name, solar_system)]
     assert earth == ['Venus', 'Mars', 'Uranus']
 
     # This example uses a closure to find planets that have the same diameter as earth.
@@ -693,6 +624,69 @@ def test_path_has_filter_operators_as_single_argument_functions(solar_system):
 
     earth = [planet for planet in find(path.rec[has(path.diameter, smaller_than_earth)].name, solar_system)]
     assert earth == ['Mercury', 'Venus', 'Mars']
+
+
+@readme.append_function
+def test_path_filter_has_all(solar_system):
+    """
+    ### logical and, or and not filter
+    """
+
+    # A regex to test if second letter in the value is an a.
+    second_letter_is_a = re.compile(r".a.*").fullmatch
+
+    # The **has_all** function evaluates as the logical **and** operator.   It is equivalent to: (arg1 and arg2 and ...)
+    found = [planet for planet in find(
+        path.rec[has_all(path.diameter < 10000, (path.name, second_letter_is_a))].name,
+        solar_system)
+             ]
+    assert found == ['Mars']
+
+    # The **has_any** function evaluates as the logical **or** operator.   It is equivalent to: (arg1 and arg2 and ...)
+    found = [planet for planet in find(
+        path.rec[has_any(path.diameter < 10000, (path.name, second_letter_is_a))].name,
+        solar_system)
+             ]
+    assert found == ['Mercury', 'Earth', 'Mars', 'Saturn']
+
+    # The **has_not** function evaluates as the logical **not** operator.   It is equivalent to: (not arg)
+    found = [planet for planet in find(
+        path.rec[has_not(path.name != 'Earth')].name,
+        solar_system)
+             ]
+    assert found == ['Earth']
+
+    # Each of the **has** function can be passed as arguments to any of the other **has** function to construct complex
+    # boolean equation.  This example is equivalent to:
+    # (10000 > diameter  or diameter > 20000) and second_letter_is_a(name))
+    found = [planet for planet in find(
+        path.rec[has_all(has_any(path.diameter < 10000, path.diameter > 20000), (path.name, second_letter_is_a))].name,
+        solar_system)
+             ]
+    assert found == ['Mars', 'Saturn']
+
+    # The decorator **has.these** can be used to construct the boolean equations more explicitly.  This example shows
+    # to use python built in and, or and not operators.
+    @has.these(path.diameter < 10000, path.diameter > 20000, (path.name, second_letter_is_a))
+    def predicate(parent_match: Match, small_diameter, large_diameter, name_second_letter_is_a):
+        return (small_diameter(parent_match) or large_diameter(parent_match)) and name_second_letter_is_a(parent_match)
+
+    found = [planet for planet in find(path.rec[predicate].name, solar_system)]
+    assert found == ['Mars', 'Saturn']
+
+
+@readme.append_function
+def test_path_filter_has_these(solar_system):
+    """
+    ### has.these filter
+    """
+
+    second_letter_is_a = re.compile(r".a.*").fullmatch
+    found = [planet for planet in find(
+        path.rec[has_any(path.diameter < 10000, (path.name, second_letter_is_a))].name,
+        solar_system)
+             ]
+    assert found == ['Mercury', 'Earth', 'Mars', 'Saturn']
 
 
 @readme.append_function

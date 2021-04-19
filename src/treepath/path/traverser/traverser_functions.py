@@ -15,6 +15,23 @@ from treepath.path.traverser.trace import Trace
 from treepath.path.traverser.value_traverser import ValueTraverser
 from treepath.path.util.decorator import pretty_repr, add_attr
 
+_has_typing_first_arg = Union[
+    PathBuilderPredicate,
+    PathPredicate,
+    Callable[[Match], Any]
+]
+_has_typing_single_arg_functions = Callable[[Any], Any]
+
+_has_tuple_arg_type = Tuple[
+    _has_typing_first_arg,
+    _has_typing_single_arg_functions,
+]
+
+_has_multiple_arg_type = Union[
+    _has_typing_first_arg,
+    _has_tuple_arg_type,
+]
+
 _not_set = dict()
 
 
@@ -146,7 +163,7 @@ def nested_find_matches(
     return traverser_iter
 
 
-def has_these(*args: Tuple[Union[PathBuilderPredicate, PathPredicate, Callable[[Match], Any]]], repr_join_key=', '):
+def has_these(*args: _has_multiple_arg_type, repr_join_key=', '):
     """
 
     """
@@ -169,9 +186,9 @@ def has_these(*args: Tuple[Union[PathBuilderPredicate, PathPredicate, Callable[[
     return wrap
 
 
-def has_all(*args: Union[PathBuilderPredicate, PathPredicate, Callable[[Match], Any]]):
+def has_all(*args: _has_multiple_arg_type):
     """
-
+    Tuple[Union[PathBuilderPredicate, PathPredicate, Callable[[Match], Any]]]
     """
 
     @has.these(*args, repr_join_key=' and ')
@@ -184,7 +201,7 @@ def has_all(*args: Union[PathBuilderPredicate, PathPredicate, Callable[[Match], 
     return and_predicate
 
 
-def has_any(*args: Union[PathBuilderPredicate, PathPredicate, Callable[[Match], Any]]):
+def has_any(*args: _has_multiple_arg_type):
     """
 
     """
@@ -199,10 +216,25 @@ def has_any(*args: Union[PathBuilderPredicate, PathPredicate, Callable[[Match], 
     return or_predicate
 
 
+def has_not(
+        path: _has_typing_first_arg,
+        *single_arg_functions: _has_typing_single_arg_functions) -> Callable[[Match], Any]:
+    """
+    Tuple[Union[PathBuilderPredicate, PathPredicate, Callable[[Match], Any]]]
+    """
+
+    predicate = create_has_predicate(nested_find_matches, path, *single_arg_functions)
+
+    def not_predicate(parent_match: Match) -> Any:
+        return not predicate(parent_match)
+
+    return not_predicate
+
+
 @add_attr("these", has_these)
 def has(
-        path: Union[PathBuilderPredicate, PathPredicate, Callable[[Match], Any]],
-        *single_arg_functions: [Callable[[Any], Any]]) -> Callable[[Match], Any]:
+        path: _has_typing_first_arg,
+        *single_arg_functions: _has_typing_single_arg_functions) -> Callable[[Match], Any]:
     """
 
     """
