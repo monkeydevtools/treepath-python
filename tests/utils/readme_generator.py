@@ -13,11 +13,11 @@ class Readme:
 
     def append_doc(self, data):
         dedent_data = textwrap.dedent(data)
-        self.append(f"{os.linesep}{dedent_data}")
+        self.append(f"{dedent_data}{os.linesep}")
 
     def append_python_src(self, python_src):
         dedent_python_src = textwrap.dedent(python_src)
-        self.append(f"{os.linesep}```python{os.linesep}{dedent_python_src}```")
+        self.append(f"```python{os.linesep}{dedent_python_src}```{os.linesep}")
 
     @staticmethod
     def extract_doc_string(python_entity):
@@ -78,5 +78,6 @@ class Readme:
     def __iadd__(self, p2):
         dedent_txt = textwrap.dedent(p2)
         self.append(dedent_txt)
+        self.append(os.linesep)
         return self
 
