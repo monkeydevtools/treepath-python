@@ -112,7 +112,6 @@ and declarative solution.
 
 The problem is:  given the solar system json document fetch the planet by name.
 
-The example solar system json document can be found [Here](# Solar-System-Json-Document)
 
 
 ## Imperative Solution
@@ -205,7 +204,7 @@ human_population = get(path.star.human_population, solar_system, default=0)
 assert human_population == 0
 
 ```
-The data source can be a json data structure or a [Match](# The-Match-class).
+The data source can be a json data structure or a Match object.
 
 ```python
 parent_match = get_match(path.star.planets.inner, solar_system)
@@ -223,7 +222,7 @@ inner_planets = [planet for planet in find(path.star.planets.inner[wc].name, sol
 assert inner_planets == ['Mercury', 'Venus', 'Earth', 'Mars']
 
 ```
-The data source can be a json data structure or a [Match](# The-Match-class).
+The data source can be a json data structure or a Match object.
 
 ```python
 parent_match = get_match(path.star.planets.inner, solar_system)
@@ -231,7 +230,7 @@ inner_planets = [planet for planet in find(path[wc].name, parent_match)]
 assert inner_planets == ['Mercury', 'Venus', 'Earth', 'Mars']
 ```
 ## get_match
-The **get_match** function returns the first [Match](# The-Match-class) the path leads to.
+The **get_match** function returns the first Match the path leads to.
 
 Get the star name from the solar_system
 
@@ -257,7 +256,7 @@ match = get_match(path.star.human_population, solar_system, must_match=False)
 assert match is None
 
 ```
-The data source can be a json data structure or a [Match](# The-Match-class).
+The data source can be a json data structure or a Match object.
 
 ```python
 parent_match = get_match(path.star.planets.inner, solar_system)
@@ -281,7 +280,7 @@ for match in find_matches(path.star.planets.inner[wc], solar_system):
     ]
 
 ```
-The data source can be a json data structure or a [Match](# The-Match-class).
+The data source can be a json data structure or a Match object.
 
 ```python
 parent_match = get_match(path.star.planets.inner, solar_system)
@@ -654,6 +653,7 @@ assert found == ['Mercury', 'Earth', 'Mars', 'Saturn']
 
 ```
 The **has_not** function evaluates as the logical **not** operator.   It is equivalent to: (not arg)
+This example find all the planets names not not equal to Earth.  Note the double nots.
 
 ```python
 found = [planet for planet in find(
