@@ -36,13 +36,21 @@ def test_quick_start(solar_system):
     # A treepath example that fetches the value 1 from data.
     data = {
         "a": {
-            "b": {
-                "c": 1
-            }
+            "b": [
+                {
+                    "c": 1
+                },
+                {
+                    "c": 2
+                }]
         }
     }
-    value = get(path.a.b.c, data)
+    value = get(path.a.b[0].c, data)
     assert value == 1
+
+    # A treepath example that fetches the values 1 and 2 from data.
+    value = [value for value in find(path.a.b[wc].c, data)]
+    assert value == [1,2]
 
 
 readme += """
@@ -489,7 +497,7 @@ def test_path_list_wildcard(solar_system):
 def test_path_recursion(solar_system):
     """## Recursion"""
 
-    # The **recursive* word implies recursive search.  It is a preorder tree traversal.  The search algorithm descends
+    # The **recursive** word implies recursive search.  It is a preorder tree traversal.  The search algorithm descends
     # the tree hierarchy evaluated the path on each vertex.  It starts relative to its parent and stops on each match.
     # This is an example that finds all the planets names.
     all_planets = [p for p in find(path.star.planets.recursive.name, solar_system)]

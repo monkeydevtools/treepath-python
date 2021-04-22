@@ -19,13 +19,24 @@ A treepath example that fetches the value 1 from data.
 ```python
 data = {
     "a": {
-        "b": {
-            "c": 1
-        }
+        "b": [
+            {
+                "c": 1
+            },
+            {
+                "c": 2
+            }]
     }
 }
-value = get(path.a.b.c, data)
+value = get(path.a.b[0].c, data)
 assert value == 1
+
+```
+A treepath example that fetches the values 1 and 2 from data.
+
+```python
+value = [value for value in find(path.a.b[wc].c, data)]
+assert value == [1,2]
 ```
 
 # Solar System Json Document
@@ -508,7 +519,7 @@ all_planets = [p for p in find(path.star.planets.wc[wc].name, solar_system)]
 assert all_planets == ['Mercury', 'Venus', 'Earth', 'Mars', 'Jupiter', 'Saturn', 'Uranus', 'Neptune']
 ```
 ## Recursion
-The **recursive* word implies recursive search.  It is a preorder tree traversal.  The search algorithm descends
+The **recursive** word implies recursive search.  It is a preorder tree traversal.  The search algorithm descends
 the tree hierarchy evaluated the path on each vertex.  It starts relative to its parent and stops on each match.
 This is an example that finds all the planets names.
 

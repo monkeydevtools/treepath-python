@@ -28,5 +28,29 @@ from treepath.path.traverser.traverser_functions import has_not
 from treepath.path.traverser.traverser_functions import nested_find_matches
 from treepath.path.traverser.traverser_functions import nested_get_match
 
+# path is a global object for dynamically declaring a query to extract data from a json data structure.
+#     # A treepath example that fetches the value 1 from data.
+#     data = {
+#         "a": {
+#             "b": [
+#                 {
+#                     "c": 1
+#                 },
+#                 {
+#                     "c": 2
+#                 }]
+#         }
+#     }
+#     value = get(path.a.b[0].c, data)
+#     assert value == 1
+#
+#     # A treepath example that fetches the values 1 and 2 from data.
+#     value = [value for value in find(path.a.b[wc].c, data)]
+#     assert value == [1,2]
+# See the README.md for example on how to use the path object.
 path = RootPathBuilder()
+
+# pathd is similar to path, but with the augmentation to translate underscores into dashes.  It provides a convenient
+# way of working with json documents that has a lot of keys with dashes in the names as dashes are not valid python
+# attribute names.  For example pathd.a_a  is equivalent to data["a-a"]
 pathd = DashPathRoot()

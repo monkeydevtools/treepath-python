@@ -5,7 +5,7 @@ from treepath.path.vertex.vertex import Vertex
 
 class NestedMatchNotFoundError(MatchNotFoundError, LookupError):
     """
-    MatchNotFoundError is raised when a get_match is expected; however, the data structure has no more element to traverse
+    NestedMatchNotFoundError is raised when nested_get_match query fails to generate a result for the specified path.
     """
 
     def __init__(self, nested_match: Match, vertex: Vertex):

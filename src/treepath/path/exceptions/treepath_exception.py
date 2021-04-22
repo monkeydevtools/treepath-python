@@ -2,7 +2,7 @@ from treepath.path.vertex.vertex import Vertex
 
 
 class TreepathException(Exception):
-    """Basic exception for errors raised by treepath"""
+    """Base exception for errors raised by treepath"""
 
     def __init__(self, vertex: Vertex):
         self.vertex = vertex
