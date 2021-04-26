@@ -8,6 +8,7 @@ from tests.utils.readme_generator import Readme
 from tests.utils.traverser_utils import gen_test_data, yria, yaia
 from treepath import path, find, wc, get, has, get_match, find_matches, pathd, wildcard, \
     MatchNotFoundError, Match, log_to, has_all, has_any, has_not
+from treepath.path.traverser.traverser_functions import has_these
 
 read_me_file = find_file("README.md")
 readme = Readme(read_me_file)
@@ -50,7 +51,7 @@ def test_quick_start(solar_system):
 
     # A treepath example that fetches the values 1 and 2 from data.
     value = [value for value in find(path.a.b[wc].c, data)]
-    assert value == [1,2]
+    assert value == [1, 2]
 
 
 readme += """
@@ -533,7 +534,7 @@ def test_path_has_filter(solar_system):
     assert all_celestial_bodies_moon_attribute == ['Mercury', 'Venus', 'Earth', 'Mars', 'Jupiter', 'Saturn', 'Uranus',
                                                    'Neptune']
 
-    # This search finds all celestial bodies that have moons. Note the **operator.truth** to exclude planest that don't
+    # This search finds all celestial bodies that have moons. Note the **operator.truth** to exclude planets that don't
     # have moons
     all_celestial_bodies_moon_attribute = [planet for planet in
                                            find(path.rec[has(pathd.has_moons, operator.truth)].name, solar_system)]
@@ -654,12 +655,18 @@ def test_path_filter_has_all(solar_system):
 def test_path_filter_has_these(solar_system):
     """### has.these filter"""
 
-    second_letter_is_a = re.compile(r".a.*").fullmatch
-    found = [planet for planet in find(
-        path.rec[has_any(path.diameter < 10000, (path.name, second_letter_is_a))].name,
+    def is_root(match: Match):
+        return match.parent.parent is None
+
+    @has.these(path.name, path.name == 'Sun', (path.name, operator.truth), is_root)
+    def predicate(match: Match, arg1, arg2, arg3, arg4):
+        return arg1(match) and arg2(match) and arg3(match) and arg4(match)
+
+    found = [celestial_bodies for celestial_bodies in find(
+        path.rec[predicate].name,
         solar_system)
              ]
-    assert found == ['Mercury', 'Earth', 'Mars', 'Saturn']
+    assert found == ['Sun']
 
 
 @readme.append_function
