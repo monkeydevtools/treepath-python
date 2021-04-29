@@ -59,7 +59,7 @@ def test_quick_start(solar_system):
 readme += """
 # Solar System Json Document
 
-The examples shown in this README use the following json document.  It describes our solar system.
+The examples shown in this README use the following json document.  It describes our solar system. Click to expand.  
 <details><summary>solar_system = {...}</summary>
 <p>
 
@@ -76,10 +76,10 @@ readme += """
 readme += """
 # Quick comparison between Imperative and Declarative Solution
 
-To understand how treepath can differs from Imperative solution, here is an example problem showing both an Imperative
-and declarative solution.
+The following problem is solved using a Imperative Solution and a Declarative Solution to try to illustrate the 
+differences between the two approaches.  
 
-The problem is:  given the solar system json document fetch the planet by name.
+The problem is fetch the planet by name from the given solar system json document.  
 
 """
 
