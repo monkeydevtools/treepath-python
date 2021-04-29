@@ -231,6 +231,7 @@ def has_these(*args: _has_multiple_arg_type, repr_join_key=', '):
     value = get(path.rec[predicate].name,solar_system)
 
     @param args: Varying number of positional arguments.  Each argument must be a path expression or a path predicate.
+    @param repr_join_key:  A string to use as a delimiter when joining the arguments while pretty printing path.
     @return: The decorated function to be used as a path predicate in a path expression.
     """
 
@@ -252,9 +253,22 @@ def has_these(*args: _has_multiple_arg_type, repr_join_key=', '):
     return wrap
 
 
-def has_all(*args: _has_multiple_arg_type):
+def has_all(*args: _has_multiple_arg_type) -> Callable[[Match], Any]:
     """
-    Tuple[Union[PathBuilderPredicate, PathPredicate, Callable[[Match], Any]]]
+    Construct a logical and predicate.   The outcome of evaluating the predicate is equivalent to
+    return arg0(match) and arg1(match) and arg2(match) ... and argN(match)
+
+    Example Usage
+    * get(path.a[has_all(path.b, path.z)].c) interpret as get a.c if both a.b and a.z exist.
+    * get(path.a[has_all(path.b, path.z==1)].c) interpret as get a.c if a.b exist and a.z==1.
+    * get(path.a[has_all(path.b, (path.z==1, int))].c) interpret as get a.c if a.b exist and int(a.z)==1.
+    * get(path.a[has_all(path.b, has(path.z==1, int))].c) has same meaning as previous.
+    * get(path.a[has_all(has_any(path.l,path.m),has_any(path.x,path.y))].c) interpret as get a.c if either a.l or a.m
+      exist and if either a.x or a.y exist.
+
+    @param args: A variable length argument where each argument may be a path expression,  a path expression with
+           condition operator, a predicate or a tuple.  A tuple argument is interpreted as a has function.
+    @return:  Returns a predicate that performs a logical and on the arguments.
     """
 
     @has.these(*args, repr_join_key=' and ')
@@ -267,9 +281,22 @@ def has_all(*args: _has_multiple_arg_type):
     return and_predicate
 
 
-def has_any(*args: _has_multiple_arg_type):
+def has_any(*args: _has_multiple_arg_type) -> Callable[[Match], Any]:
     """
+    Construct a logical or predicate.   The outcome of evaluating the predicate is equivalent to
+    return arg0(match) or arg1(match) or arg2(match) ... or argN(match)
 
+    Example Usage
+    * get(path.a[has_any(path.b, path.z)].c) interpret as get a.c if either a.b or a.z exist.
+    * get(path.a[has_any(path.b, path.z==1)].c) interpret as get a.c if either a.b exist or a.z==1.
+    * get(path.a[has_any(path.b, (path.z==1, int))].c) interpret as get a.c if either a.b exist or int(a.z)==1.
+    * get(path.a[has_any(path.b, has(path.z==1, int))].c) has same meaning as previous.
+    * get(path.a[has_any(has_all(path.l,path.m),has_all(path.x,path.y))].c) interpret as get a.c if a.l and a.m
+      exist or if a.x and a.y exist.
+
+    @param args: A variable length argument where each argument may be a path expression,  a path expression with
+           condition operator, a predicate or a tuple.  A tuple argument is interpreted as a has function.
+    @return:  Returns a predicate that performs a logical or on the arguments.
     """
 
     @has.these(*args, repr_join_key=' or ')
@@ -286,6 +313,20 @@ def has_not(
         path: _has_typing_first_arg,
         *single_arg_functions: _has_typing_single_arg_functions) -> Callable[[Match], Any]:
     """
+    Construct a logical not predicate.  The has_not functions accepts the same
+    arguments as the has function.
+
+    Example Usage
+     * get(path.a[has_not(path.b)].c) interpret as get a.c if  a.b does not exist.
+     * get(path.a[has_not(has(path.b))].c) has same meaning as previous.
+     * get(path.a[has_not(has_any(path.b, path.z))].c) interpret as get a.c if both a.b and a.z do not exist.
+
+
+    @param path: A path expression,  a path expression with condition operator, or predicate.
+    @param single_arg_functions:  A variable argument of or Callable[[ANY],ANY].   The Callables are evaluated as
+           follows: arg0(arg1(arg2(...argN(get(path)))).
+
+    @return:  Returns the constructed not predicate.
     """
 
     predicate = create_has_predicate(nested_find_matches, path, *single_arg_functions)
@@ -301,20 +342,36 @@ def has(
         path: _has_typing_first_arg,
         *single_arg_functions: _has_typing_single_arg_functions) -> Callable[[Match], Any]:
     """
-    Constructs a path predicate from a path expression.
+    Constructs a predicate from a path expression, a path expression and condition, a path expression, a
+    condition and a map function or a predicate.  These four forms are shown here:
 
-    Examples
+    First form: has(path expression)
+    * Evaluates true if the path expression combined with parent path expression exist.
+    * get(path.a[has(path.b)].c) interpret as get a.c if a.b exist.
 
-    has(path.a)
-    had(path.a, operator.truth)
-    had(path.a==1)
-    had(path.a==1, int)
-    had(path.a==1, int, )
+    Second form: has(path expression, condition)
+    * Applies the condition to the value referenced by the path expression combined with parent path expression.
+    * The condition can be either a single argument function that returns a value or any of the following operators:
+      ==, !=, >, >=, <, or <=.
+    * get(path.a[has(path.b, operator.truth)].c) interpret as get a.c if operator.truth(get(a.b)).
+    * get(path.a[has(path.b==1)].c) interpret as get a.c if get(a.b)==1.
 
+    Third form: has(path expression, condition, map function)
+    * First applies the map function to the value referenced by the path expression combined with parent path
+      expression. Next apply the condition to the value return from map function.
+    * The map function must be a single argument function that returns a value.
+    * get(path.a[has(path.b,  operator.truth, int)].c) interpret as get a.c if operator.truth(int(get(a.b))).
+    * get(path.a[has(path.b==1, int)].c) interpret as get a.c if int(get(a.b))==1.
 
-    @param path: The path expression to be converted into a path predicate.
-    @param single_arg_functions: Optional varying number of callables to be applied to a value before applying it to
-    the predicate.
-    @return: The constructed path predicate.
+    Fourth form: has(path predicate)
+    * Return the path predicate argument.
+    * A path predicate type:  Callable[[Match], ANY]
+    * get(path.a[has(has(path.b))].c) == get(path.a[has(path.b)].c)
+
+    @param path: A path expression,  a path expression with condition operator, or predicate.
+    @param single_arg_functions:  A variable argument of or Callable[[ANY],ANY].   The Callables are evaluated as
+           follows: arg0(arg1(arg2(...argN(get(path)))).
+
+    @return:  Returns the constructed predicate.
     """
     return create_has_predicate(nested_find_matches, path, *single_arg_functions)
