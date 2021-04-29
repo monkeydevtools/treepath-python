@@ -7,6 +7,8 @@ are a [query language](https://en.wikipedia.org/wiki/Query_language) similar to
 [jsonpath](https://goessner.net/articles/JsonPath/), and [Xpath](https://en.wikipedia.org/wiki/XPath), but are
 written in native python syntax.
 
+Note python 3.6 is supported in version earlier that 1.0.0.
+
 # Quick start
 All of the treepath components should be imported as follows:
 ```python
