@@ -91,7 +91,7 @@ class MatchTraverser:
         if self.trace:
             self.trace(
                 Trace(
-                    Match( current_match),
+                    Match(current_match),
                     Match(next_match) if next_match else None,
                     next_vertex
                 )

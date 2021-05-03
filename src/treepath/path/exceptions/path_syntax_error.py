@@ -6,7 +6,7 @@ from treepath.path.vertex.vertex import Vertex
 
 
 class PathSyntaxError(TreepathException, SyntaxError):
-    """PathSyntaxError is raised when there is an syntax issue with the path"""
+    """PathSyntaxError is raised when there is a syntax issue with the path"""
 
     def __init__(self, parent_vertex: Union[Vertex, None], error_msg, invalid_path_segment):
         self.error_msg = error_msg
