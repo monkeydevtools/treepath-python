@@ -8,7 +8,6 @@ from tests.utils.readme_generator import Readme
 from tests.utils.traverser_utils import gen_test_data, yria, yaia
 from treepath import path, find, wc, get, has, get_match, find_matches, pathd, wildcard, \
     MatchNotFoundError, Match, log_to, has_all, has_any, has_not
-from treepath.path.traverser.traverser_functions import has_these
 
 read_me_file = find_file("README.md")
 readme = Readme(read_me_file)
@@ -74,7 +73,7 @@ readme += """
 """
 
 readme += """
-# Quick comparison between Imperative and Declarative Solution
+# Quick comparison between Imperative and Declarative Solution.
 
 The following problem is solved using a Imperative Solution and a Declarative Solution to try to illustrate the 
 differences between the two approaches.  
@@ -221,7 +220,7 @@ def test_traversal_function_get(solar_system):
     except MatchNotFoundError:
         pass
 
-    # Return a default value when match is not found.
+    # Or if preferred, a default value can be given.
     human_population = get(path.star.human_population, solar_system, default=0)
     assert human_population == 0
 
@@ -265,7 +264,7 @@ def test_traversal_function_get_match(solar_system):
     except MatchNotFoundError:
         pass
 
-    # Return a None when match is not found.
+    # Or if preferred, **None** is returned if not must_match is given.
     match = get_match(path.star.human_population, solar_system, must_match=False)
     assert match is None
 
@@ -333,10 +332,11 @@ def test_traversal_function_match_class(solar_system):
 def test_traversal_function_get(solar_system):
     """## Tracing Debugging"""
 
-    # All of the functions get, find, get_match and find_matches, support tracing.   An option to record the route
-    # the algorithm took to determine a match.   This is a useful option for debugging a path.
+    # All of the functions: get, find, get_match and find_matchesm, support tracing.   An option, when enabled,
+    # records the route the algorithm takes to determine a match.
 
-    # This example logs to the print method, the end to end route taken to find all of the planet names.
+    # This example logs the route the algorithm takes to find the inner planets.  The **print**
+    # function is give to capture the logs, but any single argument function can be used.
     inner_planets = [planet for planet in find(path.star.planets.inner[wc].name, solar_system, trace=log_to(print))]
     assert inner_planets == ['Mercury', 'Venus', 'Earth', 'Mars']
 
@@ -391,13 +391,13 @@ def test_path_keys(solar_system):
 def test_path_keys_special_characters(solar_system):
     """### Keys With Special Characters"""
 
-    # Dictionary keys that are not valid python syntax can be referenced as quoted as strings.
+    # Dictionary keys that are not valid python syntax can be referenced as double quoted strings.
     sun_equatorial_diameter = get(path.star.planets.inner[0]["Number of Moons"], solar_system)
 
     assert sun_equatorial_diameter == solar_system["star"]["planets"]["inner"][0]["Number of Moons"]
 
     # Dictionaries that have alot of keys with a dash in the name can can use **pathd** instead.  It will interpret
-    # dynamic attribute with underscore as dashes.
+    # path attributes with underscore as dashes.
     mercury_has_moons = get(pathd.star.planets.inner[0].has_moons, solar_system)
 
     assert mercury_has_moons == solar_system["star"]["planets"]["inner"][0]["has-moons"]
@@ -407,14 +407,14 @@ def test_path_keys_special_characters(solar_system):
 def test_path_keys_wildcard(solar_system):
     """### Wildcard as a Key."""
 
-    # The **wildcard** attribute specifies all keys.   It is useful for iterating over attributes.
+    # The **wildcard** attribute specifies all sibling keys.   It is useful for iterating over attributes.
     star_children = [child for child in find(path.star.wildcard, solar_system)]
     assert star_children == [solar_system["star"]["name"],
                              solar_system["star"]["diameter"],
                              solar_system["star"]["age"],
                              solar_system["star"]["planets"], ]
 
-    # The **wc** is short version of wildcard.
+    # The **wc** is the short version of wildcard.
     star_children = [child for child in find(path.star.wc, solar_system)]
     assert star_children == [solar_system["star"]["name"],
                              solar_system["star"]["diameter"],
@@ -442,7 +442,7 @@ def test_path_list(solar_system):
     earth = get(path.star.planets.inner[2], solar_system)
     assert earth == solar_system["star"]["planets"]["inner"][2]
 
-    # List the third inner and outer planet
+    # List the third inner and outer planet.
     last_two = [planet for planet in find(path.star.wc.wc[2].name, solar_system)]
     assert last_two == ['Earth', 'Uranus']
 
@@ -451,13 +451,13 @@ def test_path_list(solar_system):
 def test_path_list_slice(solar_system):
     """### Slices"""
 
-    # List can be access using slices
+    # List can be access using slices.
 
     # List the first two planets.
     first_two = [planet for planet in find(path.star.planets.outer[:2].name, solar_system)]
     assert first_two == ["Jupiter", "Saturn"]
 
-    # List the last to planets.
+    # List the last two planets.
     last_two = [planet for planet in find(path.star.planets.outer[-2:].name, solar_system)]
     assert last_two == ["Uranus", "Neptune"]
 
@@ -474,7 +474,7 @@ def test_path_list_slice(solar_system):
 def test_path_list_comma_delimited(solar_system):
     """### Comma Delimited Indexes."""
 
-    # The List indexes can be specified as a comma delimited list.
+    # List indexes can be specified as a comma delimited list.
     last_and_first = [planet for planet in find(path.star.planets.outer[3, 0].name, solar_system)]
     assert last_and_first == ["Neptune", "Jupiter"]
 
@@ -487,11 +487,12 @@ def test_path_list_wildcard(solar_system):
     all_outer = [planet for planet in find(path.star.planets.outer[wildcard].name, solar_system)]
     assert all_outer == ["Jupiter", "Saturn", "Uranus", "Neptune"]
 
-    # The **wc** is short version of wildcard.
+    # The **wc** is the short version of wildcard.
     all_outer = [planet for planet in find(path.star.planets.outer[wc].name, solar_system)]
     assert all_outer == ["Jupiter", "Saturn", "Uranus", "Neptune"]
 
-    # The dictionary wildcard is different from a list wildcard.  One cannot be use to iterate over the other.
+    # The dictionary wildcard is given as dot notation and cannot be used to iterator over a list.  The list wildcard
+    # is given as an index and cannot be used to iterate over dictionary keys.
     all_planets = [p for p in find(path.star.planets.wc[wc].name, solar_system)]
     assert all_planets == ['Mercury', 'Venus', 'Earth', 'Mars', 'Jupiter', 'Saturn', 'Uranus', 'Neptune']
 
@@ -500,13 +501,13 @@ def test_path_list_wildcard(solar_system):
 def test_path_recursion(solar_system):
     """## Recursion"""
 
-    # The **recursive** word implies recursive search.  It is a preorder tree traversal.  The search algorithm descends
-    # the tree hierarchy evaluated the path on each vertex.  It starts relative to its parent and stops on each match.
-    # This is an example that finds all the planets names.
+    # The **recursive** word implies recursive search.  It executes a preorder tree traversal.  The search algorithm
+    # descends the tree hierarchy evaluating the path on each vertex until a match occurs.  On each iteration it
+    # continues where it left off. This is an example that finds all the planets names.
     all_planets = [p for p in find(path.star.planets.recursive.name, solar_system)]
     assert all_planets == ['Mercury', 'Venus', 'Earth', 'Mars', 'Jupiter', 'Saturn', 'Uranus', 'Neptune']
 
-    # The **rec** is short version of recursive.
+    # The **rec** is the short version of recursive.
     all_planets = [p for p in find(path.star.planets.rec.name, solar_system)]
     assert all_planets == ['Mercury', 'Venus', 'Earth', 'Mars', 'Jupiter', 'Saturn', 'Uranus', 'Neptune']
 
@@ -536,8 +537,8 @@ def test_path_has_filter(solar_system):
     assert all_celestial_bodies_moon_attribute == ['Mercury', 'Venus', 'Earth', 'Mars', 'Jupiter', 'Saturn', 'Uranus',
                                                    'Neptune']
 
-    # This search finds all celestial bodies that have moons. Note the **operator.truth** to exclude planets that don't
-    # have moons
+    # This search finds all celestial bodies that have moons. Note the **operator.truth** is used to exclude planets
+    # that don't have moons.
     all_celestial_bodies_moon_attribute = [planet for planet in
                                            find(path.rec[has(pathd.has_moons, operator.truth)].name, solar_system)]
     assert all_celestial_bodies_moon_attribute == ['Earth', 'Mars', 'Jupiter', 'Saturn', 'Uranus', 'Neptune']
@@ -547,7 +548,7 @@ def test_path_has_filter(solar_system):
 def test_path_has_filter_comparison_operators(solar_system):
     """### has filter comparison operators"""
 
-    # Filters can be specified with comparison operator.
+    # Filters can be specified with a comparison operator.
     earth = [planet for planet in find(path.rec[has(path.diameter == 12756)].name, solar_system)]
     assert earth == ['Earth']
 
@@ -585,8 +586,8 @@ def test_path_has_filter_type_conversion(solar_system):
 def test_path_has_filter_operators_as_single_argument_functions(solar_system):
     """### has filter comparison operators as single argument functions"""
 
-    # Filters operator can be specified as a single argument function.  Here an Earth example that searches for a
-    # planets that have the same diameter as earth.
+    # A filter operator can be specified as a single argument function.  Here an example that searches for planets that
+    # have the same diameter as earth.
     earths_diameter = partial(operator.eq, 12756)
     earth = [planet for planet in find(path.rec[has(path.diameter, earths_diameter)].name, solar_system)]
     assert earth == ['Earth']
@@ -607,9 +608,10 @@ def test_path_has_filter_operators_as_single_argument_functions(solar_system):
 
 @readme.append_function
 def test_path_filter_has_all(solar_system):
-    """### logical and, or and not filter"""
+    """### logical and, or and not filters"""
 
-    # A regex to test if second letter in the value is an a.
+    # #### has_all
+    # A regular express to test if second letter in the value is an a.
     second_letter_is_a = re.compile(r".a.*").fullmatch
 
     # The **has_all** function evaluates as the logical **and** operator.   It is equivalent to: (arg1 and arg2 and ...)
@@ -619,6 +621,7 @@ def test_path_filter_has_all(solar_system):
              ]
     assert found == ['Mars']
 
+    # #### has_any
     # The **has_any** function evaluates as the logical **or** operator.   It is equivalent to: (arg1 and arg2 and ...)
     found = [planet for planet in find(
         path.rec[has_any(path.diameter < 10000, (path.name, second_letter_is_a))].name,
@@ -626,6 +629,7 @@ def test_path_filter_has_all(solar_system):
              ]
     assert found == ['Mercury', 'Earth', 'Mars', 'Saturn']
 
+    # #### has_not
     # The **has_not** function evaluates as the logical **not** operator.   It is equivalent to: (not arg)
     # This example find all the planets names not not equal to Earth.  Note the double nots.
     found = [planet for planet in find(
@@ -634,6 +638,7 @@ def test_path_filter_has_all(solar_system):
              ]
     assert found == ['Earth']
 
+    # #### Combining has, has_all, has_any, and has_not filters.
     # Each of the **has** function can be passed as arguments to any of the other **has** function to construct complex
     # boolean equation.  This example is equivalent to:
     # (10000 > diameter  or diameter > 20000) and second_letter_is_a(name))
@@ -643,6 +648,7 @@ def test_path_filter_has_all(solar_system):
              ]
     assert found == ['Mars', 'Saturn']
 
+    # #### has.these
     # The decorator **has.these** can be used to construct the boolean equations more explicitly.  This example shows
     # to use python built in and, or and not operators.
     @has.these(path.diameter < 10000, path.diameter > 20000, (path.name, second_letter_is_a))
@@ -654,31 +660,13 @@ def test_path_filter_has_all(solar_system):
 
 
 @readme.append_function
-def test_path_filter_has_these(solar_system):
-    """### has.these filter"""
-
-    def is_root(match: Match):
-        return match.parent.parent is None
-
-    @has.these(path.name, path.name == 'Sun', (path.name, operator.truth), is_root)
-    def predicate(match: Match, arg1, arg2, arg3, arg4):
-        return arg1(match) and arg2(match) and arg3(match) and arg4(match)
-
-    found = [celestial_bodies for celestial_bodies in find(
-        path.rec[predicate].name,
-        solar_system)
-             ]
-    assert found == ['Sun']
-
-
-@readme.append_function
 def test_path_filter_customer_predicate(solar_system):
     """### A custom filter."""
 
     # A predicate is a single argument function that returns anything. The argument is the current match.   The has
     # function is a fancy predicate.
 
-    # This example writes a custom predicate that find earths neighbours.
+    # This example writes a custom predicate that find all of Earth's neighbours.
     def my_neighbor_is_earth(match: Match):
         i_am_planet = get_match(path.parent.parent.parent.planets, match, must_match=False)
         if not i_am_planet:
