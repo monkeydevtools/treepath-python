@@ -641,7 +641,7 @@ earth = [planet for planet in find(path.rec[has(path.diameter, smaller_than_eart
 assert earth == ['Mercury', 'Venus', 'Mars']
 ```
 ### logical and, or and not filters
-#### has_all filter
+#### has_all
 A regular express to test if second letter in the value is an a.
 
 ```python
@@ -658,7 +658,7 @@ found = [planet for planet in find(
 assert found == ['Mars']
 
 ```
-#### has_any filter
+#### has_any
 The **has_any** function evaluates as the logical **or** operator.   It is equivalent to: (arg1 and arg2 and ...)
 
 ```python
@@ -669,7 +669,7 @@ found = [planet for planet in find(
 assert found == ['Mercury', 'Earth', 'Mars', 'Saturn']
 
 ```
-#### has_not filter
+#### has_not
 The **has_not** function evaluates as the logical **not** operator.   It is equivalent to: (not arg)
 This example find all the planets names not not equal to Earth.  Note the double nots.
 
@@ -694,7 +694,7 @@ found = [planet for planet in find(
 assert found == ['Mars', 'Saturn']
 
 ```
-#### has.these filter
+#### has.these
 The decorator **has.these** can be used to construct the boolean equations more explicitly.  This example shows
 to use python built in and, or and not operators.
 
@@ -710,7 +710,7 @@ assert found == ['Mars', 'Saturn']
 A predicate is a single argument function that returns anything. The argument is the current match.   The has
 function is a fancy predicate.
 
-This example writes a custom predicate that find earths neighbours.
+This example writes a custom predicate that find all of Earth's neighbours.
 
 ```python
 def my_neighbor_is_earth(match: Match):
