@@ -1,6 +1,6 @@
 from typing import Any
 
-from treepath import path, get, find, log_to, has, Match, has_any, has_all
+from treepath import path, get, find, log_to, has, Match, has_any, has_all, get_match
 
 
 def test_keys_get_x_y_z_trace(keys):
@@ -212,7 +212,7 @@ def test_keys_get_root_has_a_or_b_or_z_trace(keys):
         actual_trace_messages.append(message)
 
     expected = keys
-    get(path[has_any(path.a, path.b, path.z)], keys, trace=log_to(mock_print))
+    get_match(path[has_any(path.a, path.b, path.z)], keys, must_match=False,trace=log_to(mock_print))
 
     assert actual_trace_messages == expected_trace_messages
 
