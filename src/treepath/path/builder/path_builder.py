@@ -90,6 +90,29 @@ class PathBuilder(PathBuilderPredicate, AbstractPathBuilder):
         vertex = object.__getattribute__(self, _RESERVED_ATTR_FOR_VERTEX_DATA)
         return str(vertex)
 
+    def __len__(self):
+        """ Always return 0 as the [] is used as a factory and not a fetch"""
+        return 0
+
+    @property
+    def shape(self):
+        """
+        The attribute name shape is reserved. Use path["shape"] instead of path.shape',
+
+        Debuggers expect a property named shape to be defined when a class also defines a __getitem__.   The dynamite
+        attribute defined by __getattr__ conflicts with the value the debugger expects the shape property to return.
+        This can causes instability with some debuggers.
+
+        To prevent any instability with debuggers, the property shape is reserved so it cannot be used a a dynamic
+        property.
+        """
+        parent_vertex = object.__getattribute__(self, _RESERVED_ATTR_FOR_VERTEX_DATA)
+        raise PathSyntaxError(
+            parent_vertex,
+            'The attribute name shape is reserved. Use path["shape"] instead of path.shape.',
+            ".shape"
+        )
+
     def create_path_builder(self, *args, **kwargs):
         return PathBuilder(*args, **kwargs)
 
@@ -104,7 +127,7 @@ class PathBuilder(PathBuilderPredicate, AbstractPathBuilder):
             raise PathSyntaxError(
                 parent_vertex,
                 "Successive recursive vertices are not allowed in the path expression.",
-                "recursive"
+                ".."
             )
         path_builder = self.create_path_builder(vertex)
         return path_builder
