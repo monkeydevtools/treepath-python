@@ -13,8 +13,7 @@ def test_keys_get_root_has_a_MatchNotFoundError(keys):
 
 def test_PathSyntaxError_validate_message(keys):
     expected = "PathSyntaxError(Invalid  path [<class 'int'>] argument.   Expecting PathBuilderPredicate, " \
-               f"PathPredicate,  or Callable[[Match], Any]]{os.linesep}" \
-               "  path: None)"
+               f"PathPredicate,  or Callable[[Match], Any]])"
     with pytest.raises(PathSyntaxError) as exc_info:
         has(1)
 

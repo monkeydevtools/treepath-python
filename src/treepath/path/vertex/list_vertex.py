@@ -3,6 +3,7 @@ from typing import Union
 
 from treepath.path.traverser.list_match import ListMatch
 from treepath.path.traverser.traverser_match import TraverserMatch
+from treepath.path.util.function import enumerate_slice
 from treepath.path.vertex.vertex import Vertex
 
 
@@ -79,7 +80,7 @@ class ListSliceVertex(_ListVertex):
             data = parent_match.data
             if not isinstance(data, list):
                 return None
-            remembered_catch_state = enumerate(data[self._slice])
+            remembered_catch_state = enumerate_slice(self._slice, data)
             traverser.remember_on_catch(parent_match, remembered_catch_state)
 
         try:

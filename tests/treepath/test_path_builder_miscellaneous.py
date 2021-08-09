@@ -40,8 +40,23 @@ def test_path_repr_eq_str():
 
 def test_PathSyntaxError_on_double_rec():
     expected = f"PathSyntaxError(Successive recursive vertices are not allowed in the path expression.{os.linesep}" \
-               "  path: $..recursive)"
+               "  path: $....)"
     with pytest.raises(PathSyntaxError) as exc_info:
         b = path.rec.rec
 
     assert repr(exc_info.value) == expected
+
+
+def test_PathSyntaxError_when_shape_property_is_used():
+    expected = f"PathSyntaxError(The attribute name shape is reserved. Use path[\"shape\"] instead of " \
+               f"path.shape.{os.linesep}" \
+               "  path: $.shape)"
+    with pytest.raises(PathSyntaxError) as exc_info:
+        b = path.shape
+
+    assert repr(exc_info.value) == expected
+
+
+def test_len_is_zero():
+    expected = 0
+    assert len(path) == expected

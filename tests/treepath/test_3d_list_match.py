@@ -105,6 +105,42 @@ def test_3d_find_all_slice_path(three_dimensional_list):
     assert_done_iterating(match_iter)
 
 
+def test_3d_find_all_slice_variety(three_dimensional_list):
+    result = find(path[::-1][:1:][0::2], three_dimensional_list)
+    for x in range(*slice(None, None, -1).indices(3)):
+        for y in range(*slice(None, 1, None).indices(3)):
+            for z in range(*slice(0, None, 2).indices(3)):
+                actual = next(result)
+                assert actual == three_dimensional_list[x][y][z]
+    assert_done_iterating(result)
+
+
+def test_3d_find_all_slice_variety_path(three_dimensional_list):
+    test_data = [(expected_path, expected_value) for expected_path, expected_value in
+                 gen_test_data(three_dimensional_list, naia, naia, yaia)]
+    for actual in find_matches(path[::-1][:1:][0::2], three_dimensional_list):
+        expected_path, expected_value = test_data[actual.data - 1]
+        assert str(actual) == f"{expected_path}={expected_value}"
+
+
+def test_3d_find_all_comma_delimited(three_dimensional_list):
+    result = find(path[2, 1, 0][0, 1][0, 2, 1], three_dimensional_list)
+    for x in [2, 1, 0]:
+        for y in [0, 1]:
+            for z in [0, 2, 1]:
+                actual = next(result)
+                assert actual == three_dimensional_list[x][y][z]
+    assert_done_iterating(result)
+
+
+def test_3d_find_all__comma_delimited_path(three_dimensional_list):
+    test_data = [(expected_path, expected_value) for expected_path, expected_value in
+                 gen_test_data(three_dimensional_list, naia, naia, yaia)]
+    for actual in find_matches(path[2, 1, 0][0, 1][0, 2, 1], three_dimensional_list):
+        expected_path, expected_value = test_data[actual.data - 1]
+        assert str(actual) == f"{expected_path}={expected_value}"
+
+
 def test_a_k_k_a_k_k_k_a_find_all_slice(a_k_k_a_k_k_k_a):
     result = find(path[:].y.y[:].y.y.y[:], a_k_k_a_k_k_k_a)
     for expected_path, expected_value in gen_test_data(a_k_k_a_k_k_k_a, naia, nyiy, nyiy, naia, nyiy, nyiy, nyiy, yaia):

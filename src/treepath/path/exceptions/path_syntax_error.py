@@ -14,5 +14,8 @@ class PathSyntaxError(TreepathException, SyntaxError):
         super().__init__(parent_vertex)
 
     def _resolve_msg(self):
-        path = repr(self.vertex)
-        return f"PathSyntaxError({self.error_msg}{os.linesep}  path: {path}{self.invalid_path_segment})"
+        if self.vertex:
+            path = repr(self.vertex)
+            return f"PathSyntaxError({self.error_msg}{os.linesep}  path: {path}{self.invalid_path_segment})"
+        else:
+            return f"PathSyntaxError({self.error_msg})"
