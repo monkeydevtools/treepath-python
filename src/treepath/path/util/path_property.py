@@ -1,7 +1,9 @@
 from typing import Union, Callable, Any
 
 from treepath.path.builder.path_builder import PathBuilder
+from treepath.path.traverser.match import Match
 from treepath.path.traverser.traverser_functions import get, set_
+from treepath.path.traverser.traverser_functions import get_match
 
 
 def pprop(path: PathBuilder,
@@ -30,17 +32,27 @@ def pprop(path: PathBuilder,
     return PathProperty(path, get_data)
 
 
-class PathProperty(property):
+def mprop(path: PathBuilder,
+          get_data: Union[property, Callable[[Any], Union[dict, list, str, int, float, bool, None]]]
+          ):
+    """
+    Similar to pprop exect the getter  return a Match
+    """
+    return MatchPathProperty(path, get_data)
+
+
+class PathProperty:
     __slots__ = '_get_data', \
-                '_path', \
-                '__doc__',
+                '_path'
 
     def __init__(self,
                  path: PathBuilder,
                  get_data: Union[property, Callable[[Any], Union[dict, list, str, int, float, bool, None]]]
                  ):
-        super().__init__(self.get_value, self.set_value, self.del_value)
         self._path = path
+        self._set_get_data(get_data)
+
+    def _set_get_data(self, get_data):
         if isinstance(get_data, property):
             self._get_data = get_data.fget
         else:
@@ -49,8 +61,24 @@ class PathProperty(property):
     def get_value(self, outer_self):
         return get(self._path, self._get_data(outer_self), default=None)
 
+    def get_match(self, outer_self) -> Match:
+        return get_match(self._path, self._get_data(outer_self), must_match=False)
+
     def set_value(self, outer_self, value):
         set_(self._path, value, self._get_data(outer_self))
 
-    def del_value(self, outer_self):
-        raise NotImplementedError  # pragma: no cover
+    def __get__(self, instance, owner) -> Union[dict, list, str, int, float, bool, None]:
+        return self.get_value(instance)
+
+    def __set__(self, instance, value: Union[dict, list, str, int, float, bool, None]):
+        return self.set_value(instance, value)
+
+
+class MatchPathProperty(PathProperty):
+
+    def __init__(self, path: PathBuilder,
+                 get_data: Union[property, Callable[[Any], Union[dict, list, str, int, float, bool, None]]]):
+        super().__init__(path, get_data)
+
+    def __get__(self, instance, owner) -> Match:
+        return self.get_match(instance)
