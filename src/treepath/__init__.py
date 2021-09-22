@@ -29,6 +29,8 @@ from treepath.path.traverser.traverser_functions import has_not
 from treepath.path.traverser.traverser_functions import nested_find_matches
 from treepath.path.traverser.traverser_functions import nested_get_match
 from treepath.path.traverser.traverser_functions import set_
+from treepath.path.util.path_property import PathProperty
+from treepath.path.util.path_property import pprop
 
 # path is a global object for dynamically declaring a query to extract data from a json data structure.
 #     # A treepath example that fetches the value 1 from data.

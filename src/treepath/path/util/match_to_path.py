@@ -1,4 +1,4 @@
-from treepath import Match
+from treepath.path.traverser.match import Match
 from treepath.path.builder.path_builder import PathBuilder
 from treepath.path.builder.root_path_builder import RootPathBuilder
 
