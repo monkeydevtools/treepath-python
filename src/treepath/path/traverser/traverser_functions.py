@@ -5,6 +5,7 @@ from treepath.path.builder.path_builder_predicate import PathBuilderPredicate
 from treepath.path.builder.path_predicate import PathPredicate
 from treepath.path.exceptions.match_not_found_error import MatchNotFoundError
 from treepath.path.exceptions.nested_match_not_found_error import NestedMatchNotFoundError
+from treepath.path.exceptions.set_error import SetError
 from treepath.path.traverser.has_function import create_has_predicate
 from treepath.path.traverser.match import Match
 from treepath.path.traverser.match_traverser import MatchTraverser
@@ -34,6 +35,35 @@ _has_multiple_arg_type = Union[
 
 # The value used to indicate an argument is not set.
 _not_set = dict()
+
+
+def set_(
+        expression: PathBuilder,
+        value: Union[dict, list, str, int, float, bool, None],
+        data: Union[dict, list, Match],
+        trace: Callable[[Trace], None] = None
+) -> Match:
+    vertex = get_vertex_from_path_builder(expression)
+    parent_vertex = vertex.parent
+
+    if not vertex.is_support_set:
+        raise SetError(
+            parent_vertex,
+            f"The vertex {vertex} does not support set.  It can only be key or index"
+            , vertex.path_segment
+        )
+
+    parent_expression = PathBuilder(parent_vertex)
+    try:
+        parent_match = get_match(parent_expression, data, must_match=True, trace=trace)
+        parent_data = parent_match.data
+        vertex.set(parent_data, value)
+        return get_match(expression, data, must_match=True, trace=trace)
+    except MatchNotFoundError:
+        default_value_for_set = vertex.default_value_for_set
+        parent_match = set_(parent_expression, default_value_for_set, data, trace=trace)
+        vertex.set(parent_match.data, value)
+        return get_match(expression, data, must_match=True, trace=trace)
 
 
 def get(

@@ -58,6 +58,17 @@ class Vertex(ABC):
     def match(self, parent_match: TraverserMatch, traverser, vertex_index: int) -> Union[TraverserMatch, None]:
         raise NotImplementedError
 
+    @property
+    def is_support_set(self) -> bool:
+        return False  # pragma: no cover
+
+    @property
+    def default_value_for_set(self) -> Union[dict, list, None]:
+        return None  # pragma: no cover
+
+    def set(self, data, value):
+        pass  # pragma: no cover
+
     def __repr__(self):
         return self.path
 

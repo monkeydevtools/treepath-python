@@ -1,5 +1,6 @@
 from typing import Union
 
+from treepath.path.exceptions.set_error import SetError
 from treepath.path.traverser.key_match import KeyMatch
 from treepath.path.traverser.traverser_match import TraverserMatch
 from treepath.path.vertex.vertex import Vertex
@@ -33,6 +34,23 @@ class KeyVertex(Vertex):
             )
         except KeyError:
             pass
+
+    @property
+    def is_support_set(self) -> bool:
+        return True
+
+    @property
+    def default_value_for_set(self) -> Union[dict, list]:
+        return dict()
+
+    def set(self, data, value):
+        if isinstance(data, dict):
+            data[self.name] = value
+        else:
+            raise SetError(self.parent,
+                           f"The data type {type(data)} is invalid. "
+                           f"The type must be {type(self.default_value_for_set)}",
+                           self.path_segment)
 
 
 class KeyWildVertex(Vertex):
