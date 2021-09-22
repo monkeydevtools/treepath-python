@@ -1,4 +1,4 @@
-from treepath import path, pprop
+from treepath import path, pprop, Match, mprop
 
 
 class PathPropertyTest:
@@ -16,6 +16,7 @@ class PathPropertyTest:
     a_prop = pprop(path.a, data)
     a_get = pprop(path.a, get_data)
     a_b_c = pprop(path.a.b.c, data)
+    match_a_b_c = mprop(path.a.b.c, data)
     f_0 = pprop(path[0], data)
     f_0_0_0 = pprop(path[0][0][0], data)
 
@@ -67,6 +68,13 @@ def test_set_a_b_c_to_1_dirty_data():
     ppt.a_b_c = 1
     assert ppt.a_b_c == 1
     assert actual == expected
+
+
+def test_get_a_b_c_is_match():
+    actual = {"a": {"b": {"c": 1}}, "x": 2}
+    ppt = PathPropertyTest(actual)
+    value = ppt.match_a_b_c
+    assert isinstance(value, Match)
 
 
 def test_set_0_to_1_empty_data():
