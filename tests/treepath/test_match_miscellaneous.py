@@ -1,6 +1,7 @@
 import re
 
 from treepath import path, get_match
+from treepath.path.util.match_to_path import match_to_path
 
 
 def test_match_vertex(keys):
@@ -27,3 +28,16 @@ def test_match_str(keys):
 
     match = get_match(path.x, keys)
     assert re.fullmatch(regex_expected, str(match._traverser_match))
+
+
+def test_match_to_path_keys(keys):
+    expected = repr(path.x.y.z)
+    match = get_match(path.x.y.z, keys)
+    actual = repr(match_to_path(match))
+    assert actual == expected
+
+def test_match_to_path_index(three_dimensional_list):
+    expected = repr(path[0][1][2])
+    match = get_match(path[0][1][2], three_dimensional_list)
+    actual = repr(match_to_path(match))
+    assert actual == expected

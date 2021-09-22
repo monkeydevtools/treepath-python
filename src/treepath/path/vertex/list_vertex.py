@@ -1,6 +1,7 @@
 from abc import abstractmethod
 from typing import Union
 
+from treepath.path.exceptions.set_error import SetError
 from treepath.path.traverser.list_match import ListMatch
 from treepath.path.traverser.traverser_match import TraverserMatch
 from treepath.path.util.function import enumerate_slice
@@ -47,6 +48,31 @@ class ListIndexVertex(_ListVertex):
             )
         except IndexError:
             pass
+
+    @property
+    def is_support_set(self) -> bool:
+        return True
+
+    @property
+    def default_value_for_set(self) -> Union[dict, list]:
+        return list()
+
+    def set(self, data, value) -> bool:
+        if isinstance(data, list):
+            try:
+                data[self.name] = value
+            except IndexError:
+                if len(data) != self.name:
+                    raise SetError(
+                        self.parent,
+                        f"The vertex {self} index is out of range.  "
+                        f"The index must be in the range 0 >= index <={len(data)}"
+                        , self.path_segment
+                    )
+                data.append(value)
+            return True
+        else:
+            return False
 
 
 class ListSliceVertex(_ListVertex):

@@ -11,6 +11,7 @@ from treepath.path.exceptions.infinite_loop_detected import InfiniteLoopDetected
 from treepath.path.exceptions.match_not_found_error import MatchNotFoundError
 from treepath.path.exceptions.nested_match_not_found_error import NestedMatchNotFoundError
 from treepath.path.exceptions.path_syntax_error import PathSyntaxError
+from treepath.path.exceptions.set_error import SetError
 from treepath.path.exceptions.stop_traversing import StopTraversing
 from treepath.path.exceptions.traversing_error import TraversingError
 from treepath.path.exceptions.treepath_exception import TreepathException
@@ -27,6 +28,7 @@ from treepath.path.traverser.traverser_functions import has_any
 from treepath.path.traverser.traverser_functions import has_not
 from treepath.path.traverser.traverser_functions import nested_find_matches
 from treepath.path.traverser.traverser_functions import nested_get_match
+from treepath.path.traverser.traverser_functions import set_
 
 # path is a global object for dynamically declaring a query to extract data from a json data structure.
 #     # A treepath example that fetches the value 1 from data.
