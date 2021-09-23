@@ -15,10 +15,12 @@ def test_vertex_parent_repr():
     expected = "$.x.x.parent"
     assert repr(path.x.x.parent) == expected
 
+
 def test_vertex_slice_does_not_iterate_dict(keys):
     expected = None
     actual = get(path.x[:1], keys, default=None)
     assert actual == expected
+
 
 def test_vertex_tuple_invalid_for_dict(keys):
     expected = None

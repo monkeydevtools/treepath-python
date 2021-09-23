@@ -6,8 +6,8 @@ from tests.data.data import get_solar_system_json
 from tests.utils.file_util import find_file
 from tests.utils.readme_generator import Readme
 from tests.utils.traverser_utils import gen_test_data, yria, yaia
-from treepath import path, find, wc, get, has, get_match, find_matches, pathd, wildcard, \
-    MatchNotFoundError, Match, log_to, has_all, has_any, has_not
+from treepath import path, find, wc, set_, get, has, get_match, find_matches, pathd, wildcard, \
+    MatchNotFoundError, Match, log_to, has_all, has_any, has_not, pprop
 
 read_me_file = find_file("README.md")
 readme = Readme(read_me_file)
@@ -31,8 +31,8 @@ def test_quick_start(solar_system):
 
     # All of the treepath components should be imported as follows:
     # ```python
-    # from treepath import path, find, wc, get, has, get_match, find_matches, pathd, wildcard, \
-    #     MatchNotFoundError, Match, log_to, has_all, has_any, has_not
+    # from treepath import path, find, wc, set_, get, has, get_match, find_matches, pathd, wildcard, \
+    #     MatchNotFoundError, Match, log_to, has_all, has_any, has_not, pprop, mprop
     # ```
 
     # A treepath example that fetches the value 1 from data.
@@ -231,6 +231,34 @@ def test_traversal_function_get(solar_system):
 
 
 @readme.append_function
+def test_traversal_function_set(solar_system):
+    """## set_"""
+
+    # The **set_** function modifies the document.
+
+    # Use the set_ modify the star name.
+    sun = get(path.star.name, solar_system)
+    assert sun == 'Sun'
+    set_(path.star.name, "RedSun", solar_system)
+    sun = get(path.star.name, solar_system)
+    assert sun == 'RedSun'
+    assert solar_system["star"]["name"] == 'RedSun'
+
+    # Use the set_ to add planet9.   This example creates multiple objects in one step.
+    name = get(path.star.planets.outer[4].name, solar_system, default=None)
+    assert name is None
+    planets_count = len(list(find(path.star.planets.wc[wc].name, solar_system)))
+    assert planets_count == 8
+
+    set_(path.star.planets.outer[4].name, 'planet9', solar_system)
+
+    name = get(path.star.planets.outer[4].name, solar_system, default=None)
+    assert name == 'planet9'
+    planets_count = len(list(find(path.star.planets.wc[wc].name, solar_system)))
+    assert planets_count == 9
+
+
+@readme.append_function
 def test_traversal_function_find(solar_system):
     """## find"""
 
@@ -329,7 +357,7 @@ def test_traversal_function_match_class(solar_system):
 
 
 @readme.append_function
-def test_traversal_function_get(solar_system):
+def test_tracing(solar_system):
     """## Tracing Debugging"""
 
     # All of the functions: get, find, get_match and find_matchesm, support tracing.   An option, when enabled,
@@ -688,3 +716,36 @@ def test_path_filter_customer_predicate(solar_system):
 
     earth = [planet for planet in find(path.rec[my_neighbor_is_earth].name, solar_system)]
     assert earth == ['Venus', 'Mars']
+
+
+readme += """# Property"""
+
+
+@readme.append_function
+def test_path_property(solar_system):
+    """### path property"""
+
+    # paths can be added as properties to a class using the pprop function.
+
+    class SolarSystem:
+
+        def __init__(self, data):
+            self._data = data
+
+        @property
+        def data(self):
+            return self._data
+
+        jupiter = pprop(path.star.planets.outer[0].name, data)
+        saturn = pprop(path.star.planets.outer[1].name, data)
+
+    # The property support both gets and sets.
+    ss = SolarSystem(solar_system)
+    assert ss.jupiter == 'Jupiter'
+    assert ss.saturn == 'Saturn'
+
+    ss.jupiter = 'retipuJ'
+    assert ss.jupiter == 'retipuJ'
+
+    # The assignment operation alters the original document.
+    assert solar_system["star"]["planets"]["outer"][0]["name"] == 'retipuJ'
