@@ -62,7 +62,7 @@ class Vertex(ABC):
 
     @property
     def is_support_set(self) -> bool:
-        return False  # pragma: no cover
+        return False
 
     @property
     def default_value_for_set(self) -> Union[dict, list, None]:

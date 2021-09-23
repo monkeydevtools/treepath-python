@@ -16,7 +16,11 @@ class PathPropertyTest:
     a_prop = pprop(path.a, data)
     a_get = pprop(path.a, get_data)
     a_b_c = pprop(path.a.b.c, data)
-    match_a_b_c = mprop(path.a.b.c, data)
+    match_a_b = mprop(path.a.b, data)
+    match_a_b_c = mprop(path.c, match_a_b)
+    match_a_b_x = mprop(path.x, match_a_b)
+
+
     f_0 = pprop(path[0], data)
     f_0_0_0 = pprop(path[0][0][0], data)
 

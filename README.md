@@ -12,8 +12,8 @@ Note python 3.6 is supported in version earlier that 1.0.0.
 # Quick start
 All of the treepath components should be imported as follows:
 ```python
-from treepath import path, find, wc, get, has, get_match, find_matches, pathd, wildcard, \
-    MatchNotFoundError, Match, log_to, has_all, has_any, has_not
+from treepath import path, find, wc, set_, get, has, get_match, find_matches, pathd, wildcard, \
+    MatchNotFoundError, Match, log_to, has_all, has_any, has_not, pprop, mprop
 ```
 
 A treepath example that fetches the value 1 from data.
@@ -223,6 +223,35 @@ The data source can be a json data structure or a Match object.
 parent_match = get_match(path.star.planets.inner, solar_system)
 name = get(path[2].name, parent_match)
 assert name == "Earth"
+```
+## set_
+The **set_** function modifies the document.
+
+Use the set_ modify the star name.
+
+```python
+sun = get(path.star.name, solar_system)
+assert sun == 'Sun'
+set_(path.star.name, "RedSun", solar_system)
+sun = get(path.star.name, solar_system)
+assert sun == 'RedSun'
+assert solar_system["star"]["name"] == 'RedSun'
+
+```
+Use the set_ to add planet9.   This example creates multiple objects in one step.
+
+```python
+name = get(path.star.planets.outer[4].name, solar_system, default=None)
+assert name is None
+planets_count = len(list(find(path.star.planets.wc[wc].name, solar_system)))
+assert planets_count == 8
+
+set_(path.star.planets.outer[4].name, 'planet9', solar_system)
+
+name = get(path.star.planets.outer[4].name, solar_system, default=None)
+assert name == 'planet9'
+planets_count = len(list(find(path.star.planets.wc[wc].name, solar_system)))
+assert planets_count == 9
 ```
 ## find
 The **find** function returns an Iterator that iterates to each value the path leads to.  Each value is
@@ -734,4 +763,39 @@ def my_neighbor_is_earth(match: Match):
 
 earth = [planet for planet in find(path.rec[my_neighbor_is_earth].name, solar_system)]
 assert earth == ['Venus', 'Mars']
+```
+# Property
+### path property
+paths can be added as properties to a class using the pprop function.
+
+
+```python
+class SolarSystem:
+
+    def __init__(self, data):
+        self._data = data
+
+    @property
+    def data(self):
+        return self._data
+
+    jupiter = pprop(path.star.planets.outer[0].name, data)
+    saturn = pprop(path.star.planets.outer[1].name, data)
+
+```
+The property support both gets and sets.
+
+```python
+ss = SolarSystem(solar_system)
+assert ss.jupiter == 'Jupiter'
+assert ss.saturn == 'Saturn'
+
+ss.jupiter = 'retipuJ'
+assert ss.jupiter == 'retipuJ'
+
+```
+The assignment operation alters the original document.
+
+```python
+assert solar_system["star"]["planets"]["outer"][0]["name"] == 'retipuJ'
 ```

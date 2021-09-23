@@ -53,10 +53,20 @@ class PathProperty:
         self._set_get_data(get_data)
 
     def _set_get_data(self, get_data):
-        if isinstance(get_data, property):
-            self._get_data = get_data.fget
-        else:
+        """
+        Determine how data, is a callable, property or a descriptor.
+        """
+        if callable(get_data):
             self._get_data = get_data
+        elif isinstance(get_data, property):
+            self._get_data = get_data.fget
+        elif hasattr(get_data, '__get__'):
+            def getter(instance):
+                return get_data.__get__(instance, None)
+
+            self._get_data = getter
+        else:
+            raise AttributeError(f"Cannot invoke f{get_data}") # pragma: no cover
 
     def get_value(self, outer_self):
         return get(self._path, self._get_data(outer_self), default=None)
