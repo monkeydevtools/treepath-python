@@ -76,3 +76,12 @@ class Vertex(ABC):
 
     def __str__(self):
         return self.__repr__()
+
+    def raise_invalid_set(self, data , value):
+        from treepath.path.exceptions.set_error import SetError
+        raise SetError(
+            self.parent,
+            f"Invalid assignment 'data[{repr(self.name)}] = {repr(value)}' because data is of type: {type(data)}, "
+            f"expecting type: {type(self.default_value_for_set)}",
+            self.path_segment
+        )

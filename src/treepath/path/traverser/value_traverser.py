@@ -1,10 +1,9 @@
-from typing import Union
-
 from treepath.path.traverser.match_traverser import MatchTraverser
+from treepath.path.typing_alias import JsonTypes
 
 
 class ValueTraverser(MatchTraverser):
     __slots__ = ()
 
-    def __next__(self) -> Union[dict, list, str, int, float, bool, None]:
+    def __next__(self) -> JsonTypes:
         return super().__next__().data

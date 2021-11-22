@@ -3,6 +3,7 @@ from __future__ import annotations
 from typing import Union, List
 
 from treepath.path.traverser.traverser_match import TraverserMatch
+from treepath.path.typing_alias import JsonTypes
 from treepath.path.vertex.vertex import Vertex
 
 
@@ -59,7 +60,7 @@ class Match:
         return self._traverser_match.data_name
 
     @property
-    def data(self) -> Union[dict, list, str, int, float, bool, None]:
+    def data(self) -> JsonTypes:
         """
         Return the value the data_name references.
         """

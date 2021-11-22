@@ -14,6 +14,7 @@ from treepath.path.traverser.nested_value_traverser import NestedValueTraverser
 from treepath.path.traverser.predicate_match import PredicateMatch
 from treepath.path.traverser.trace import Trace
 from treepath.path.traverser.value_traverser import ValueTraverser
+from treepath.path.typing_alias import JsonTypes
 from treepath.path.util.decorator import pretty_repr, add_attr
 
 _has_typing_first_arg = Union[
@@ -39,8 +40,9 @@ _not_set = dict()
 
 def set_(
         expression: PathBuilder,
-        value: Union[dict, list, str, int, float, bool, None],
+        value: JsonTypes,
         data: Union[dict, list, Match],
+        cascade: bool = False,
         trace: Callable[[Trace], None] = None
 ) -> Match:
     vertex = get_vertex_from_path_builder(expression)
@@ -49,7 +51,7 @@ def set_(
     if not vertex.is_support_set:
         raise SetError(
             parent_vertex,
-            f"The vertex {vertex} does not support set.  It can only be key or index"
+            f"The path {vertex} does not support set.  It can only be a key or index"
             , vertex.path_segment
         )
 
@@ -60,10 +62,31 @@ def set_(
         vertex.set(parent_data, value)
         return get_match(expression, data, must_match=True, trace=trace)
     except MatchNotFoundError:
-        default_value_for_set = vertex.default_value_for_set
-        parent_match = set_(parent_expression, default_value_for_set, data, trace=trace)
-        vertex.set(parent_match.data, value)
-        return get_match(expression, data, must_match=True, trace=trace)
+        if cascade:
+            default_value_for_set = vertex.default_value_for_set
+            parent_match = set_(parent_expression, default_value_for_set, data, cascade=True, trace=trace)
+            vertex.set(parent_match.data, value)
+            return get_match(expression, data, must_match=True, trace=trace)
+        else:
+            raise SetError(
+                parent_vertex,
+                f"The parent path {parent_vertex} does not exist.  It must be created first or use cascade to "
+                f"auto create it."
+                , vertex.path_segment
+            )
+
+
+def set_match(
+        expression: PathBuilder,
+        value: Union[Match, JsonTypes],
+        data: Union[dict, list, Match],
+        cascade: bool = False,
+        trace: Callable[[Trace], None] = None
+) -> Match:
+    if isinstance(value, Match):
+        return set_(expression, value.data, data, cascade, trace)
+    else:
+        return set_(expression, value, data, cascade, trace)
 
 
 def get(
@@ -71,7 +94,7 @@ def get(
         data: Union[dict, list, Match],
         default=_not_set,
         trace: Callable[[Trace], None] = None
-) -> Union[dict, list, str, int, float, bool, None]:
+) -> JsonTypes:
     """
     Returns the first value in the data that satisfies the path expression.   When no result is found, a
     MatchNotFoundError is raised unless a default value is given, In which case the default value is returned.
@@ -95,7 +118,7 @@ def find(
         expression: PathBuilder,
         data: Union[dict, list, Match],
         trace: Callable[[Trace], None] = None
-) -> Iterator[Union[dict, list, str, int, float, bool, None]]:
+) -> Iterator[JsonTypes]:
     """
     Construct a lazy iterator of all values in the data that satisfies the path expression.
 
@@ -175,7 +198,7 @@ def nested_find(
         expression: PathBuilder,
         parent_match: Match,
         trace: Callable[[Trace], None] = None
-) -> Iterator[Union[dict, list, str, int, float, bool, None]]:
+) -> Iterator[JsonTypes]:
     """
     Construct a lazy iterator of all values in the parent Match that satisfies the path expression. As a convenience,
     the find function also accepts the Match object as source data, so it not necessary to use this function directly.

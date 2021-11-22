@@ -7,7 +7,7 @@ from tests.utils.file_util import find_file
 from tests.utils.readme_generator import Readme
 from tests.utils.traverser_utils import gen_test_data, yria, yaia
 from treepath import path, find, wc, set_, get, has, get_match, find_matches, pathd, wildcard, \
-    MatchNotFoundError, Match, log_to, has_all, has_any, has_not, pprop
+    MatchNotFoundError, Match, log_to, has_all, has_any, has_not, prop
 
 read_me_file = find_file("README.md")
 readme = Readme(read_me_file)
@@ -234,9 +234,9 @@ def test_traversal_function_get(solar_system):
 def test_traversal_function_set(solar_system):
     """## set_"""
 
-    # The **set_** function modifies the document.
+    # The **set_** function modifies the json document.
 
-    # Use the set_ modify the star name.
+    # Use the set_ function to modify the star name.
     sun = get(path.star.name, solar_system)
     assert sun == 'Sun'
     set_(path.star.name, "RedSun", solar_system)
@@ -250,7 +250,7 @@ def test_traversal_function_set(solar_system):
     planets_count = len(list(find(path.star.planets.wc[wc].name, solar_system)))
     assert planets_count == 8
 
-    set_(path.star.planets.outer[4].name, 'planet9', solar_system)
+    set_(path.star.planets.outer[4].name, 'planet9', solar_system, cascade=True)
 
     name = get(path.star.planets.outer[4].name, solar_system, default=None)
     assert name == 'planet9'
@@ -736,8 +736,8 @@ def test_path_property(solar_system):
         def data(self):
             return self._data
 
-        jupiter = pprop(path.star.planets.outer[0].name, data)
-        saturn = pprop(path.star.planets.outer[1].name, data)
+        jupiter = prop(path.star.planets.outer[0].name, data)
+        saturn = prop(path.star.planets.outer[1].name, data)
 
     # The property support both gets and sets.
     ss = SolarSystem(solar_system)

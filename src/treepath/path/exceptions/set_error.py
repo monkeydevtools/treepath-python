@@ -14,8 +14,5 @@ class SetError(TreepathException, SyntaxError):
         super().__init__(parent_vertex)
 
     def _resolve_msg(self):
-        if self.vertex:
-            path = repr(self.vertex)
-            return f"SetError({self.error_msg}{os.linesep}  path: {path}{self.invalid_path_segment})"
-        else:
-            return f"SetError({self.error_msg})"
+        path = repr(self.vertex)
+        return f"SetError({self.error_msg}{os.linesep}  path: {path}{self.invalid_path_segment})"

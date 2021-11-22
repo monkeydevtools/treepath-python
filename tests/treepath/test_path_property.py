@@ -1,4 +1,6 @@
-from treepath import path, pprop, Match, mprop
+import pytest
+
+from treepath import path, prop, Match, propm, NestedMatchNotFoundError
 
 
 class PathPropertyTest:
@@ -13,16 +15,15 @@ class PathPropertyTest:
     def get_data(self) -> dict:
         return self._data
 
-    a_prop = pprop(path.a, data)
-    a_get = pprop(path.a, get_data)
-    a_b_c = pprop(path.a.b.c, data)
-    match_a_b = mprop(path.a.b, data)
-    match_a_b_c = mprop(path.c, match_a_b)
-    match_a_b_x = mprop(path.x, match_a_b)
+    a_prop = prop(path.a, data)
+    a_get = prop(path.a, get_data)
+    a_b_c = prop(path.a.b.c, data, cascade=True, default=None)
+    match_a_b = propm(path.a.b, data)
+    match_a_b_c = propm(path.c, match_a_b)
+    match_a_b_x = propm(path.x, match_a_b)
 
-
-    f_0 = pprop(path[0], data)
-    f_0_0_0 = pprop(path[0][0][0], data)
+    f_0 = prop(path[0], data, default=None)
+    f_0_0_0 = prop(path[0][0][0], data, cascade=True, default=None)
 
 
 def test_set_a_prop_to_1_empty_data():
@@ -81,6 +82,32 @@ def test_get_a_b_c_is_match():
     assert isinstance(value, Match)
 
 
+def test_set_a_b_x():
+    actual = {"a": {"b": {"c": 1}}, "x": 2}
+    expected = {"a": {"b": {"c": 1, "x": 3}}, "x": 2}
+    ppt = PathPropertyTest(actual)
+    with pytest.raises(NestedMatchNotFoundError):
+        value = ppt.match_a_b_x
+
+    ppt.match_a_b_x = 3
+    value = ppt.match_a_b_x
+    assert repr(value) == "$.a.b.x=3"
+    assert actual == expected
+
+
+def test_set_a_b_x_to_a_b_c():
+    actual = {"a": {"b": {"c": 1}}, "x": 2}
+    expected = {"a": {"b": {"c": 1, "x": 1}}, "x": 2}
+    ppt = PathPropertyTest(actual)
+    with pytest.raises(NestedMatchNotFoundError):
+        value = ppt.match_a_b_x
+
+    ppt.match_a_b_x = ppt.match_a_b_c
+    value = ppt.match_a_b_x
+    assert repr(value) == "$.a.b.x=1"
+    assert actual == expected
+
+
 def test_set_0_to_1_empty_data():
     actual = list()
     expected = [1]
@@ -106,16 +133,6 @@ def test_set_0_0_0_to_1_empty_data():
     expected = [[[1]]]
     ppt = PathPropertyTest(actual)
     assert ppt.f_0_0_0 is None
-    ppt.f_0_0_0 = 1
-    assert ppt.f_0_0_0 == 1
-    assert actual == expected
-
-
-def test_set_0_0_0_to_1_dirty_data():
-    actual = [0, 2]
-    expected = [[[1]], 2]
-    ppt = PathPropertyTest(actual)
-    assert ppt.f_0_0_0 == None
     ppt.f_0_0_0 = 1
     assert ppt.f_0_0_0 == 1
     assert actual == expected

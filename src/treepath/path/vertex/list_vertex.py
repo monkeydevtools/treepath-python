@@ -57,7 +57,7 @@ class ListIndexVertex(_ListVertex):
     def default_value_for_set(self) -> Union[dict, list]:
         return list()
 
-    def set(self, data, value) -> bool:
+    def set(self, data, value):
         if isinstance(data, list):
             try:
                 data[self.name] = value
@@ -65,14 +65,14 @@ class ListIndexVertex(_ListVertex):
                 if len(data) != self.name:
                     raise SetError(
                         self.parent,
-                        f"The vertex {self} index is out of range.  "
-                        f"The index must be in the range 0 >= index <={len(data)}"
+                        f"The path {self} index is out of range.  "
+                        f"The index must be in the range 0 >= index <={len(data)}.  To append the index must the list "
+                        f"current length."
                         , self.path_segment
                     )
                 data.append(value)
-            return True
         else:
-            return False
+            self.raise_invalid_set(data, value)
 
 
 class ListSliceVertex(_ListVertex):

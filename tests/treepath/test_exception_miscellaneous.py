@@ -20,6 +20,7 @@ def test_TreepathException_no_double_resolve(keys):
     assert str(exc_info.value) == expected
     assert exc_info.value.is_msg_resolved
 
+
 def test_MatchNotFoundError_validate_message(keys):
     expected = "MatchNotFoundError(No get_match occurred on path: $.a)"
     with pytest.raises(MatchNotFoundError) as exc_info:

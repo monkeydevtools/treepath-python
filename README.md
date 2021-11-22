@@ -225,9 +225,9 @@ name = get(path[2].name, parent_match)
 assert name == "Earth"
 ```
 ## set_
-The **set_** function modifies the document.
+The **set_** function modifies the json document.
 
-Use the set_ modify the star name.
+Use the set_ function to modify the star name.
 
 ```python
 sun = get(path.star.name, solar_system)
@@ -246,7 +246,7 @@ assert name is None
 planets_count = len(list(find(path.star.planets.wc[wc].name, solar_system)))
 assert planets_count == 8
 
-set_(path.star.planets.outer[4].name, 'planet9', solar_system)
+set_(path.star.planets.outer[4].name, 'planet9', solar_system, cascade=True)
 
 name = get(path.star.planets.outer[4].name, solar_system, default=None)
 assert name == 'planet9'
@@ -779,8 +779,8 @@ class SolarSystem:
     def data(self):
         return self._data
 
-    jupiter = pprop(path.star.planets.outer[0].name, data)
-    saturn = pprop(path.star.planets.outer[1].name, data)
+    jupiter = prop(path.star.planets.outer[0].name, data)
+    saturn = prop(path.star.planets.outer[1].name, data)
 
 ```
 The property support both gets and sets.
