@@ -765,37 +765,3 @@ earth = [planet for planet in find(path.rec[my_neighbor_is_earth].name, solar_sy
 assert earth == ['Venus', 'Mars']
 ```
 # Property
-### path property
-paths can be added as properties to a class using the pprop function.
-
-
-```python
-class SolarSystem:
-
-    def __init__(self, data):
-        self._data = data
-
-    @property
-    def data(self):
-        return self._data
-
-    jupiter = prop(path.star.planets.outer[0].name, data)
-    saturn = prop(path.star.planets.outer[1].name, data)
-
-```
-The property support both gets and sets.
-
-```python
-ss = SolarSystem(solar_system)
-assert ss.jupiter == 'Jupiter'
-assert ss.saturn == 'Saturn'
-
-ss.jupiter = 'retipuJ'
-assert ss.jupiter == 'retipuJ'
-
-```
-The assignment operation alters the original document.
-
-```python
-assert solar_system["star"]["planets"]["outer"][0]["name"] == 'retipuJ'
-```

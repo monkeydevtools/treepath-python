@@ -5,7 +5,7 @@ from treepath.path.builder.path_builder_predicate import PathBuilderPredicate
 from treepath.path.builder.path_predicate import PathPredicate
 from treepath.path.exceptions.path_syntax_error import PathSyntaxError
 from treepath.path.traverser.match import Match
-from treepath.path.util.decorator import pretty_repr
+from treepath.path.utils.decorator import pretty_repr
 
 
 def create_has_predicate(

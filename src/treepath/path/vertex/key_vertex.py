@@ -2,6 +2,7 @@ from typing import Union
 
 from treepath.path.traverser.key_match import KeyMatch
 from treepath.path.traverser.traverser_match import TraverserMatch
+from treepath.path.typing_alias import JsonTypes
 from treepath.path.vertex.vertex import Vertex
 
 
@@ -35,18 +36,23 @@ class KeyVertex(Vertex):
             pass
 
     @property
-    def is_support_set(self) -> bool:
-        return True
-
-    @property
     def default_value_for_set(self) -> Union[dict, list]:
         return dict()
 
-    def set(self, data, value):
+    def set(self, parent_match: TraverserMatch, value: JsonTypes) -> TraverserMatch:
+        data = parent_match.data
         if isinstance(data, dict):
             data[self.name] = value
+            return self.match(parent_match, None, parent_match.vertex_index + 1)
         else:
             self.raise_invalid_set(data, value)
+
+    def pop(self, match: TraverserMatch) -> JsonTypes:
+        data = match.parent.data
+        if isinstance(data, dict):
+            return data.pop(self.name)
+        else:
+            self.raise_invalid_pop(data)
 
 
 class KeyWildVertex(Vertex):

@@ -7,7 +7,7 @@ from tests.utils.file_util import find_file
 from tests.utils.readme_generator import Readme
 from tests.utils.traverser_utils import gen_test_data, yria, yaia
 from treepath import path, find, wc, set_, get, has, get_match, find_matches, pathd, wildcard, \
-    MatchNotFoundError, Match, log_to, has_all, has_any, has_not, prop
+    MatchNotFoundError, Match, log_to, has_all, has_any, has_not
 
 read_me_file = find_file("README.md")
 readme = Readme(read_me_file)
@@ -721,31 +721,31 @@ def test_path_filter_customer_predicate(solar_system):
 readme += """# Property"""
 
 
-@readme.append_function
-def test_path_property(solar_system):
-    """### path property"""
-
-    # paths can be added as properties to a class using the pprop function.
-
-    class SolarSystem:
-
-        def __init__(self, data):
-            self._data = data
-
-        @property
-        def data(self):
-            return self._data
-
-        jupiter = prop(path.star.planets.outer[0].name, data)
-        saturn = prop(path.star.planets.outer[1].name, data)
-
-    # The property support both gets and sets.
-    ss = SolarSystem(solar_system)
-    assert ss.jupiter == 'Jupiter'
-    assert ss.saturn == 'Saturn'
-
-    ss.jupiter = 'retipuJ'
-    assert ss.jupiter == 'retipuJ'
-
-    # The assignment operation alters the original document.
-    assert solar_system["star"]["planets"]["outer"][0]["name"] == 'retipuJ'
+# @readme.append_function
+# def test_path_property(solar_system):
+#     """### path property"""
+#
+#     # paths can be added as properties to a class using the pprop function.
+#
+#     class SolarSystem:
+#
+#         def __init__(self, data):
+#             self._data = data
+#
+#         @property
+#         def data(self):
+#             return self._data
+#
+#         jupiter = prop(path.star.planets.outer[0].name, data)
+#         saturn = prop(path.star.planets.outer[1].name, data)
+#
+#     # The property support both gets and sets.
+#     ss = SolarSystem(solar_system)
+#     assert ss.jupiter == 'Jupiter'
+#     assert ss.saturn == 'Saturn'
+#
+#     ss.jupiter = 'retipuJ'
+#     assert ss.jupiter == 'retipuJ'
+#
+#     # The assignment operation alters the original document.
+#     assert solar_system["star"]["planets"]["outer"][0]["name"] == 'retipuJ'

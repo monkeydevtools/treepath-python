@@ -4,7 +4,8 @@ from typing import Union
 from treepath.path.exceptions.set_error import SetError
 from treepath.path.traverser.list_match import ListMatch
 from treepath.path.traverser.traverser_match import TraverserMatch
-from treepath.path.util.function import enumerate_slice
+from treepath.path.typing_alias import JsonTypes
+from treepath.path.utils.function import enumerate_slice
 from treepath.path.vertex.vertex import Vertex
 
 
@@ -50,14 +51,11 @@ class ListIndexVertex(_ListVertex):
             pass
 
     @property
-    def is_support_set(self) -> bool:
-        return True
-
-    @property
     def default_value_for_set(self) -> Union[dict, list]:
         return list()
 
-    def set(self, data, value):
+    def set(self, parent_match: TraverserMatch, value: JsonTypes) -> TraverserMatch:
+        data = parent_match.data
         if isinstance(data, list):
             try:
                 data[self.name] = value
@@ -71,8 +69,16 @@ class ListIndexVertex(_ListVertex):
                         , self.path_segment
                     )
                 data.append(value)
+            return self.match(parent_match, None, parent_match.vertex_index + 1)
         else:
             self.raise_invalid_set(data, value)
+
+    def pop(self, match: TraverserMatch) -> JsonTypes:
+        data = match.parent.data
+        if isinstance(data, list):
+            return data.pop(self.name)
+        else:
+            self.raise_invalid_pop(data)
 
 
 class ListSliceVertex(_ListVertex):

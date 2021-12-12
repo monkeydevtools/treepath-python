@@ -4,6 +4,7 @@ from abc import ABC, abstractmethod
 from typing import Union, Callable
 
 from treepath.path.traverser.traverser_match import TraverserMatch
+from treepath.path.typing_alias import JsonTypes
 
 
 class Vertex(ABC):
@@ -61,15 +62,24 @@ class Vertex(ABC):
         raise NotImplementedError
 
     @property
-    def is_support_set(self) -> bool:
-        return False
-
-    @property
     def default_value_for_set(self) -> Union[dict, list, None]:
         return None  # pragma: no cover
 
-    def set(self, data, value):
-        pass  # pragma: no cover
+    def set(self, parent_match: TraverserMatch, value: JsonTypes) -> TraverserMatch:
+        from treepath.path.exceptions.set_error import SetError
+        raise SetError(
+            self.parent,
+            f"The path {self} does not support set.  It can only be a key or index",
+            self.path_segment
+        )
+
+    def pop(self, match: TraverserMatch) -> TraverserMatch:
+        from treepath.path.exceptions.pop_error import PopError
+        raise PopError(
+            self,
+            f"The path {self} does not support pop.  It can only be a key or index",
+            ""
+        )
 
     def __repr__(self):
         return self.path
@@ -77,11 +87,20 @@ class Vertex(ABC):
     def __str__(self):
         return self.__repr__()
 
-    def raise_invalid_set(self, data , value):
+    def raise_invalid_set(self, data, value):
         from treepath.path.exceptions.set_error import SetError
         raise SetError(
             self.parent,
-            f"Invalid assignment 'data[{repr(self.name)}] = {repr(value)}' because data is of type: {type(data)}, "
+            f"Invalid assignment data[{repr(self.name)}] = {repr(value)} because data is of type: {type(data)}, "
+            f"expecting type: {type(self.default_value_for_set)}",
+            self.path_segment
+        )
+
+    def raise_invalid_pop(self, data):
+        from treepath.path.exceptions.pop_error import PopError
+        raise PopError(
+            self.parent,
+            f"Invalid pop data[{repr(self.name)}] because data is of type: {type(data)}, "
             f"expecting type: {type(self.default_value_for_set)}",
             self.path_segment
         )

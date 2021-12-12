@@ -1,7 +1,7 @@
 import pytest
 
 from tests.utils.traverser_utils import assert_done_iterating, gen_test_data, naia, yaia, nyiy, yyia
-from treepath import get, path, find, find_matches, get_match, wildcard
+from treepath import get, path, find, find_matches, get_match, wildcard, PopError
 from treepath.path.exceptions.match_not_found_error import MatchNotFoundError
 
 
@@ -292,3 +292,68 @@ def test_k_a_a_k_a_a_a_k_find_all_tuple_path(k_a_a_k_a_a_a_k):
         actual = next(result)
         assert str(actual) == f"{expected_path}={expected_value}"
     assert_done_iterating(result)
+
+
+def test_match_assign_set_0_0_0_to_2():
+    actual = [[[1]]]
+    expected = [[[2]]]
+    match = get_match(path[0][0][0], actual)
+    assert match.data == 1
+    match.data = 2
+    assert match.data == 2
+    assert actual == expected
+
+
+def test_match_del_0_0_0():
+    actual = [[[1]]]
+    expected = [[[]]]
+    match = get_match(path[0][0][0], actual)
+    assert match.data == 1
+    del match.data
+    assert actual == expected
+
+
+def test_match_pop_0_0_0():
+    actual = [[[1]]]
+    expected = [[[]]]
+    match = get_match(path[0][0][0], actual)
+    assert match.data == 1
+    actual_return = match.pop()
+    assert actual_return == 1
+    assert actual == expected
+
+
+def test_match_pop_0_0_0_default():
+    actual = [[[1]]]
+    expected = [[[]]]
+    match = get_match(path[0][0][0], actual)
+    assert match.data == 1
+    actual_return = match.pop(2)
+    assert actual_return == 1
+    actual_return = match.pop(2)
+    assert actual_return == 2
+    assert actual == expected
+
+
+def test_match_pop_0_0_0_lookup_error():
+    actual = [[[1]]]
+    match = get_match(path[0][0][0], actual)
+    assert match.data == 1
+    actual_return = match.pop()
+    assert actual_return == 1
+    with pytest.raises(PopError) as exc_info:
+        match.pop()
+    actual = repr(exc_info.value)
+    assert actual == "PopError(The reference data[0] does not exist.  Unable to del\n  path: $[0][0][0])"
+
+
+def test_match_assign_set_0_0_to_0_2():
+    actual = [[[2, 2]]]
+    expected = [[[0]]]
+    match = get_match(path[0][0], actual)
+    assert match.data == [2, 2]
+    match.data = [0]
+    assert match.data == [0]
+    assert actual == expected
+    new_match = get_match(path[0], match)
+    assert repr(new_match) == '$[0][0][0]=0'

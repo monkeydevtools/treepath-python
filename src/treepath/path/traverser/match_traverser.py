@@ -1,4 +1,4 @@
-from typing import Callable
+from typing import Callable, List
 
 from treepath.path.exceptions.infinite_loop_detected import InfiniteLoopDetected
 from treepath.path.exceptions.stop_traversing import StopTraversing
@@ -6,6 +6,7 @@ from treepath.path.traverser.match import Match
 from treepath.path.traverser.root_match import RootMatch
 from treepath.path.traverser.trace import Trace
 from treepath.path.traverser.traverser_match import TraverserMatch
+from treepath.path.typing_alias import JsonTypes
 from treepath.path.vertex.vertex import Vertex
 
 
@@ -23,7 +24,7 @@ class MatchTraverser:
                  leaf_vertex: Vertex,
                  trace: Callable[[Trace], None] = None
                  ):
-        self.vertex_path = leaf_vertex.path_as_list
+        self.vertex_path: List[Vertex] = leaf_vertex.path_as_list
         self.leaf_vertex = leaf_vertex
         self.root_data = root_data
         self._invoke_next_action = self.done_action
@@ -119,3 +120,12 @@ class MatchTraverser:
 
     def done_action(self):
         raise StopTraversing(self.leaf_vertex)
+
+    @staticmethod
+    def set(parent_match: Match, leaf_vertex: Vertex, value: JsonTypes) -> Match:
+        return Match(leaf_vertex.set(parent_match._traverser_match, value))
+
+    @staticmethod
+    def pop(match: Match, leaf_vertex: Vertex) -> Match:
+        leaf_vertex.pop(match._traverser_match)
+        return match

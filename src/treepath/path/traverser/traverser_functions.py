@@ -15,8 +15,8 @@ from treepath.path.traverser.predicate_match import PredicateMatch
 from treepath.path.traverser.trace import Trace
 from treepath.path.traverser.value_traverser import ValueTraverser
 from treepath.path.typing_alias import JsonTypes
-from treepath.path.util.decorator import pretty_repr, add_attr
-
+from treepath.path.utils.decorator import pretty_repr, add_attr
+from treepath.path.utils.not_set import not_set
 _has_typing_first_arg = Union[
     PathBuilderPredicate,
     PathPredicate,
@@ -34,8 +34,7 @@ _has_multiple_arg_type = Union[
     _has_tuple_arg_type,
 ]
 
-# The value used to indicate an argument is not set.
-_not_set = dict()
+
 
 
 def set_(
@@ -44,55 +43,128 @@ def set_(
         data: Union[dict, list, Match],
         cascade: bool = False,
         trace: Callable[[Trace], None] = None
-) -> Match:
-    vertex = get_vertex_from_path_builder(expression)
-    parent_vertex = vertex.parent
+) -> JsonTypes:
+    """
+    Sets the first value in the data that satisfies the path expression.   When no result is found, a
+    MatchNotFoundError is raised unless a cascade value is given, In which case each missing level in the path is
+    created just in time.
 
-    if not vertex.is_support_set:
-        raise SetError(
-            parent_vertex,
-            f"The path {vertex} does not support set.  It can only be a key or index"
-            , vertex.path_segment
-        )
-
-    parent_expression = PathBuilder(parent_vertex)
-    try:
-        parent_match = get_match(parent_expression, data, must_match=True, trace=trace)
-        parent_data = parent_match.data
-        vertex.set(parent_data, value)
-        return get_match(expression, data, must_match=True, trace=trace)
-    except MatchNotFoundError:
-        if cascade:
-            default_value_for_set = vertex.default_value_for_set
-            parent_match = set_(parent_expression, default_value_for_set, data, cascade=True, trace=trace)
-            vertex.set(parent_match.data, value)
-            return get_match(expression, data, must_match=True, trace=trace)
-        else:
-            raise SetError(
-                parent_vertex,
-                f"The parent path {parent_vertex} does not exist.  It must be created first or use cascade to "
-                f"auto create it."
-                , vertex.path_segment
-            )
+    @param expression: The path expression that define the search criteria.
+    @param value: The value to be assigned.
+    @param data: The data to search through.  The data must be either a tree structure that adheres to
+        https://docs.python.org/3/library/json.html or a Match object from a previous search.
+    @param cascade: An optional boolean to allow all missing parts of the path to be created just in time to support
+        the assignment.  By default, cascade is False.
+    @param trace: An optional callable to report detail iteration data too.
+    @return: The value that satisfies the path expression, else MatchNotFoundError is raised unless cascade is given.
+    @raise MatchNotFoundError:  Raised when no parent result is found and cascade is False
+    @raise SetError:  Raised when the path expression cannot be evaluated to a settable path
+    """
+    match = set_match(expression, value, data, cascade, trace)
+    return match.data
 
 
 def set_match(
         expression: PathBuilder,
-        value: Union[Match, JsonTypes],
+        value: JsonTypes,
         data: Union[dict, list, Match],
         cascade: bool = False,
         trace: Callable[[Trace], None] = None
 ) -> Match:
-    if isinstance(value, Match):
-        return set_(expression, value.data, data, cascade, trace)
-    else:
-        return set_(expression, value, data, cascade, trace)
+    """
+    Sets the first value in the data that satisfies the path expression.   When no result is found, a
+    MatchNotFoundError is raised unless a cascade value is given, In which case each missing level in the path is
+    created just in time.
+
+    @param expression: The path expression that define the search criteria.
+    @param value: The value to be assigned.
+    @param data: The data to search through.  The data must be either a tree structure that adheres to
+        https://docs.python.org/3/library/json.html or a Match object from a previous search.
+    @param cascade: An optional boolean to allow all missing parts of the path to be created just in time to support
+        the assignment.  By default, cascade is False.
+    @param trace: An optional callable to report detail iteration data too.
+    @return: The Match that satisfies the path expression, else MatchNotFoundError is raised unless cascade is given.
+    @raise MatchNotFoundError:  Raised when no parent result is found and cascade is False
+    @raise SetError:  Raised when the path expression cannot be evaluated to a settable path
+    """
+    vertex = get_vertex_from_path_builder(expression)
+    parent_vertex = vertex.parent
+
+    parent_expression = PathBuilder(parent_vertex)
+    try:
+        parent_match = get_match(parent_expression, data, must_match=True, trace=trace)
+        return MatchTraverser.set(parent_match, vertex, value)
+    except MatchNotFoundError:
+        if cascade:
+            default_value_for_set = vertex.default_value_for_set
+            parent_match = set_match(parent_expression, default_value_for_set, data, cascade=True, trace=trace)
+            return MatchTraverser.set(parent_match, vertex, value)
+        else:
+            raise SetError(
+                parent_vertex,
+                f"The parent path {parent_vertex} does not exist.  It must be created first or use cascade to "
+                f"auto create it.",
+                vertex.path_segment
+            )
+
+
+def pop(
+        expression: PathBuilder,
+        data: Union[dict, list, Match],
+        default=not_set,
+        trace: Callable[[Trace], None] = None
+) -> JsonTypes:
+    """
+    Pop the first value in the data that satisfies the path expression. The behavior is the same as the pop
+    method for the list and dict types.
+
+    @param expression: The path expression that define the search criteria.
+    @param data: The data to search through.  The data must be either a tree structure that adheres to
+        https://docs.python.org/3/library/json.html or a Match object from a previous search.
+    @param default:  An optional value to return when no result is found.
+    @param trace: An optional callable to report detail iteration data too.
+    @return: The value that satisfies the path expression, else MatchNotFoundError is raised unless default is given.
+    @raise MatchNotFoundError:  Raised when no result is found and must_match is set to True.
+    @raise SetError:  Raised when the path expression cannot be evaluated to a settable path
+    """
+    must_match = (default is not_set)
+    match = pop_match(expression, data, must_match=must_match, trace=trace)
+    if match:
+        return match.data
+    return default
+
+
+def pop_match(
+        expression: PathBuilder,
+        data: Union[dict, list, Match],
+        must_match=False,
+        trace: Callable[[Trace], None] = None
+) -> Match:
+    """
+    Pop the first value in the data that satisfies the path expression. The behavior is the same as the pop
+    method for the list and dict types.
+
+    @param expression: The path expression that define the search criteria.
+    @param data: The data to search through.  The data must be either a tree structure that adheres to
+        https://docs.python.org/3/library/json.html or a Match object from a previous search.
+    @param must_match:  An optional argument to indicate whether to raise MatchNotFoundError or return None when no
+        result is found. By default the MatchNotFoundError will not be raised.
+    @param trace: An optional callable to report detail iteration data too.
+    @return: The Match that satisfies the path expression, else MatchNotFoundError is raised unless default is given.
+    @raise MatchNotFoundError:  Raised when no result is found and must_match is set to True.
+    @raise SetError:  Raised when the path expression cannot be evaluated to a settable path
+    """
+    vertex = get_vertex_from_path_builder(expression)
+
+    match = get_match(expression, data, must_match=must_match, trace=trace)
+    if match:
+        return MatchTraverser.pop(match, vertex)
 
 
 def get(
         expression: PathBuilder,
         data: Union[dict, list, Match],
-        default=_not_set,
+        default=not_set,
         trace: Callable[[Trace], None] = None
 ) -> JsonTypes:
     """
@@ -107,7 +179,7 @@ def get(
     @return: The value that satisfies the path expression, else MatchNotFoundError is raised unless default is given.
     @raise MatchNotFoundError:  Raised when no result is found and no default value is given.
     """
-    must_match = (default is _not_set)
+    must_match = (default is not_set)
     match = get_match(expression, data, must_match=must_match, trace=trace)
     if match:
         return match.data
@@ -209,7 +281,7 @@ def nested_find(
     @return: A lazy iterator containing all values that satisfies the path expression.
     """
     vertex = get_vertex_from_path_builder(expression)
-    traverser = NestedValueTraverser(parent_match._traverser_match, vertex, trace=trace)
+    traverser = NestedValueTraverser(parent_match, vertex, trace=trace)
     traverser_iter = iter(traverser)
     return traverser_iter
 
@@ -237,7 +309,7 @@ def nested_get_match(
         trace = parent_match.trace
 
     vertex = get_vertex_from_path_builder(expression)
-    traverser = NestedMatchTraverser(parent_match._traverser_match, vertex, trace=trace)
+    traverser = NestedMatchTraverser(parent_match, vertex, trace=trace)
     traverser_iter = iter(traverser)
     try:
         return next(traverser_iter)
@@ -266,7 +338,7 @@ def nested_find_matches(
     if isinstance(parent_match, PredicateMatch):
         trace = parent_match.trace
     vertex = get_vertex_from_path_builder(expression)
-    traverser = NestedMatchTraverser(parent_match._traverser_match, vertex, trace=trace)
+    traverser = NestedMatchTraverser(parent_match, vertex, trace=trace)
     traverser_iter = iter(traverser)
     return traverser_iter
 

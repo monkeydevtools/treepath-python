@@ -1,8 +1,8 @@
 import operator
 
 from treepath.path.builder.path_predicate import PathPredicate
-from treepath.path.util.decorator import pretty_repr
-from treepath.path.util.function import create_partial_operator
+from treepath.path.utils.decorator import pretty_repr
+from treepath.path.utils.function import create_partial_operator
 
 
 class PathBuilderPredicate:

@@ -2,9 +2,12 @@ from __future__ import annotations
 
 from typing import Union, List
 
+from treepath.path.exceptions.pop_error import PopError
 from treepath.path.traverser.traverser_match import TraverserMatch
 from treepath.path.typing_alias import JsonTypes
+from treepath.path.utils.not_set import not_set
 from treepath.path.vertex.vertex import Vertex
+
 
 
 class Match:
@@ -65,6 +68,50 @@ class Match:
         Return the value the data_name references.
         """
         return self._traverser_match.data
+
+    @data.setter
+    def data(self, value: JsonTypes):
+        """
+        Set the value the data_name references.
+        """
+        traverser_match = self._traverser_match
+        parent_traverser_match = traverser_match.parent
+        parent_traverser_match.data[traverser_match.data_name] = value
+        traverser_match.data = value
+
+    @data.deleter
+    def data(self):
+        """
+        Remove the data_name references.
+        @raise PopError:  Raised when the reference does not exist
+        """
+        traverser_match = self._traverser_match
+        parent_traverser_match = traverser_match.parent
+        try:
+            del parent_traverser_match.data[traverser_match.data_name]
+            traverser_match.data = None
+        except LookupError:
+            raise PopError(
+                self.vertex,
+                f"The reference data[{repr(self.data_name)}] does not exist.  Unable to del",
+                ""
+            )
+
+    def pop(self, default=not_set) -> JsonTypes:
+        """
+        Remove the data_name references.
+        @param default:  An optional value to return when no result is found.
+        @raise PopError:  Raised when the reference does not exist and default is not set.
+        """
+        try:
+            old_data = self.data
+            del self.data
+            return old_data
+        except PopError as e:
+            if default is not_set:
+                raise e
+            else:
+                return default
 
     @property
     def vertex(self) -> Vertex:

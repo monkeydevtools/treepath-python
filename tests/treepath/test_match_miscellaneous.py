@@ -1,7 +1,7 @@
 import re
 
 from treepath import path, get_match
-from treepath.path.util.match_to_path import match_to_path
+from treepath.path.utils.match_to_path import match_to_path
 
 
 def test_match_vertex(keys):
@@ -35,6 +35,7 @@ def test_match_to_path_keys(keys):
     match = get_match(path.x.y.z, keys)
     actual = repr(match_to_path(match))
     assert actual == expected
+
 
 def test_match_to_path_index(three_dimensional_list):
     expected = repr(path[0][1][2])

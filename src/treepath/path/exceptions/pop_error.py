@@ -5,8 +5,8 @@ from treepath.path.exceptions.treepath_exception import TreepathException
 from treepath.path.vertex.vertex import Vertex
 
 
-class SetError(TreepathException, SyntaxError, LookupError):
-    """SetError is raised when there is a issue setting a value"""
+class PopError(TreepathException, SyntaxError, LookupError):
+    """PopError is raised when there is a issue setting a value"""
 
     def __init__(self, parent_vertex: Union[Vertex, None], error_msg, invalid_path_segment):
         self.error_msg = error_msg
@@ -15,4 +15,4 @@ class SetError(TreepathException, SyntaxError, LookupError):
 
     def _resolve_msg(self):
         path = repr(self.vertex)
-        return f"SetError({self.error_msg}{os.linesep}  path: {path}{self.invalid_path_segment})"
+        return f"PopError({self.error_msg}{os.linesep}  path: {path}{self.invalid_path_segment})"

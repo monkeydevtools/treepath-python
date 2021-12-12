@@ -1,5 +1,5 @@
 from tests.utils.traverser_utils import *
-from treepath import get, path, get_match, find, find_matches, MatchNotFoundError
+from treepath import get, path, get_match, find, find_matches, MatchNotFoundError, PopError
 
 
 def test_empty_dict_index_MatchNotFoundError():
@@ -207,3 +207,68 @@ def test_k_a_a_k_a_a_a_k_find_all_tuple_path(k_a_a_k_a_a_a_k):
         actual = next(result)
         assert str(actual) == f"{expected_path}={expected_value}"
     assert_done_iterating(result)
+
+
+def test_match_assign_set_a_b_c_to_2():
+    actual = {"a": {"b": {"c": 1}}}
+    expected = {"a": {"b": {"c": 2}}}
+    match = get_match(path.a.b.c, actual)
+    assert match.data == 1
+    match.data = 2
+    assert match.data == 2
+    assert actual == expected
+
+
+def test_match_del_a_b_c():
+    actual = {"a": {"b": {"c": 1}}}
+    expected = {"a": {"b": {}}}
+    match = get_match(path.a.b.c, actual)
+    assert match.data == 1
+    del match.data
+    assert actual == expected
+
+
+def test_match_pop_a_b_c():
+    actual = {"a": {"b": {"c": 1}}}
+    expected = {"a": {"b": {}}}
+    match = get_match(path.a.b.c, actual)
+    assert match.data == 1
+    actual_return = match.pop()
+    assert actual_return == 1
+    assert actual == expected
+
+
+def test_match_pop_a_b_c_default():
+    actual = {"a": {"b": {"c": 1}}}
+    expected = {"a": {"b": {}}}
+    match = get_match(path.a.b.c, actual)
+    assert match.data == 1
+    actual_return = match.pop(2)
+    assert actual_return == 1
+    actual_return = match.pop(2)
+    assert actual_return == 2
+    assert actual == expected
+
+
+def test_match_pop_a_b_c_lookup_error():
+    actual = {"a": {"b": {"c": 1}}}
+    match = get_match(path.a.b.c, actual)
+    assert match.data == 1
+    actual_return = match.pop()
+    assert actual_return == 1
+    with pytest.raises(PopError) as exc_info:
+        match.pop()
+    actual = repr(exc_info.value)
+    assert actual == "PopError(The reference data['c'] does not exist.  Unable to del\n  path: $.a.b.c)"
+
+
+def test_match_assign_set_a_b_to_c_2():
+    actual = {"a": {"b": {"x": 1}}}
+    expected = {"a": {"b": {"c": 2}}}
+    match = get_match(path.a.b, actual)
+    assert match.data == {"x": 1}
+    match.data = {"c": 2}
+    assert match.data == {"c": 2}
+    assert actual == expected
+    new_match = get_match(path.c, match)
+    assert repr(new_match) == '$.a.b.c=2'
