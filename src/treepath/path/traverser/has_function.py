@@ -10,14 +10,14 @@ from treepath.path.utils.decorator import pretty_repr
 
 def create_has_predicate(
         nested_find_matches,
-        path: Union[PathBuilderPredicate, PathPredicate,  Callable[[Match], Any]],
-        *value_remap: [Callable[[Any], Any]]) -> Callable[[Match], Any]:
+        path: Union[PathBuilderPredicate, PathPredicate, Callable[[Match], Any]],
+        *single_arg_functions: [Callable[[Any], Any]]) -> Callable[[Match], Any]:
     if isinstance(path, PathPredicate):
         real_path = path.path
-        single_arg_operator = path.operation
+        path_predicate_operation = path.operation
     elif isinstance(path, PathBuilderPredicate):
         real_path = path
-        single_arg_operator = None
+        path_predicate_operation = None
     elif isinstance(path, Callable):
         return path
     else:
@@ -29,39 +29,39 @@ def create_has_predicate(
 
     match_iter = functools.partial(nested_find_matches, real_path)
 
-    if single_arg_operator and value_remap:
-        return _create_has_predicate_with_single_arg_operator_and_value_remap(
+    if path_predicate_operation and single_arg_functions:
+        return _create_has_predicate_with_path_predicate_operation_and_single_arg_functions(
             real_path,
             match_iter,
-            single_arg_operator,
-            value_remap
+            path_predicate_operation,
+            single_arg_functions
         )
 
-    if not single_arg_operator and value_remap:
-        return _create_has_predicate_with_value_remap(real_path, match_iter, value_remap)
+    if not path_predicate_operation and single_arg_functions:
+        return _create_has_predicate_with_single_arg_functions(real_path, match_iter, single_arg_functions)
 
-    if single_arg_operator and not value_remap:
-        return _create_has_predicate_with_single_arg_operator(real_path, match_iter, single_arg_operator)
+    if path_predicate_operation and not single_arg_functions:
+        return _create_has_predicate_with_path_predicate_operation(real_path, match_iter, path_predicate_operation)
     else:
         return _create_has_predicate(real_path, match_iter)
 
 
-def _create_has_predicate_with_single_arg_operator_and_value_remap(
+def _create_has_predicate_with_path_predicate_operation_and_single_arg_functions(
         real_path,
         match_iter,
-        single_arg_operator,
-        value_remap
+        path_predicate_operation,
+        single_arg_functions
 ):
     @pretty_repr(
-        lambda: f"has({real_path} {single_arg_operator}, {', '.join(map(repr, value_remap))})")
+        lambda: f"has({real_path} {path_predicate_operation}, {', '.join(map(repr, single_arg_functions))})")
     def has_predicate(parent_match: Match):
         for next_match in match_iter(parent_match):
 
             value = next_match.data
-            for function in value_remap[::-1]:
+            for function in single_arg_functions[::-1]:
                 value = function(value)
 
-            value = single_arg_operator(value)
+            value = path_predicate_operation(value)
 
             if value:
                 return True
@@ -70,13 +70,13 @@ def _create_has_predicate_with_single_arg_operator_and_value_remap(
     return has_predicate
 
 
-def _create_has_predicate_with_value_remap(real_path, match_iter, value_remap):
-    @pretty_repr(lambda: f"has({real_path}, {', '.join(map(repr, value_remap))})")
+def _create_has_predicate_with_single_arg_functions(real_path, match_iter, single_arg_functions):
+    @pretty_repr(lambda: f"has({real_path}, {', '.join(map(repr, single_arg_functions))})")
     def has_predicate(parent_match: Match):
         for next_match in match_iter(parent_match):
 
             value = next_match.data
-            for function in value_remap[::-1]:
+            for function in single_arg_functions[::-1]:
                 value = function(value)
 
             if value:
@@ -86,11 +86,11 @@ def _create_has_predicate_with_value_remap(real_path, match_iter, value_remap):
     return has_predicate
 
 
-def _create_has_predicate_with_single_arg_operator(real_path, match_iter, single_arg_operator):
-    @pretty_repr(lambda: f"has({real_path} {single_arg_operator})")
+def _create_has_predicate_with_path_predicate_operation(real_path, match_iter, path_predicate_operation):
+    @pretty_repr(lambda: f"has({real_path} {path_predicate_operation})")
     def has_predicate(parent_match: Match):
         for next_match in match_iter(parent_match):
-            value = single_arg_operator(next_match.data)
+            value = path_predicate_operation(next_match.data)
             if value:
                 return True
         return False
