@@ -4,7 +4,7 @@ from abc import ABC, abstractmethod
 from typing import Union, Callable
 
 from treepath.path.traverser.traverser_match import TraverserMatch
-from treepath.path.typing_alias import JsonTypes
+from treepath.path.typing.json_types import JsonTypes
 
 
 class Vertex(ABC):

@@ -1,5 +1,5 @@
 from treepath.path.traverser.match_traverser import MatchTraverser
-from treepath.path.typing_alias import JsonTypes
+from treepath.path.typing.json_types import JsonTypes
 
 
 class ValueTraverser(MatchTraverser):

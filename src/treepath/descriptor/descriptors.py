@@ -1,37 +1,40 @@
 from __future__ import annotations
 
-from typing import cast, overload, Type, Generic, Callable
+from typing import cast, overload, Type, Generic, Callable, TypeVar
 
 from treepath import RootPathBuilder
 from treepath.path.builder.path_builder import PathBuilder
-from treepath.path.descriptor.abstract_document import AbstractDocument
-from treepath.path.traverser.traverser_functions import get, set_, not_set, del_
+from treepath.descriptor.abstract_document import AbstractDocument
+from treepath.path.traverser.traverser_functions import get, set_, not_set, pop
 from treepath.path.typing_alias import JsonTypeVar, JsonTypes
+from treepath.path.utils.function import do_nothing
 
 
-def _doc_nothing(v: JsonTypes):
-    ...
 
-
-class Descriptor(Generic[JsonTypeVar]):
+class PathDescriptor(Generic[JsonTypeVar]):
     __slots__ = "_path", "_default", "_cascade", "_validator"
 
     def __init__(self,
                  path: PathBuilder = None,
                  default=not_set,
                  cascade: bool = False,
-                 validator: Callable[[JsonTypes], None] = _doc_nothing):
-        self._name = path
+                 validator: Callable[[JsonTypes], None] = do_nothing
+                 ):
+        self._path = path
         self._default = default
         self._cascade = cascade
         self._validator = validator
 
     def __set_name__(self, owner: Type[AbstractDocument], name: str) -> None:
+        if not issubclass(owner, AbstractDocument):
+            raise ValueError(
+                f"{type(self)} can only be assign to a class that implements "
+                "AbstractDocument")
         if not self._path:
             self._path = RootPathBuilder()[name]
 
     @overload
-    def __get__(self, obj: None, objtype: None) -> Descriptor:
+    def __get__(self, obj: None, objtype: None) -> PathDescriptor:
         ...
 
     @overload
@@ -40,7 +43,7 @@ class Descriptor(Generic[JsonTypeVar]):
 
     def __get__(
             self, obj: AbstractDocument | None, objtype: Type[AbstractDocument] | None = None
-    ) -> Descriptor | JsonTypeVar:
+    ) -> PathDescriptor | JsonTypeVar:
         if obj is None:
             return self
         return cast(JsonTypeVar, get(self._path, obj.data, default=self._default))
@@ -50,4 +53,5 @@ class Descriptor(Generic[JsonTypeVar]):
         set_(self._path, value, obj.data, cascade=self._cascade)
 
     def __delete__(self, obj: AbstractDocument) -> None:
-        del_(self._path, obj.data)
+        pop(self._path, obj.data)
+

@@ -1,4 +1,4 @@
-from typing import List
+from typing import List, Any
 
 
 def create_partial_operator(operator_, right):
@@ -16,3 +16,7 @@ def enumerate_slice(_slice: slice, _list: List):
         return next(slice_range), item
 
     return map(slice_enumerate, _list[_slice])
+
+
+def do_nothing(v) -> Any:
+    return v

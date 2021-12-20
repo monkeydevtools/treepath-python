@@ -4,7 +4,7 @@ from typing import Union, List
 
 from treepath.path.exceptions.pop_error import PopError
 from treepath.path.traverser.traverser_match import TraverserMatch
-from treepath.path.typing_alias import JsonTypes
+from treepath.path.typing.json_types import JsonTypes
 from treepath.path.utils.not_set import not_set
 from treepath.path.vertex.vertex import Vertex
 

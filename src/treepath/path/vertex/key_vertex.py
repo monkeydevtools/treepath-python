@@ -2,7 +2,7 @@ from typing import Union
 
 from treepath.path.traverser.key_match import KeyMatch
 from treepath.path.traverser.traverser_match import TraverserMatch
-from treepath.path.typing_alias import JsonTypes
+from treepath.path.typing.json_types import JsonTypes
 from treepath.path.vertex.vertex import Vertex
 
 

@@ -1,7 +1,7 @@
 import json
 
-from treepath.path.descriptor.abstract_document import AbstractDocument
-from treepath.path.typing_alias import JsonTypes
+from treepath.descriptor.abstract_document import AbstractDocument
+from treepath.path.typing.json_types import JsonTypes
 
 
 class Document:
@@ -37,4 +37,4 @@ class Document:
         return isinstance(other, AbstractDocument) and self.data == other.data
 
     def __ne__(self, other):
-        return (not isinstance(other, AbstractDocument)) or self.data != other.json_obj
+        return (not isinstance(other, AbstractDocument)) or self.data != other.data

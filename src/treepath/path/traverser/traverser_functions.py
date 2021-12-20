@@ -14,7 +14,8 @@ from treepath.path.traverser.nested_value_traverser import NestedValueTraverser
 from treepath.path.traverser.predicate_match import PredicateMatch
 from treepath.path.traverser.trace import Trace
 from treepath.path.traverser.value_traverser import ValueTraverser
-from treepath.path.typing_alias import JsonTypes
+from treepath.path.typing.json_arg_types import JsonArgTypes
+from treepath.path.typing.json_types import JsonTypes
 from treepath.path.utils.decorator import pretty_repr, add_attr
 from treepath.path.utils.not_set import not_set
 _has_typing_first_arg = Union[
@@ -40,7 +41,7 @@ _has_multiple_arg_type = Union[
 def set_(
         expression: PathBuilder,
         value: JsonTypes,
-        data: Union[dict, list, Match],
+        data: JsonArgTypes,
         cascade: bool = False,
         trace: Callable[[Trace], None] = None
 ) -> JsonTypes:
@@ -67,7 +68,7 @@ def set_(
 def set_match(
         expression: PathBuilder,
         value: JsonTypes,
-        data: Union[dict, list, Match],
+        data: JsonArgTypes,
         cascade: bool = False,
         trace: Callable[[Trace], None] = None
 ) -> Match:
@@ -110,7 +111,7 @@ def set_match(
 
 def pop(
         expression: PathBuilder,
-        data: Union[dict, list, Match],
+        data: JsonArgTypes,
         default=not_set,
         trace: Callable[[Trace], None] = None
 ) -> JsonTypes:
@@ -136,7 +137,7 @@ def pop(
 
 def pop_match(
         expression: PathBuilder,
-        data: Union[dict, list, Match],
+        data: JsonArgTypes,
         must_match=False,
         trace: Callable[[Trace], None] = None
 ) -> Match:
@@ -163,7 +164,7 @@ def pop_match(
 
 def get(
         expression: PathBuilder,
-        data: Union[dict, list, Match],
+        data: JsonArgTypes,
         default=not_set,
         trace: Callable[[Trace], None] = None
 ) -> JsonTypes:
@@ -188,7 +189,7 @@ def get(
 
 def find(
         expression: PathBuilder,
-        data: Union[dict, list, Match],
+        data: JsonArgTypes,
         trace: Callable[[Trace], None] = None
 ) -> Iterator[JsonTypes]:
     """
@@ -211,7 +212,7 @@ def find(
 
 def get_match(
         expression: PathBuilder,
-        data: Union[dict, list, Match],
+        data: JsonArgTypes,
         must_match: bool = True,
         trace: Callable[[Trace], None] = None
 ) -> Union[Match, None]:
@@ -245,7 +246,7 @@ def get_match(
 
 def find_matches(
         expression: PathBuilder,
-        data: Union[dict, list, Match],
+        data: JsonArgTypes,
         trace: Callable[[Trace], None] = None
 ) -> Iterator[Match]:
     """
