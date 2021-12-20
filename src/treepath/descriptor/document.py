@@ -4,7 +4,7 @@ from treepath.descriptor.abstract_document import AbstractDocument
 from treepath.path.typing.json_types import JsonTypes
 
 
-class Document:
+class Document(AbstractDocument):
     __slots__ = "_data"
 
     def __init__(self, data: JsonTypes = dict()):

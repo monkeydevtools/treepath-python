@@ -1,6 +1,9 @@
 """
 See README.md  for details
 """
+from treepath.descriptor.descriptor_functions import path_descriptor
+from treepath.descriptor.document import Document
+from treepath.descriptor.path_descriptor import PathDescriptor
 from treepath.path.builder.dash_path_builder import DashPathRoot
 from treepath.path.builder.patch_constants import rec
 from treepath.path.builder.patch_constants import recursive

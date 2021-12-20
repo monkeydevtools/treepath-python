@@ -1,20 +1,15 @@
-from abc import ABC
-from typing import Union
+from abc import ABC, abstractmethod
 
-from treepath.path.traverser.match import Match
 from treepath.path.typing.json_types import JsonTypes
 
 
 class AbstractDocument(ABC):
-    __slots__ = "_data"
-
-    def __init__(self, data: Union[JsonTypes, Match]):
-        self._data = data
-
     @property
-    def data(self) -> Union[JsonTypes, Match]:  # pragma: no cover
-        return self._data
+    @abstractmethod
+    def data(self) -> JsonTypes:  # pragma: no cover
+        ...
 
     @data.setter
-    def data(self, data: Union[JsonTypes, Match]):  # pragma: no cover
-        self._data = data
+    @abstractmethod
+    def data(self, data: JsonTypes):  # pragma: no cover
+        ...

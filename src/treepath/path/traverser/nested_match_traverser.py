@@ -1,6 +1,6 @@
 from typing import Callable
 
-from treepath import Match
+from treepath.path.traverser.match import Match
 from treepath.path.traverser.imaginary_match import ImaginaryMatch
 from treepath.path.traverser.match_traverser import MatchTraverser
 from treepath.path.traverser.trace import Trace
