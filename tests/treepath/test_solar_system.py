@@ -2,12 +2,14 @@ import operator
 import re
 from functools import partial
 
+import pytest
+
 from tests.data.data import get_solar_system_json
 from tests.utils.file_util import find_file
 from tests.utils.readme_generator import Readme
 from tests.utils.traverser_utils import gen_test_data, yria, yaia
 from treepath import path, find, wc, set_, get, has, get_match, find_matches, pathd, wildcard, \
-    MatchNotFoundError, Match, log_to, has_all, has_any, has_not
+    MatchNotFoundError, Match, log_to, has_all, has_any, has_not, Document, path_descriptor, path_descriptor_doc_typed
 
 read_me_file = find_file("README.md")
 readme = Readme(read_me_file)
@@ -718,34 +720,66 @@ def test_path_filter_customer_predicate(solar_system):
     assert earth == ['Venus', 'Mars']
 
 
-readme += """# Property"""
+readme += """# Class Descriptors"""
 
 
-# @readme.append_function
-# def test_path_property(solar_system):
-#     """### path property"""
-#
-#     # paths can be added as properties to a class using the pprop function.
-#
-#     class SolarSystem:
-#
-#         def __init__(self, data):
-#             self._data = data
-#
-#         @property
-#         def data(self):
-#             return self._data
-#
-#         jupiter = prop(path.star.planets.outer[0].name, data)
-#         saturn = prop(path.star.planets.outer[1].name, data)
-#
-#     # The property support both gets and sets.
-#     ss = SolarSystem(solar_system)
-#     assert ss.jupiter == 'Jupiter'
-#     assert ss.saturn == 'Saturn'
-#
-#     ss.jupiter = 'retipuJ'
-#     assert ss.jupiter == 'retipuJ'
-#
-#     # The assignment operation alters the original document.
-#     assert solar_system["star"]["planets"]["outer"][0]["name"] == 'retipuJ'
+@readme.append_function
+def test_path_descriptor(solar_system):
+    """### path descriptor"""
+
+    # paths can be added as properties to a class using the path_descriptor function.
+    class SolarSystem(Document):
+        jupiter_name = path_descriptor(path.star.planets.outer[0].name)
+        saturn_name = path_descriptor(path.star.planets.outer[1].name)
+
+    # The property support both gets and sets and dels
+    ss = SolarSystem(solar_system)
+    assert ss.jupiter_name == 'Jupiter'
+    assert ss.saturn_name == 'Saturn'
+
+    # rename Jupiter to Planet 5
+    ss.jupiter_name = 'Planet 5'
+    assert ss.jupiter_name == 'Planet 5'
+
+    # The assignment operation alters the original document.
+    assert solar_system["star"]["planets"]["outer"][0]["name"] == 'Planet 5'
+
+    # remove Jupiter's name
+    del ss.jupiter_name
+    with pytest.raises(MatchNotFoundError):
+        print(ss.jupiter_name)
+    assert "name" not in solar_system["star"]["planets"]["outer"][0]
+
+
+@readme.append_function
+def test_path_descriptor_adaptor_types(solar_system):
+    """### path descriptor support adaptor types"""
+
+    # A descriptor support wrapping json types with adaptor
+    # This example wraps the jupiter return type with Planet type.  
+    class Planet(Document):
+        name = path_descriptor(path.name)
+
+    class SolarSystem(Document):
+        jupiter = path_descriptor_doc_typed(path.star.planets.outer[0], Planet)
+
+    # The getter returns the planet type
+    ss = SolarSystem(solar_system)
+    planet = ss.jupiter
+    assert planet.name == 'Jupiter'
+
+    # rename Jupiter to Planet 5
+    planet.name = 'Planet 5'
+    assert planet.name == 'Planet 5'
+
+    # The assignment operation alters the original document.
+    assert solar_system["star"]["planets"]["outer"][0]["name"] == 'Planet 5'
+
+    # The Jupitor can be renamed by replacing the planet with an imposer.
+    impostor_planet = Planet()
+    impostor_planet.name = 'Imposter Jupiter'
+    ss.jupiter = impostor_planet
+    assert ss.jupiter.name == 'Imposter Jupiter'
+
+    # The imposter planet also alters the original document.
+    assert solar_system["star"]["planets"]["outer"][0]["name"] == 'Imposter Jupiter'

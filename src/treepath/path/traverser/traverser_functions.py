@@ -18,6 +18,7 @@ from treepath.path.typing.json_arg_types import JsonArgTypes
 from treepath.path.typing.json_types import JsonTypes
 from treepath.path.utils.decorator import pretty_repr, add_attr
 from treepath.path.utils.not_set import not_set
+
 _has_typing_first_arg = Union[
     PathBuilderPredicate,
     PathPredicate,
@@ -34,8 +35,6 @@ _has_multiple_arg_type = Union[
     _has_typing_first_arg,
     _has_tuple_arg_type,
 ]
-
-
 
 
 def set_(

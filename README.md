@@ -764,4 +764,89 @@ def my_neighbor_is_earth(match: Match):
 earth = [planet for planet in find(path.rec[my_neighbor_is_earth].name, solar_system)]
 assert earth == ['Venus', 'Mars']
 ```
-# Property
+# Class Descriptors
+### path descriptor
+paths can be added as properties to a class using the path_descriptor function.
+
+```python
+class SolarSystem(Document):
+    jupiter_name = path_descriptor(path.star.planets.outer[0].name)
+    saturn_name = path_descriptor(path.star.planets.outer[1].name)
+
+```
+The property support both gets and sets and dels
+
+```python
+ss = SolarSystem(solar_system)
+assert ss.jupiter_name == 'Jupiter'
+assert ss.saturn_name == 'Saturn'
+
+```
+rename Jupiter to Planet 5
+
+```python
+ss.jupiter_name = 'Planet 5'
+assert ss.jupiter_name == 'Planet 5'
+
+```
+The assignment operation alters the original document.
+
+```python
+assert solar_system["star"]["planets"]["outer"][0]["name"] == 'Planet 5'
+
+```
+remove Jupiter's name
+
+```python
+del ss.jupiter_name
+with pytest.raises(MatchNotFoundError):
+    print(ss.jupiter_name)
+assert "name" not in solar_system["star"]["planets"]["outer"][0]
+```
+### path descriptor support adaptor types
+A descriptor support wrapping json types with adaptor
+This example wraps the jupiter return type with Planet type.  
+
+```python
+class Planet(Document):
+    name = path_descriptor(path.name)
+
+class SolarSystem(Document):
+    jupiter = path_descriptor_doc_typed(path.star.planets.outer[0], Planet)
+
+```
+The getter returns the planet type
+
+```python
+ss = SolarSystem(solar_system)
+planet = ss.jupiter
+assert planet.name == 'Jupiter'
+
+```
+rename Jupiter to Planet 5
+
+```python
+planet.name = 'Planet 5'
+assert planet.name == 'Planet 5'
+
+```
+The assignment operation alters the original document.
+
+```python
+assert solar_system["star"]["planets"]["outer"][0]["name"] == 'Planet 5'
+
+```
+The Jupitor can be renamed by replacing the planet with an imposer.
+
+```python
+impostor_planet = Planet()
+impostor_planet.name = 'Imposter Jupiter'
+ss.jupiter = impostor_planet
+assert ss.jupiter.name == 'Imposter Jupiter'
+
+```
+The imposter planet also alters the original document.
+
+```python
+assert solar_system["star"]["planets"]["outer"][0]["name"] == 'Imposter Jupiter'
+```
