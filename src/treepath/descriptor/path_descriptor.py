@@ -1,6 +1,6 @@
 from __future__ import annotations
 
-from typing import cast, overload, Type, Generic, Callable, TypeVar, Union, Optional, Any
+from typing import cast, overload, Type, Generic, Callable, TypeVar, Union, Optional
 
 from treepath.descriptor.abstract_document import AbstractDocument
 from treepath.path.builder.path_builder import PathBuilder
@@ -13,22 +13,21 @@ T = TypeVar('T')
 
 
 class PathDescriptor(Generic[T]):
-    __slots__ = "_path", "_getter", "_setter", "_validator", "_getter_type", "_setter_type"
+    __slots__ = "_path", "_getter", "_setter", "_to_wrapped_value", "_to_json_value"
 
-    def __init__(self, *,
+    def __init__(self,
                  path: Optional[PathBuilder] = None,
+                 *,
                  getter: Union[get, find, get_match, find_matches] = get,
                  setter: Union[set_, set_match] = set_,
-                 validator: Callable[[JsonTypes], None] = do_nothing,
-                 getter_type: Callable[[JsonTypes], Any] = do_nothing,
-                 setter_type: Callable[[Any], JsonTypes] = do_nothing
+                 to_wrapped_value: Callable[[JsonTypes], T] = do_nothing,
+                 to_json_value: Callable[[T], JsonTypes] = do_nothing
                  ):
         self._path = path
         self._getter = getter
         self._setter = setter
-        self._validator = validator
-        self._getter_type = getter_type
-        self._setter_type = setter_type
+        self._to_wrapped_value = to_wrapped_value
+        self._to_json_value = to_json_value
 
     def __set_name__(self, owner: Type[AbstractDocument], name: str) -> None:
         if not issubclass(owner, AbstractDocument):
@@ -39,26 +38,25 @@ class PathDescriptor(Generic[T]):
             self._path = RootPathBuilder()[name]
 
     @overload
-    def __get__(self, obj: None, objtype: None) -> PathDescriptor:  # pragma: no cover
+    def __get__(self, owner_obj: None, owner_obj_type: None) -> PathDescriptor:  # pragma: no cover
         ...
 
     @overload
-    def __get__(self, obj: AbstractDocument, objtype: Type[AbstractDocument]) -> T:  # pragma: no cover
+    def __get__(self, owner_obj: AbstractDocument, owner_obj_type: Type[AbstractDocument]) -> T:  # pragma: no cover
         ...
 
     def __get__(
-            self, obj: AbstractDocument | None, objtype: Type[AbstractDocument] | None = None
+            self, owner_obj: AbstractDocument | None, owner_obj_type: Type[AbstractDocument] | None = None
     ) -> PathDescriptor | T:
-        if obj is None:
+        if owner_obj is None:
             return self
-        value = self._getter(self._path, obj.data)
-        wrapped_value = self._getter_type(value)
+        json_value = self._getter(self._path, owner_obj.data)
+        wrapped_value = self._to_wrapped_value(json_value)
         return cast(T, wrapped_value)
 
-    def __set__(self, obj: AbstractDocument, value: T) -> None:
-        self._validator(value)
-        unwrapped_value = self._setter_type(value)
-        self._setter(self._path, unwrapped_value, obj.data)
+    def __set__(self, owner_obj: AbstractDocument, wrapped_value: T) -> None:
+        json_value = self._to_json_value(wrapped_value)
+        self._setter(self._path, json_value, owner_obj.data)
 
-    def __delete__(self, obj: AbstractDocument) -> None:
-        pop(self._path, obj.data)
+    def __delete__(self, owner_obj: AbstractDocument) -> None:
+        pop(self._path, owner_obj.data)

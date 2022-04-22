@@ -1,6 +1,6 @@
 import pytest
 
-from treepath import path, set_, SetError, wc, has, set_match
+from treepath import path, set_, SetError, wc, has, set_match, get
 
 
 def test_set_a_to_1_invalid_type():
@@ -114,6 +114,15 @@ def test_set_a_b_c_to_1_cascade():
     assert actual_return == expected_return
 
 
+def test_get_a_b_c_to_1_store_default():
+    actual = {"x": 2}
+    expected_return = 1
+    expected = {"a": {"b": {"c": 1}}, "x": 2}
+    actual_return = get(path.a.b.c, actual, default=1, store_default=True)
+    assert actual == expected
+    assert actual_return == expected_return
+
+
 def test_set_match_a_b_c_to_1_cascade():
     actual = {"x": 2}
     expected_return = '$.a.b.c=1'
@@ -167,6 +176,15 @@ def test_set_0_0_0_to_1_empty_data_cascade():
     expected_return = 1
     expected = [[[1]]]
     actual_return = set_(path[0][0][0], 1, actual, cascade=True)
+    assert actual == expected
+    assert actual_return == expected_return
+
+
+def test_get_0_0_0_to_1_empty_data_cascade():
+    actual = list()
+    expected_return = 1
+    expected = [[[1]]]
+    actual_return = get(path[0][0][0], actual, default=1, store_default=True)
     assert actual == expected
     assert actual_return == expected_return
 

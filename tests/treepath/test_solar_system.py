@@ -9,7 +9,7 @@ from tests.utils.file_util import find_file
 from tests.utils.readme_generator import Readme
 from tests.utils.traverser_utils import gen_test_data, yria, yaia
 from treepath import path, find, wc, set_, get, has, get_match, find_matches, pathd, wildcard, \
-    MatchNotFoundError, Match, log_to, has_all, has_any, has_not, Document, path_descriptor, path_descriptor_doc_typed
+    MatchNotFoundError, Match, log_to, has_all, has_any, has_not, Document, attr, attr_typed
 
 read_me_file = find_file("README.md")
 readme = Readme(read_me_file)
@@ -225,6 +225,10 @@ def test_traversal_function_get(solar_system):
     # Or if preferred, a default value can be given.
     human_population = get(path.star.human_population, solar_system, default=0)
     assert human_population == 0
+
+    # The default value can be automatically injected in to json document
+    human_population = get(path.star.human_population, solar_system, default=1, store_default=True)
+    assert human_population == solar_system["star"]["human_population"]
 
     # The data source can be a json data structure or a Match object.
     parent_match = get_match(path.star.planets.inner, solar_system)
@@ -729,8 +733,8 @@ def test_path_descriptor(solar_system):
 
     # paths can be added as properties to a class using the path_descriptor function.
     class SolarSystem(Document):
-        jupiter_name = path_descriptor(path.star.planets.outer[0].name)
-        saturn_name = path_descriptor(path.star.planets.outer[1].name)
+        jupiter_name = attr(path.star.planets.outer[0].name)
+        saturn_name = attr(path.star.planets.outer[1].name)
 
     # The property support both gets and sets and dels
     ss = SolarSystem(solar_system)
@@ -758,10 +762,10 @@ def test_path_descriptor_adaptor_types(solar_system):
     # A descriptor support wrapping json types with adaptor
     # This example wraps the jupiter return type with Planet type.  
     class Planet(Document):
-        name = path_descriptor(path.name)
+        name = attr(path=path.name,getter=None)
 
     class SolarSystem(Document):
-        jupiter = path_descriptor_doc_typed(path.star.planets.outer[0], Planet)
+        jupiter = attr_typed(Planet, path.star.planets.outer[0])
 
     # The getter returns the planet type
     ss = SolarSystem(solar_system)

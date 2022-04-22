@@ -1,8 +1,7 @@
 """
 See README.md  for details
 """
-from treepath.descriptor.descriptor_functions import path_descriptor
-from treepath.descriptor.descriptor_functions import path_descriptor_doc_typed
+from treepath.descriptor.descriptor_functions import attr, attr_typed
 from treepath.descriptor.document import Document
 from treepath.descriptor.path_descriptor import PathDescriptor
 from treepath.path.builder.dash_path_builder import DashPathRoot

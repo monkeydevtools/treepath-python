@@ -217,6 +217,13 @@ human_population = get(path.star.human_population, solar_system, default=0)
 assert human_population == 0
 
 ```
+The default value can be automatically injected in to json document
+
+```python
+human_population = get(path.star.human_population, solar_system, default=1, store_default=True)
+assert human_population == solar_system["star"]["human_population"]
+
+```
 The data source can be a json data structure or a Match object.
 
 ```python
@@ -770,8 +777,8 @@ paths can be added as properties to a class using the path_descriptor function.
 
 ```python
 class SolarSystem(Document):
-    jupiter_name = path_descriptor(path.star.planets.outer[0].name)
-    saturn_name = path_descriptor(path.star.planets.outer[1].name)
+    jupiter_name = attr(path.star.planets.outer[0].name)
+    saturn_name = attr(path.star.planets.outer[1].name)
 
 ```
 The property support both gets and sets and dels
@@ -809,10 +816,10 @@ This example wraps the jupiter return type with Planet type.
 
 ```python
 class Planet(Document):
-    name = path_descriptor(path.name)
+    name = attr(path=path.name,getter=None)
 
 class SolarSystem(Document):
-    jupiter = path_descriptor_doc_typed(path.star.planets.outer[0], Planet)
+    jupiter = attr_typed(Planet, path.star.planets.outer[0])
 
 ```
 The getter returns the planet type

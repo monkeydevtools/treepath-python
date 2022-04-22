@@ -165,6 +165,7 @@ def get(
         expression: PathBuilder,
         data: JsonArgTypes,
         default=not_set,
+        store_default=False,
         trace: Callable[[Trace], None] = None
 ) -> JsonTypes:
     """
@@ -175,6 +176,8 @@ def get(
     @param data: The data to search through.  The data must be either a tree structure that adheres to
         https://docs.python.org/3/library/json.html or a Match object from a previous search.
     @param default:  An optional value to return when no result is found.
+    @param store_default: An optional boolean to allow all missing parts of the path to be created just in time to
+        support the assignment of the default.  By default, store_default is False.
     @param trace: An optional callable to report detail iteration data too.
     @return: The value that satisfies the path expression, else MatchNotFoundError is raised unless default is given.
     @raise MatchNotFoundError:  Raised when no result is found and no default value is given.
@@ -183,6 +186,8 @@ def get(
     match = get_match(expression, data, must_match=must_match, trace=trace)
     if match:
         return match.data
+    if store_default:
+        set_(expression, default, data, cascade=True, trace=trace)
     return default
 
 
