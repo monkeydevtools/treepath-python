@@ -11,7 +11,7 @@ class DocumentList(Generic[T], Document):
     __slots__ = "_data", "_to_wrapped_value", "_to_json_value"
 
     def __init__(self,
-                 data: List[JsonTypes] = list(),
+                 data: List[JsonTypes],
                  *,
                  to_wrapped_value: Callable[[JsonTypes], T] = do_nothing,
                  to_json_value: Callable[[T], JsonTypes] = do_nothing):
@@ -19,19 +19,19 @@ class DocumentList(Generic[T], Document):
         self._to_wrapped_value = to_wrapped_value
         self._to_json_value = to_json_value
 
-    def __iter__(self):
-        class _Iterator:
-            __slots__ = "_data_iter", "_to_wrapped_value"
+    def __iter__(self) -> T:
+        class _Iterator(Generic[T]):
+            __slots__ = "_iterator", "_to_wrapped_value"
 
-            def __init__(self, to_wrapped_value, data_iter):
+            def __init__(self, iterator, to_wrapped_value):
                 self._to_wrapped_value = to_wrapped_value
-                self._data_iter = data_iter
+                self._iterator = iterator
 
             def __next__(self) -> T:
-                json_value = next(self._data_iter)
+                json_value = next(self._iterator)
                 return self._to_wrapped_value(json_value)
 
-        return _Iterator(self, iter(self.data))
+        return _Iterator[T](iter(self._data), self._to_wrapped_value)
 
     def __getitem__(self, index: int) -> T:
         json_value = self.data[index]

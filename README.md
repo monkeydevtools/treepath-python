@@ -217,6 +217,15 @@ human_population = get(path.star.human_population, solar_system, default=0)
 assert human_population == 0
 
 ```
+In addition to a constant, the default value may also be a callable
+
+```python
+def population():
+    return 0
+human_population = get(path.star.human_population, solar_system, default=population)
+assert human_population == 0
+
+```
 The default value can be automatically injected in to json document
 
 ```python
@@ -816,7 +825,7 @@ This example wraps the jupiter return type with Planet type.
 
 ```python
 class Planet(Document):
-    name = attr(path=path.name,getter=None)
+    name = attr(path=path.name)
 
 class SolarSystem(Document):
     jupiter = attr_typed(Planet, path.star.planets.outer[0])
@@ -843,10 +852,10 @@ The assignment operation alters the original document.
 assert solar_system["star"]["planets"]["outer"][0]["name"] == 'Planet 5'
 
 ```
-The Jupitor can be renamed by replacing the planet with an imposer.
+The Jupitor can be renamed by replacing the planet with an imposter.
 
 ```python
-impostor_planet = Planet()
+impostor_planet = Planet({})
 impostor_planet.name = 'Imposter Jupiter'
 ss.jupiter = impostor_planet
 assert ss.jupiter.name == 'Imposter Jupiter'

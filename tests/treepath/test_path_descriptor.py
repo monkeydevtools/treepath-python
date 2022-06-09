@@ -5,7 +5,8 @@ from functools import partial
 
 import pytest
 
-from treepath import Document, attr, attr_typed, path, get, set_, MatchNotFoundError
+from treepath import Document, attr, attr_typed, path, get, set_, MatchNotFoundError, find
+from treepath.descriptor.descriptor_functions import attr_iter_typed
 from treepath.path.typing.json_arg_types import JsonArgTypes
 
 
@@ -110,7 +111,8 @@ def test_attr_single_doc_type_transforms_on_partial_get_and_set():
         b = attr(getter=partial(get, default=None))
 
     class PathDescriptorTest(Document):
-        a = attr_typed(TestDoc, getter=partial(get, default={}, store_default=True), setter=partial(set_, cascade=True))
+        a = attr_typed(TestDoc, getter=partial(get, default=dict, store_default=True),
+                       setter=partial(set_, cascade=True))
 
     actual = {"x": 2}
     expected = {"a": {"b": 1}, "x": 2}
@@ -120,9 +122,13 @@ def test_attr_single_doc_type_transforms_on_partial_get_and_set():
     assert pd.a.b == 1
     assert actual == expected
 
+    # make sure the default is a separate instance
+    actual = {"x": 2}
+    pd = PathDescriptorTest(actual)
+    assert pd.a.b is None
+
 
 def test_attr_single_custom_type_transforms_on_get_and_set():
-
     class PathDescriptorTest(Document):
         a = attr_typed(MyDate, to_wrapped_value=MyDate.to_wrapped_value, to_json_value=MyDate.to_json_value)
 
@@ -136,7 +142,6 @@ def test_attr_single_custom_type_transforms_on_get_and_set():
 
 
 def test_attr_single_custom_type_transforms_on_partial_get_and_set():
-
     class PathDescriptorTest(Document):
         a = attr_typed(
             MyDate,
@@ -153,3 +158,54 @@ def test_attr_single_custom_type_transforms_on_partial_get_and_set():
     pd.a = MyDate(year="2022", month="04", day="21")
     assert pd.a == MyDate(year="2022", month="04", day="21")
     assert actual == expected
+
+
+def test_attr_iterator():
+    class PathDescriptorTest(Document):
+        a = attr(path.wc, getter=find)
+
+    actual = {"a": 1, "b": 2, "c": 3}
+    pd = PathDescriptorTest(actual)
+    next_ = partial(next, iter(pd.a))
+    assert next_() == 1
+    assert next_() == 2
+    assert next_() == 3
+
+
+def test_attr_iterator_doc_type_transforms_on_partial_get_and_set():
+    class TestDoc(Document):
+        b = attr(getter=partial(get, default=None))
+
+    class PathDescriptorTest(Document):
+        a = attr_iter_typed(TestDoc, path.wc)
+
+    actual = {"a": {"b": 1}, "b": {"b": 2}, "c": {"b": 3}}
+    pd = PathDescriptorTest(actual)
+    next_ = partial(next, iter(pd.a))
+    assert next_().b == 1
+    assert next_().b == 2
+    assert next_().b == 3
+
+
+def test_attr_list_doc_type_transforms_on_partial_get_and_set():
+    class TestDoc(Document):
+        b = attr(getter=partial(get, default=None))
+
+    class PathDescriptorTest(Document):
+        a = attr_typed(TestDoc, )
+
+    actual = {"a": [{"b": 1}, {"b": 2}, {"b": 3}]}
+    pd = PathDescriptorTest(actual)
+
+    list_wrap = pd.a
+
+    next_ = partial(next, iter(list_wrap))
+    assert next_().b == 1
+    assert next_().b == 2
+    assert next_().b == 3
+
+    assert len(list_wrap) == 3
+
+    assert list_wrap[0].b == 1
+    assert list_wrap[1].b == 2
+    assert list_wrap[2].b == 3

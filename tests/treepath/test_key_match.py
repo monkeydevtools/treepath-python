@@ -1,3 +1,5 @@
+from functools import partial
+
 from tests.utils.traverser_utils import *
 from treepath import get, path, get_match, find, find_matches, MatchNotFoundError, PopError
 
@@ -19,10 +21,18 @@ def test_keys_a_MatchNotFoundError(keys):
         get(path.a, keys)
 
 
-def test_keys_a_None(keys):
+def test_keys_a_default_constant(keys):
     expected = "abc123"
     actual = get(path.a, keys, default="abc123")
     assert actual == expected
+
+
+def test_keys_a_default_callable():
+    count = partial(next, iter(range(2)))
+    actual1 = get(path.a, {}, default=count)
+    actual2 = get(path.a, {}, default=count)
+    assert actual1 == 0
+    assert actual2 == 1
 
 
 def test_keys_x_a_MatchNotFoundError(keys):

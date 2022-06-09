@@ -226,6 +226,12 @@ def test_traversal_function_get(solar_system):
     human_population = get(path.star.human_population, solar_system, default=0)
     assert human_population == 0
 
+    # In addition to a constant, the default value may also be a callable
+    def population():
+        return 0
+    human_population = get(path.star.human_population, solar_system, default=population)
+    assert human_population == 0
+
     # The default value can be automatically injected in to json document
     human_population = get(path.star.human_population, solar_system, default=1, store_default=True)
     assert human_population == solar_system["star"]["human_population"]
@@ -762,7 +768,7 @@ def test_path_descriptor_adaptor_types(solar_system):
     # A descriptor support wrapping json types with adaptor
     # This example wraps the jupiter return type with Planet type.  
     class Planet(Document):
-        name = attr(path=path.name,getter=None)
+        name = attr(path=path.name)
 
     class SolarSystem(Document):
         jupiter = attr_typed(Planet, path.star.planets.outer[0])
@@ -779,8 +785,8 @@ def test_path_descriptor_adaptor_types(solar_system):
     # The assignment operation alters the original document.
     assert solar_system["star"]["planets"]["outer"][0]["name"] == 'Planet 5'
 
-    # The Jupitor can be renamed by replacing the planet with an imposer.
-    impostor_planet = Planet()
+    # The Jupitor can be renamed by replacing the planet with an imposter.
+    impostor_planet = Planet({})
     impostor_planet.name = 'Imposter Jupiter'
     ss.jupiter = impostor_planet
     assert ss.jupiter.name == 'Imposter Jupiter'

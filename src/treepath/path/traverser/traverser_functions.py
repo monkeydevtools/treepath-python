@@ -186,9 +186,17 @@ def get(
     match = get_match(expression, data, must_match=must_match, trace=trace)
     if match:
         return match.data
+
+    # if the default is callable then the return value will be the default value
+    if callable(default):
+        default_value = default()
+    else:
+        default_value = default
+
     if store_default:
-        set_(expression, default, data, cascade=True, trace=trace)
-    return default
+        set_(expression, default_value, data, cascade=True, trace=trace)
+
+    return default_value
 
 
 def find(
