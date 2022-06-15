@@ -34,13 +34,13 @@ def test_keys_rec_parent_path(keys):
                 '$.z.x<-z',
                 '$.z.y<-z',
                 '$.z.z<-z']
-    actual = [fm.path for fm in find_matches(path.rec.parent, keys)]
+    actual = [fm.path_as_str for fm in find_matches(path.rec.parent, keys)]
     assert actual == expected
 
 
 def test_keys_parent_rec_path(keys):
     expected = []
-    actual = [fm.path for fm in find_matches(path.parent.rec, keys)]
+    actual = [fm.path_as_str for fm in find_matches(path.parent.rec, keys)]
     assert actual == expected
 
 
@@ -58,7 +58,7 @@ def test_keys_x_y_parent_rec_path(keys):
                 '$.x.y<-x.z.x',
                 '$.x.y<-x.z.y',
                 '$.x.y<-x.z.z']
-    actual = [fm.path for fm in find_matches(path.x.y.parent.rec, keys)]
+    actual = [fm.path_as_str for fm in find_matches(path.x.y.parent.rec, keys)]
     assert actual == expected
 
 
@@ -77,14 +77,14 @@ def test_keys_rec_x_parent_rec_path(keys):
                 '$.z.y.x<-y',
                 '$.z.z.x<-z']
 
-    actual = [fm.path for fm in find_matches(path.rec.x.parent, keys)]
+    actual = [fm.path_as_str for fm in find_matches(path.rec.x.parent, keys)]
 
     assert actual == expected
 
 
 def test_keys_wc_x_parent_path(keys):
     expected = ['$.x.x<-x', '$.y.x<-y', '$.z.x<-z']
-    actual = [fm.path for fm in find_matches(path.wc.x.parent, keys)]
+    actual = [fm.path_as_str for fm in find_matches(path.wc.x.parent, keys)]
     assert actual == expected
 
 
@@ -102,5 +102,5 @@ def test_3d_list_x_x_parent_path(three_dimensional_list):
 
 def test_3d_list_wc_x_parent_path(three_dimensional_list):
     expected = ['$[0][1]<-0', '$[1][1]<-1', '$[2][1]<-2']
-    actual = [fm.path for fm in find_matches(path[wc][1].parent, three_dimensional_list)]
+    actual = [fm.path_as_str for fm in find_matches(path[wc][1].parent, three_dimensional_list)]
     assert actual == expected

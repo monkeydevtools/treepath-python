@@ -14,5 +14,5 @@ class NestedMatchNotFoundError(MatchNotFoundError, LookupError):
 
     def _resolve_msg(self):
         path = repr(self.vertex)
-        nested_path = self.nested_match.path
+        nested_path = self.nested_match.path_as_str
         return f"NestedMatchNotFoundError(No get_match occurred on path {path} from match {nested_path})"

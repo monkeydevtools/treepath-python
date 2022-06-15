@@ -1,13 +1,15 @@
 from __future__ import annotations
 
+from typing import TYPE_CHECKING
 from typing import Union, List
 
 from treepath.path.exceptions.pop_error import PopError
 from treepath.path.traverser.traverser_match import TraverserMatch
 from treepath.path.typing.json_types import JsonTypes
 from treepath.path.utils.not_set import not_set
-from treepath.path.vertex.vertex import Vertex
 
+if TYPE_CHECKING:
+    from treepath.path.builder.path_builder import PathBuilder  # pragma: no cover
 
 
 class Match:
@@ -22,21 +24,29 @@ class Match:
         self._traverser_match = traverser_match
 
     @property
-    def path_as_list(self) -> List[Match]:
+    def path(self) -> PathBuilder:
         """
-        Returns a list containing this Mtch and all the ancestor matches.  The list is order from root to this Match.
+        Returns the explicit path that points to this match
         """
-        return [Match(traverser_match) for traverser_match in self._traverser_match.path_as_list]
+        from treepath.path.utils.match_to_path import match_to_path
+        return match_to_path(self)
 
     @property
-    def path(self) -> str:
+    def path_match_list(self) -> List[Match]:
+        """
+        Returns a list containing this Match and all the ancestor matches.  The list is ordered from root to this Match.
+        """
+        return [Match(traverser_match) for traverser_match in self._traverser_match.path_match_list]
+
+    @property
+    def path_as_str(self) -> str:
         """
         Returns the str representation of the absolute path for this match.  For example $.a.b[0]
         """
-        return self._traverser_match.path
+        return self._traverser_match.path_as_str
 
     @property
-    def path_segment(self):
+    def path_segment(self) -> str:
         """
         Returns the str representation of the segment in the path this Match represents.   This is different from
         data_name in that it includes additional symbols.  For example if data_name is a list index of '1' then path
@@ -92,7 +102,7 @@ class Match:
             traverser_match.data = None
         except LookupError:
             raise PopError(
-                self.vertex,
+                self._traverser_match.vertex,
                 f"The reference data[{repr(self.data_name)}] does not exist.  Unable to del",
                 ""
             )
@@ -112,13 +122,6 @@ class Match:
                 raise e
             else:
                 return default
-
-    @property
-    def vertex(self) -> Vertex:
-        """
-        Returns the path vertex that generated this match.
-        """
-        return self._traverser_match.vertex
 
     def __repr__(self):
         """

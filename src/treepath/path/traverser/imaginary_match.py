@@ -12,16 +12,16 @@ class ImaginaryMatch(TraverserMatch):
     __slots__ = ()
 
     @property
-    def path_as_list(self) -> list:
-        return self.real_parent.path_as_list
+    def path_match_list(self) -> list:
+        return self.real_parent.path_match_list
 
     @property
     def data_name(self) -> str:
         return self.real_parent.data_name
 
     @property
-    def path(self) -> str:
-        return self.real_parent.path
+    def path_as_str(self) -> str:
+        return self.real_parent.path_as_str
 
     @property
     def path_segment(self) -> str:

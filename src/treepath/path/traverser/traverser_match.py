@@ -1,6 +1,6 @@
 from __future__ import annotations
 
-from abc import abstractmethod, ABC, abstractproperty
+from abc import abstractmethod, ABC
 from typing import List, Any, Callable
 
 
@@ -10,8 +10,8 @@ class TraverserMatch(ABC):
                 'data', \
                 'vertex', \
                 'vertex_index', \
-                '_path_as_list', \
-                '_path', \
+                '_path_match_list', \
+                '_path_as_str', \
                 'remembered_catch_state', \
                 'remembered_on_catch_match', \
                 'remembered_on_catch_action'
@@ -30,38 +30,38 @@ class TraverserMatch(ABC):
         self.data = data
         self.vertex = vertex
         self.vertex_index = vertex_index
-        self._path_as_list = self
-        self._path = self
+        self._path_match_list = None
+        self._path_as_str = None
         self.remembered_catch_state = None
         self.remembered_on_catch_match = remembered_on_catch_match
         self.remembered_on_catch_action = remembered_on_catch_action
 
     @property
-    def path_as_list(self) -> List[TraverserMatch]:
-        path_as_list = self._path_as_list
-        if path_as_list != self:
-            return path_as_list
+    def path_match_list(self) -> List[TraverserMatch]:
+        path_match_list = self._path_match_list
+        if path_match_list is not None:
+            return path_match_list
 
-        path_as_list = []
+        path_match_list = list()
 
         def collect(vertex):
-            path_as_list.append(vertex)
+            path_match_list.append(vertex)
 
         self.traverse(collect)
 
-        self._path_as_list = path_as_list
-        return path_as_list
+        self._path_match_list = path_match_list
+        return path_match_list
 
     @property
-    def path(self) -> str:
-        path = self._path
-        if path != self:
-            return path
+    def path_as_str(self) -> str:
+        path_as_str = self._path_as_str
+        if path_as_str is not None:
+            return path_as_str
 
-        path_as_list = self.path_as_list
-        path = ''.join(match.path_segment for match in path_as_list)
-        self._path = path
-        return path
+        path_as_list = self.path_match_list
+        path_as_str = ''.join(match.path_segment for match in path_as_list)
+        self._path_as_str = path_as_str
+        return path_as_str
 
     @property
     @abstractmethod
@@ -85,7 +85,7 @@ class TraverserMatch(ABC):
         visit(self)
 
     def __repr__(self):
-        return f"{self.path}={self.data}"
+        return f"{self.path_as_str}={self.data}"
 
     def __str__(self):
         real_parent = id(self.real_parent)
@@ -96,7 +96,7 @@ class TraverserMatch(ABC):
         remembered_catch_state = type(self.remembered_catch_state).__name__
         remembered_on_catch_match = id(self.remembered_on_catch_match)
         remembered_on_catch_action = type(self.remembered_on_catch_action).__name__
-        path = self.path
+        path = self.path_as_str
 
         return f"self={id(self)}" \
                f" self={type(self).__name__}" \

@@ -36,7 +36,7 @@ def test_vertex_TraversingError_root_cannot_be_traverse():
         actual = get_match(path, {})
         # the root match method should never be called.
         # but in case of a bug, make sure it creates a error
-        actual.vertex.match(actual._traverser_match, traverser=None, vertex_index=0)
+        actual._traverser_match.vertex.match(actual._traverser_match, traverser=None, vertex_index=0)
 
     assert repr(exc_info.value) == expected
 

@@ -319,7 +319,7 @@ The data source can be a json data structure or a Match object.
 ```python
 parent_match = get_match(path.star.planets.inner, solar_system)
 earth_match = get_match(path[2].name, parent_match)
-assert earth_match.path == "$.star.planets.inner[2].name"
+assert earth_match.path_as_str == "$.star.planets.inner[2].name"
 assert earth_match.data == "Earth"
 ```
 ## find_matches
@@ -330,7 +330,7 @@ Find the path to each of the inner planets.
 
 ```python
 for match in find_matches(path.star.planets.inner[wc], solar_system):
-    assert match.path in [
+    assert match.path_as_str in [
         '$.star.planets.inner[0]',
         '$.star.planets.inner[1]',
         '$.star.planets.inner[2]',
@@ -343,7 +343,7 @@ The data source can be a json data structure or a Match object.
 ```python
 parent_match = get_match(path.star.planets.inner, solar_system)
 for match in find_matches(path[wc], parent_match):
-    assert match.path in [
+    assert match.path_as_str in [
         '$.star.planets.inner[0]',
         '$.star.planets.inner[1]',
         '$.star.planets.inner[2]',
@@ -357,22 +357,30 @@ The **Match** class provides metadata about the match.
 match = get_match(path.star.name, solar_system)
 
 ```
-The string representation of match = [path=value].
+The explicit path to the match
+
+```python
+explicit_path = match.path
+assert explicit_path == path.star.name
+
+```
+The string representation of the match including the value: "path=value"
 
 ```python
 assert repr(match) == "$.star.name=Sun"
+assert str(match) == "$.star.name=Sun"
+
+```
+The string representation of the match, but with just the path component.
+
+```python
+assert match.path_as_str == "$.star.name"
 
 ```
 A list containing each match in the path.
 
 ```python
-assert match.path_as_list == [match.parent.parent, match.parent, match]
-
-```
-The string representation of match path.
-
-```python
-assert match.path == "$.star.name"
+assert match.path_match_list == [match.parent.parent, match.parent, match]
 
 ```
 The key that points to the match value.  The data_name is a dictionary key if the parent is a dict or an index if
@@ -391,7 +399,20 @@ assert match.data == "Sun"
 The parent match.
 
 ```python
-assert match.parent.path == "$.star"
+assert match.parent.path_as_str == "$.star"
+
+```
+The match can modify the value
+
+```python
+match.data = "Soleil"
+assert repr(match) == "$.star.name=Soleil"
+del match.data
+assert repr(match) == "$.star.name=None"
+match.data = "Sun"
+assert repr(match) == "$.star.name=Sun"
+match.pop()
+assert repr(match) == "$.star.name=None"
 ```
 ## Tracing Debugging
 All of the functions: get, find, get_match and find_matchesm, support tracing.   An option, when enabled,
@@ -829,6 +850,8 @@ class Planet(Document):
 
 class SolarSystem(Document):
     jupiter = attr_typed(Planet, path.star.planets.outer[0])
+    planets = attr_iter_typed(Planet, path.star.planets.wc[wc])
+    outer_planets = attr_list_typed(Planet, path.star.planets.outer)
 
 ```
 The getter returns the planet type
@@ -865,4 +888,25 @@ The imposter planet also alters the original document.
 
 ```python
 assert solar_system["star"]["planets"]["outer"][0]["name"] == 'Imposter Jupiter'
+
+```
+A attribute descriptor support iterator
+
+```python
+planets = [planet.name for planet in ss.planets]
+assert planets == ['Mercury', 'Venus', 'Earth', 'Mars', 'Imposter Jupiter', 'Saturn', 'Uranus', 'Neptune']
+
+```
+A attribute descriptor support list
+
+```python
+assert ss.outer_planets[0].name == 'Imposter Jupiter'
+
+```
+The list can be modified and the underline document is modefied too.
+
+```python
+ss.outer_planets[0].name = 'Jupiter'
+planets = [planet.name for planet in ss.planets]
+assert planets == ['Mercury', 'Venus', 'Earth', 'Mars', 'Jupiter', 'Saturn', 'Uranus', 'Neptune']
 ```

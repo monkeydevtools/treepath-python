@@ -40,7 +40,7 @@ def test_keys_get_root_x_were_root_has_y(keys):
 def test_keys_get_match_rec_verify_imaginary_match_path_as_list_correct(keys):
     actual = get_match(path.x.x.rec, keys)
     assert isinstance(actual._traverser_match, ImaginaryMatch)
-    assert actual.path_as_list == [actual.parent.parent, actual.parent, actual]
+    assert actual.path_match_list == [actual.parent.parent, actual.parent, actual]
 
 
 def test_keys_match_all_root_wc_has_x(keys):

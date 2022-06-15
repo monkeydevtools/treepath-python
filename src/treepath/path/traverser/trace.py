@@ -58,7 +58,7 @@ class Trace:
 
 
 def _log(log: Callable[[str], None], trace: Trace):
-    last_path = trace.last_match.path
+    last_path = trace.last_match.path_as_str
     vertex_path_segment = trace.next_vertex.path_segment
     if trace.next_match:
         next_match_path_segment = trace.next_match.path_segment
@@ -70,7 +70,7 @@ def _log(log: Callable[[str], None], trace: Trace):
     message = f" at {last_path}{vertex_path_segment} got {result}"
 
     if trace.predicate_match:
-        predicate_path = f" at {trace.predicate_match.path}"
+        predicate_path = f" at {trace.predicate_match.path_as_str}"
         message = message.replace(predicate_path, " has ".rjust(len(predicate_path)), 1)
 
     log(message)

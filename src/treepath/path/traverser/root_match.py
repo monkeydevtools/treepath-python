@@ -7,11 +7,11 @@ class RootMatch(TraverserMatch):
     __slots__ = ()
 
     @property
-    def path_as_list(self) -> list:
+    def path_match_list(self) -> list:
         return [self]
 
     @property
-    def path(self) -> str:
+    def path_as_str(self) -> str:
         return self.real_data_name
 
     @property

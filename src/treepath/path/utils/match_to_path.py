@@ -7,7 +7,7 @@ def match_to_path(match: Match) -> PathBuilder:
     """
     Converts a match to a Path
     """
-    path_as_list = match.path_as_list
+    path_as_list = match.path_match_list
     path = RootPathBuilder()
     for match in path_as_list[1:]:
         data_name = match.data_name

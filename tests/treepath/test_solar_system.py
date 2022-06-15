@@ -9,7 +9,8 @@ from tests.utils.file_util import find_file
 from tests.utils.readme_generator import Readme
 from tests.utils.traverser_utils import gen_test_data, yria, yaia
 from treepath import path, find, wc, set_, get, has, get_match, find_matches, pathd, wildcard, \
-    MatchNotFoundError, Match, log_to, has_all, has_any, has_not, Document, attr, attr_typed
+    MatchNotFoundError, Match, log_to, has_all, has_any, has_not, Document, attr, attr_typed, attr_iter_typed, \
+    attr_list_typed
 
 read_me_file = find_file("README.md")
 readme = Readme(read_me_file)
@@ -311,7 +312,7 @@ def test_traversal_function_get_match(solar_system):
     # The data source can be a json data structure or a Match object.
     parent_match = get_match(path.star.planets.inner, solar_system)
     earth_match = get_match(path[2].name, parent_match)
-    assert earth_match.path == "$.star.planets.inner[2].name"
+    assert earth_match.path_as_str == "$.star.planets.inner[2].name"
     assert earth_match.data == "Earth"
 
 
@@ -323,7 +324,7 @@ def test_traversal_function_find_matches(solar_system):
 
     # Find the path to each of the inner planets.
     for match in find_matches(path.star.planets.inner[wc], solar_system):
-        assert match.path in [
+        assert match.path_as_str in [
             '$.star.planets.inner[0]',
             '$.star.planets.inner[1]',
             '$.star.planets.inner[2]',
@@ -333,7 +334,7 @@ def test_traversal_function_find_matches(solar_system):
     # The data source can be a json data structure or a Match object.
     parent_match = get_match(path.star.planets.inner, solar_system)
     for match in find_matches(path[wc], parent_match):
-        assert match.path in [
+        assert match.path_as_str in [
             '$.star.planets.inner[0]',
             '$.star.planets.inner[1]',
             '$.star.planets.inner[2]',
@@ -348,14 +349,19 @@ def test_traversal_function_match_class(solar_system):
     # The **Match** class provides metadata about the match.
     match = get_match(path.star.name, solar_system)
 
-    # The string representation of match = [path=value].
+    # The explicit path to the match
+    explicit_path = match.path
+    assert explicit_path == path.star.name
+
+    # The string representation of the match including the value: "path=value"
     assert repr(match) == "$.star.name=Sun"
+    assert str(match) == "$.star.name=Sun"
+
+    # The string representation of the match, but with just the path component.
+    assert match.path_as_str == "$.star.name"
 
     # A list containing each match in the path.
-    assert match.path_as_list == [match.parent.parent, match.parent, match]
-
-    # The string representation of match path.
-    assert match.path == "$.star.name"
+    assert match.path_match_list == [match.parent.parent, match.parent, match]
 
     # The key that points to the match value.  The data_name is a dictionary key if the parent is a dict or an index if
     # the parent is a list.
@@ -365,7 +371,19 @@ def test_traversal_function_match_class(solar_system):
     assert match.data == "Sun"
 
     # The parent match.
-    assert match.parent.path == "$.star"
+    assert match.parent.path_as_str == "$.star"
+
+    # The match can modify the value
+    match.data = "Soleil"
+    assert repr(match) == "$.star.name=Soleil"
+    del match.data
+    assert repr(match) == "$.star.name=None"
+    match.data = "Sun"
+    assert repr(match) == "$.star.name=Sun"
+    match.pop()
+    assert repr(match) == "$.star.name=None"
+
+
 
 
 @readme.append_function
@@ -772,6 +790,8 @@ def test_path_descriptor_adaptor_types(solar_system):
 
     class SolarSystem(Document):
         jupiter = attr_typed(Planet, path.star.planets.outer[0])
+        planets = attr_iter_typed(Planet, path.star.planets.wc[wc])
+        outer_planets = attr_list_typed(Planet, path.star.planets.outer)
 
     # The getter returns the planet type
     ss = SolarSystem(solar_system)
@@ -793,3 +813,15 @@ def test_path_descriptor_adaptor_types(solar_system):
 
     # The imposter planet also alters the original document.
     assert solar_system["star"]["planets"]["outer"][0]["name"] == 'Imposter Jupiter'
+
+    # A attribute descriptor support iterator
+    planets = [planet.name for planet in ss.planets]
+    assert planets == ['Mercury', 'Venus', 'Earth', 'Mars', 'Imposter Jupiter', 'Saturn', 'Uranus', 'Neptune']
+
+    # A attribute descriptor support list
+    assert ss.outer_planets[0].name == 'Imposter Jupiter'
+
+    # The list can be modified and the underline document is modefied too.
+    ss.outer_planets[0].name = 'Jupiter'
+    planets = [planet.name for planet in ss.planets]
+    assert planets == ['Mercury', 'Venus', 'Earth', 'Mars', 'Jupiter', 'Saturn', 'Uranus', 'Neptune']
