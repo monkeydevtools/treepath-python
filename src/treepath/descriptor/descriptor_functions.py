@@ -51,14 +51,12 @@ def attr_iter_typed(type_: Type[T],
                     *,
                     getter: Union[find, find_matches] = find,
                     to_wrapped_value: Callable[[JsonTypes], Any] = do_nothing,
-                    to_json_value: Callable[[Any], JsonTypes] = do_nothing
                     ) -> PathDescriptor[T]:
     descriptor_builder = DescriptorBuilder(
         type_=type_,
         path=path,
         getter=getter,
         to_wrapped_value=to_wrapped_value,
-        to_json_value=to_json_value,
     )
     return descriptor_builder.build_iterator()
 

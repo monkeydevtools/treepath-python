@@ -5,9 +5,9 @@ from functools import partial
 
 import pytest
 
-from treepath import Document, attr, attr_typed, path, get, set_, MatchNotFoundError, find
-from treepath.descriptor.descriptor_functions import attr_iter_typed
-from treepath.path.typing.json_arg_types import JsonArgTypes
+from treepath import Document, attr, attr_typed, path, get, set_, MatchNotFoundError, find, SetError
+from treepath import JsonArgTypes
+from treepath import attr_iter_typed, attr_list_typed
 
 
 class MyDate:
@@ -171,6 +171,13 @@ def test_attr_iterator():
     assert next_() == 2
     assert next_() == 3
 
+    with pytest.raises(SetError) as exc_info:
+        pd.a = None
+
+    actual = repr(exc_info.value.error_msg)
+    expected = "'The path $.* does not support set.  It can only be a key or index'"
+    assert actual == expected
+
 
 def test_attr_iterator_doc_type_transforms_on_partial_get_and_set():
     class TestDoc(Document):
@@ -186,16 +193,45 @@ def test_attr_iterator_doc_type_transforms_on_partial_get_and_set():
     assert next_().b == 2
     assert next_().b == 3
 
+    with pytest.raises(SetError) as exc_info:
+        pd.a = None
 
-def test_attr_list_doc_type_transforms_on_partial_get_and_set():
+    actual = repr(exc_info.value.error_msg)
+    expected = '"The iterator descriptor for path \'$.*\' does not support set"'
+    assert actual == expected
+
+
+def test_attr_iterator_custom_type_transforms_on_partial_get_and_set():
+    class PathDescriptorTest(Document):
+        a = attr_iter_typed(MyDate, path.wc.b, to_wrapped_value=MyDate.to_wrapped_value)
+
+    actual = {"a": {"b": "2021:03:21"}, "b": {"b": "2022:04:22"}, "c": {"b": "2023:05:23"}}
+    pd = PathDescriptorTest(actual)
+    next_ = partial(next, iter(pd.a))
+    assert next_() == MyDate(year="2021", month="03", day="21")
+    assert next_() == MyDate(year="2022", month="04", day="22")
+    assert next_() == MyDate(year="2023", month="05", day="23")
+
+    with pytest.raises(SetError) as exc_info:
+        pd.a = None
+
+    actual = repr(exc_info.value.error_msg)
+    expected = '"The iterator descriptor for path \'$.*.b\' does not support set"'
+    assert actual == expected
+
+
+def test_attr_list_doc_type_transformation():
     class TestDoc(Document):
         b = attr(getter=partial(get, default=None))
 
     class PathDescriptorTest(Document):
-        a = attr_typed(TestDoc, )
+        a = attr_list_typed(TestDoc)
 
     actual = {"a": [{"b": 1}, {"b": 2}, {"b": 3}]}
     pd = PathDescriptorTest(actual)
+
+    other = {"a": [{"b": 22}]}
+    pd_other = PathDescriptorTest(other)
 
     list_wrap = pd.a
 
@@ -209,3 +245,102 @@ def test_attr_list_doc_type_transforms_on_partial_get_and_set():
     assert list_wrap[0].b == 1
     assert list_wrap[1].b == 2
     assert list_wrap[2].b == 3
+
+    list_wrap[0] = TestDoc({"b": 22})
+    assert list_wrap[0].b == 22
+    assert list_wrap[1].b == 2
+
+    del list_wrap[0]
+    assert list_wrap[0].b == 2
+
+    assert TestDoc({"b": 22}) not in list_wrap
+    assert TestDoc({"b": 3}) in list_wrap
+
+    list_wrap.append(TestDoc({"b": 22}))
+    assert TestDoc({"b": 22}) in list_wrap
+
+    popped = list_wrap.pop(1)
+    assert TestDoc({"b": 3}) not in list_wrap
+    assert popped == TestDoc({"b": 3})
+
+    def is_remove(value: TestDoc):
+        return value == TestDoc({"b": 22})
+
+    assert TestDoc({"b": 22}) in list_wrap
+    list_wrap.remove_all(is_remove)
+    assert TestDoc({"b": 22}) not in list_wrap
+
+    pd.a = pd_other.a
+    assert actual == other
+
+
+def test_attr_list_custom_type_transformation():
+    class PathDescriptorTest(Document):
+        a = attr_list_typed(MyDate,
+                            to_wrapped_value=MyDate.to_wrapped_value,
+                            to_json_value=MyDate.to_json_value)
+
+    actual = {"a": ["2021:03:21", "2022:04:22", "2023:05:23"]}
+    pd = PathDescriptorTest(actual)
+
+    other = {"a": ["2023:01:01"]}
+    pd_other = PathDescriptorTest(other)
+
+    list_wrap = pd.a
+
+    next_ = partial(next, iter(list_wrap))
+    assert next_() == MyDate(year="2021", month="03", day="21")
+    assert next_() == MyDate(year="2022", month="04", day="22")
+    assert next_() == MyDate(year="2023", month="05", day="23")
+
+    assert len(list_wrap) == 3
+
+    assert list_wrap[0] == MyDate(year="2021", month="03", day="21")
+    assert list_wrap[1] == MyDate(year="2022", month="04", day="22")
+    assert list_wrap[2] == MyDate(year="2023", month="05", day="23")
+
+    list_wrap[0] = MyDate(year="2000", month="01", day="01")
+    assert list_wrap[0] == MyDate(year="2000", month="01", day="01")
+    assert list_wrap[1] == MyDate(year="2022", month="04", day="22")
+
+    del list_wrap[0]
+    assert list_wrap[0] == MyDate(year="2022", month="04", day="22")
+
+    assert MyDate(year="2000", month="01", day="01") not in list_wrap
+    assert MyDate(year="2022", month="04", day="22") in list_wrap
+
+    list_wrap.append(MyDate(year="2022", month="04", day="22"))
+    assert MyDate(year="2022", month="04", day="22") in list_wrap
+
+    popped = list_wrap.pop(1)
+    assert MyDate(year="2023", month="05", day="23") not in list_wrap
+    assert popped == MyDate(year="2023", month="05", day="23")
+
+    def is_remove(value: MyDate):
+        return value == MyDate(year="2022", month="04", day="22")
+
+    assert MyDate(year="2022", month="04", day="22") in list_wrap
+    list_wrap.remove_all(is_remove)
+    assert MyDate(year="2022", month="04", day="22") not in list_wrap
+
+    pd.a = pd_other.a
+    assert actual == other
+
+
+def test_value_error_when_class_not_document():
+    with pytest.raises(RuntimeError) as exc_info:
+        class SomeClass:
+            a = attr()
+
+    actual = repr(exc_info.value)
+    expected = ('RuntimeError("Error calling __set_name__ on \'PathDescriptor\' instance \'a\' in \'SomeClass\'")')
+    assert actual == expected
+
+
+def test_return_self_when_not_instance():
+    descriptor = attr()
+
+    class SomeClass(Document):
+        a = descriptor
+
+    assert descriptor is SomeClass.a

@@ -46,7 +46,7 @@ def _build_key(parent_vertex: Vertex, key: Union[int, slice, Symbol, str, tuple,
 class PathBuilder(PathBuilderPredicate, AbstractPathBuilder):
     __slots__ = _RESERVED_ATTR_FOR_VERTEX_DATA
 
-    def __init__(self, vertex, ):
+    def __init__(self, vertex):
         object.__setattr__(self, _RESERVED_ATTR_FOR_VERTEX_DATA, vertex)
 
     def __getattr__(self, name):

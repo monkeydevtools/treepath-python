@@ -1,15 +1,7 @@
 import json
 
 from treepath.descriptor.abstract_document import AbstractDocument
-from treepath.path.traverser.match import Match
 from treepath.path.typing.json_arg_types import JsonArgTypes
-from treepath.path.typing.json_types import JsonTypes
-
-
-def match_to_json(data: JsonArgTypes) -> JsonTypes:
-    if isinstance(data, Match):
-        return data.data
-    return data
 
 
 class Document(AbstractDocument):
@@ -42,7 +34,7 @@ class Document(AbstractDocument):
                f" json: {self.pretty_json_str}"
 
     def __eq__(self, other):
-        return isinstance(other, AbstractDocument) and self.json_data == other.json_data
+        return isinstance(other, AbstractDocument) and self.data == other.data
 
     def __ne__(self, other):
-        return (not isinstance(other, AbstractDocument)) or self.json_data != other.json_data
+        return (not isinstance(other, AbstractDocument)) or self.data != other.data

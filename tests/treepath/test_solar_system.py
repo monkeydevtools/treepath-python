@@ -304,7 +304,7 @@ def test_traversal_function_get_match(solar_system):
     except MatchNotFoundError:
         pass
 
-    # Or if preferred, **None** is returned if not must_match is given.
+    # Or if preferred, **None** is returned if must_match is set to False.
     match = get_match(path.star.human_population, solar_system, must_match=False)
     assert match is None
 

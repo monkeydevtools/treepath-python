@@ -1,13 +1,13 @@
 from __future__ import annotations
 
-from functools import partial
 from typing import Callable, Union, Any, Type, Optional, List, Generic
 
 from treepath.descriptor.document import Document
 from treepath.descriptor.document_iterator import DocumentIterator
 from treepath.descriptor.document_list import DocumentList
 from treepath.descriptor.path_descriptor import T, PathDescriptor
-from treepath.path.builder.path_builder import PathBuilder
+from treepath.path.builder.path_builder import PathBuilder, get_vertex_from_path_builder
+from treepath.path.exceptions.set_error import SetError
 from treepath.path.traverser.traverser_functions import get, set_, find, get_match, find_matches, set_match
 from treepath.path.typing.json_arg_types import JsonArgTypes
 from treepath.path.typing.json_types import JsonTypes
@@ -28,9 +28,10 @@ class DocTypeTransformer:
 
 
 class DocTypeIteratorTransformer(Generic[T]):
-    __slots__ = '_to_wrapped_value'
+    __slots__ = '_path', '_to_wrapped_value'
 
-    def __init__(self, to_wrapped_value):
+    def __init__(self, path, to_wrapped_value):
+        self._path = path
         self._to_wrapped_value = to_wrapped_value
 
     def to_wrapped_value(self, inner_iterator) -> DocumentIterator[T]:
@@ -38,7 +39,12 @@ class DocTypeIteratorTransformer(Generic[T]):
         return outer_iterator
 
     def to_json_value(self, doc: Document):
-        raise NotImplementedError
+        vertex = get_vertex_from_path_builder(self._path)
+        raise SetError(
+            vertex,
+            f"The iterator descriptor for path '{self._path}' does not support set",
+            vertex.path_segment
+        )
 
 
 class DocTypeListTransformer(Generic[T]):
@@ -52,7 +58,7 @@ class DocTypeListTransformer(Generic[T]):
         outer_iterator = DocumentList[T](
             list,
             to_wrapped_value=self._to_wrapped_value,
-            to_json_value=self.to_json_value
+            to_json_value=self._to_json_value
         )
         return outer_iterator
 
@@ -133,35 +139,42 @@ class DescriptorBuilder:
 
     def __build_doc_type_for_single(self) -> PathDescriptor:
         doc_type_transformer = DocTypeTransformer(self._type)
-
-        if self._to_wrapped_value is do_nothing:
-            self._to_wrapped_value = doc_type_transformer.to_wrapped_value
-
-        if self._to_json_value is do_nothing:
-            self._to_json_value = doc_type_transformer.to_json_value
-
+        self._to_wrapped_value = doc_type_transformer.to_wrapped_value
+        self._to_json_value = doc_type_transformer.to_json_value
         return self.__build_path_descriptor()
 
     def __build_doc_type_for_iterator(self) -> PathDescriptor:
         doc_type_transformer = DocTypeTransformer(self._type)
-        doc_list_type_transformer = DocTypeIteratorTransformer(doc_type_transformer.to_wrapped_value)
+        doc_list_type_transformer = DocTypeIteratorTransformer(self._path, doc_type_transformer.to_wrapped_value)
+        self._to_wrapped_value = doc_list_type_transformer.to_wrapped_value
+        self._to_json_value = doc_list_type_transformer.to_json_value
+        return self.__build_path_descriptor()
 
-        if self._to_wrapped_value is do_nothing:
-            self._to_wrapped_value = doc_list_type_transformer.to_wrapped_value
-
-        if self._to_json_value is do_nothing:
-            self._to_json_value = doc_list_type_transformer.to_json_value
-
+    def __build_doc_type_for_list(self) -> PathDescriptor:
+        doc_type_transformer = DocTypeTransformer(self._type)
+        doc_list_type_transformer = DocTypeListTransformer(
+            doc_type_transformer.to_wrapped_value,
+            doc_type_transformer.to_json_value
+        )
+        self._to_wrapped_value = doc_list_type_transformer.to_wrapped_value
+        self._to_json_value = doc_list_type_transformer.to_json_value
         return self.__build_path_descriptor()
 
     def __custom_type_for_single(self) -> PathDescriptor:
         return self.__build_path_descriptor()
 
     def __custom_type_for_iterator(self) -> PathDescriptor:
-        pass
+        doc_list_type_transformer = DocTypeIteratorTransformer(self._path, self._to_wrapped_value)
+        self._to_wrapped_value = doc_list_type_transformer.to_wrapped_value
+        self._to_json_value = doc_list_type_transformer.to_json_value
 
-    def __build_doc_type_for_list(self) -> PathDescriptor:
-        pass
+        return self.__build_path_descriptor()
 
     def __custom_type_for_list(self) -> PathDescriptor:
-        pass
+        doc_list_type_transformer = DocTypeListTransformer(
+            self._to_wrapped_value,
+            self._to_json_value
+        )
+        self._to_wrapped_value = doc_list_type_transformer.to_wrapped_value
+        self._to_json_value = doc_list_type_transformer.to_json_value
+        return self.__build_path_descriptor()

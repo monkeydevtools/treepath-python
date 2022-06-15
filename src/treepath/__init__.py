@@ -2,6 +2,7 @@
 See README.md  for details
 """
 from treepath.descriptor.descriptor_functions import attr, attr_typed
+from treepath.descriptor.descriptor_functions import attr_iter_typed, attr_list_typed
 from treepath.descriptor.document import Document
 from treepath.descriptor.path_descriptor import PathDescriptor
 from treepath.path.builder.dash_path_builder import DashPathRoot
@@ -36,6 +37,9 @@ from treepath.path.traverser.traverser_functions import pop
 from treepath.path.traverser.traverser_functions import pop_match
 from treepath.path.traverser.traverser_functions import set_
 from treepath.path.traverser.traverser_functions import set_match
+from treepath.path.typing.json_arg_types import JsonArgTypes
+from treepath.path.typing.json_arg_types import JsonTypes
+
 
 # path is a global object for dynamically declaring a query to extract data from a json data structure.
 #     # A treepath example that fetches the value 1 from data.
