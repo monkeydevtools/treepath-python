@@ -1,3 +1,5 @@
+from __future__ import annotations
+
 import operator
 import re
 from functools import partial
@@ -10,7 +12,7 @@ from tests.utils.readme_generator import Readme
 from tests.utils.traverser_utils import gen_test_data, yria, yaia
 from treepath import path, find, wc, set_, get, has, get_match, find_matches, pathd, wildcard, \
     MatchNotFoundError, Match, log_to, has_all, has_any, has_not, Document, attr, attr_typed, attr_iter_typed, \
-    attr_list_typed
+    attr_list_typed, JsonArgTypes
 
 read_me_file = find_file("README.md")
 readme = Readme(read_me_file)
@@ -230,6 +232,7 @@ def test_traversal_function_get(solar_system):
     # In addition to a constant, the default value may also be a callable
     def population():
         return 0
+
     human_population = get(path.star.human_population, solar_system, default=population)
     assert human_population == 0
 
@@ -382,8 +385,6 @@ def test_traversal_function_match_class(solar_system):
     assert repr(match) == "$.star.name=Sun"
     match.pop()
     assert repr(match) == "$.star.name=None"
-
-
 
 
 @readme.append_function
@@ -753,19 +754,24 @@ readme += """# Class Descriptors"""
 
 @readme.append_function
 def test_path_descriptor(solar_system):
-    """### path descriptor"""
+    """### basic path descriptor"""
 
     # paths can be added as properties to a class using the path_descriptor function.
+    planets = path.star.planets.wc[wc]
+
     class SolarSystem(Document):
         jupiter_name = attr(path.star.planets.outer[0].name)
         saturn_name = attr(path.star.planets.outer[1].name)
+        big_planets = attr(planets[has(path.diameter > 25000)].name, getter=find)
+        small_planets = attr(planets[has(path.diameter <= 25000)].name, getter=find, to_wrapped_value=list)
+        number_of_planets = attr(planets, getter=find, to_wrapped_value=lambda itr: len(list(itr)))
 
     # The property support both gets and sets and dels
     ss = SolarSystem(solar_system)
     assert ss.jupiter_name == 'Jupiter'
     assert ss.saturn_name == 'Saturn'
 
-    # rename Jupiter to Planet 5
+    # Rename Jupiter to Planet 5
     ss.jupiter_name = 'Planet 5'
     assert ss.jupiter_name == 'Planet 5'
 
@@ -778,13 +784,24 @@ def test_path_descriptor(solar_system):
         print(ss.jupiter_name)
     assert "name" not in solar_system["star"]["planets"]["outer"][0]
 
+    # There are still 8 planets because only Jupiter's name was delete
+    assert ss.number_of_planets == 8
+
+    # list all the big planets.  Remember Jupiter was deleted.
+    big_planets = [name for name in ss.big_planets]
+    assert big_planets == ['Saturn', 'Uranus', 'Neptune']
+
+    # list all the small planets.
+    assert ss.small_planets == ['Mercury', 'Venus', 'Earth', 'Mars']
+
 
 @readme.append_function
 def test_path_descriptor_adaptor_types(solar_system):
-    """### path descriptor support adaptor types"""
+    """### document typed path descriptor"""
 
-    # A descriptor support wrapping json types with adaptor
-    # This example wraps the jupiter return type with Planet type.  
+    # A descriptor support wrapping json types with an adaptor class. This example wraps the json that represents a
+    # planet with the planet class.   The Planet class extends the Document class which provides the marshalling
+    # methods.
     class Planet(Document):
         name = attr(path=path.name)
 
@@ -805,7 +822,7 @@ def test_path_descriptor_adaptor_types(solar_system):
     # The assignment operation alters the original document.
     assert solar_system["star"]["planets"]["outer"][0]["name"] == 'Planet 5'
 
-    # The Jupitor can be renamed by replacing the planet with an imposter.
+    # Jupiter can be renamed by replacing the planet with an imposter.
     impostor_planet = Planet({})
     impostor_planet.name = 'Imposter Jupiter'
     ss.jupiter = impostor_planet
@@ -814,14 +831,85 @@ def test_path_descriptor_adaptor_types(solar_system):
     # The imposter planet also alters the original document.
     assert solar_system["star"]["planets"]["outer"][0]["name"] == 'Imposter Jupiter'
 
-    # A attribute descriptor support iterator
+    # An attribute descriptor can return an iterator where each element is converted to the correct type.
     planets = [planet.name for planet in ss.planets]
     assert planets == ['Mercury', 'Venus', 'Earth', 'Mars', 'Imposter Jupiter', 'Saturn', 'Uranus', 'Neptune']
 
-    # A attribute descriptor support list
+    # An attribute descriptor can return an list where each element is converted to the correct type.
     assert ss.outer_planets[0].name == 'Imposter Jupiter'
 
-    # The list can be modified and the underline document is modefied too.
-    ss.outer_planets[0].name = 'Jupiter'
+    # The list can be modified and the underline document is modified too.
+    jupiter = Planet({})
+    jupiter.name = 'Jupiter'
+    ss.outer_planets[0] = jupiter
+    planets = [planet.name for planet in ss.planets]
+    assert planets == ['Mercury', 'Venus', 'Earth', 'Mars', 'Jupiter', 'Saturn', 'Uranus', 'Neptune']
+
+
+@readme.append_function
+def test_path_descriptor_custom_types(solar_system):
+    """### custom typed path descriptor"""
+
+    # A descriptor support wrapping json types with an adaptor class. This example wraps the json that represents a
+    # planet with the planet class.   This Planet class defines its own marshalling methods.
+    class Planet:
+        def __init__(self, name: str = None):
+            self._name = name
+
+        @property
+        def name(self) -> str:
+            return self._name
+
+        @name.setter
+        def name(self, name: str):
+            self._name = name
+
+        @staticmethod
+        def to_wrapped_value(json_: JsonArgTypes) -> Planet:
+            return Planet(json_["name"])
+
+        @staticmethod
+        def to_json_value(planet_: Planet) -> JsonArgTypes:
+            return {"name": planet_.name}
+
+    class SolarSystem(Document):
+        jupiter = attr_typed(Planet, path.star.planets.outer[0],
+                             to_wrapped_value=Planet.to_wrapped_value,
+                             to_json_value=Planet.to_json_value)
+        planets = attr_iter_typed(Planet, path.star.planets.wc[wc],
+                                  to_wrapped_value=Planet.to_wrapped_value)
+        outer_planets = attr_list_typed(Planet, path.star.planets.outer,
+                                        to_wrapped_value=Planet.to_wrapped_value,
+                                        to_json_value=Planet.to_json_value)
+
+    # The getter returns the planet type
+    ss = SolarSystem(solar_system)
+    planet = ss.jupiter
+    assert planet.name == 'Jupiter'
+
+    # rename Jupiter to Planet 5
+    planet.name = 'Planet 5'
+    assert planet.name == 'Planet 5'
+
+    # Jupiter can be renamed by replacing the planet with an imposter.
+    impostor_planet = Planet()
+    impostor_planet.name = 'Imposter Jupiter'
+    ss.jupiter = impostor_planet
+    assert ss.jupiter.name == 'Imposter Jupiter'
+
+    # The imposter planet also alters the original document.
+    assert solar_system["star"]["planets"]["outer"][0]["name"] == 'Imposter Jupiter'
+
+    # An attribute descriptor can return an iterator where each element is converted to the correct type.
+    planets = [planet.name for planet in ss.planets]
+    assert planets == ['Mercury', 'Venus', 'Earth', 'Mars', 'Imposter Jupiter', 'Saturn', 'Uranus', 'Neptune']
+
+    # An attribute descriptor can return an list where each element is converted to the correct type.
+    assert ss.outer_planets[0].name == 'Imposter Jupiter'
+
+    # The list can be modified and the underline document is modified too.
+    jupiter = Planet()
+    jupiter.name = 'Jupiter'
+    ss.outer_planets[0] = jupiter
     planets = [planet.name for planet in ss.planets]
     assert planets == ['Mercury', 'Venus', 'Earth', 'Mars', 'Jupiter', 'Saturn', 'Uranus', 'Neptune']
