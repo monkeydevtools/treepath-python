@@ -54,9 +54,9 @@ class DocTypeListTransformer(Generic[T]):
         self._to_wrapped_value = to_wrapped_value
         self._to_json_value = to_json_value
 
-    def to_wrapped_value(self, list: List[JsonTypes]) -> DocumentList[T]:
+    def to_wrapped_value(self, list_: List[JsonTypes]) -> DocumentList[T]:
         outer_iterator = DocumentList[T](
-            list,
+            list_,
             to_wrapped_value=self._to_wrapped_value,
             to_json_value=self._to_json_value
         )

@@ -6,7 +6,7 @@ from treepath.path.vertex.vertex import Vertex
 
 
 class SetError(TreepathException, SyntaxError, LookupError):
-    """SetError is raised when there is a issue setting a value"""
+    """SetError is raised when there is an issue setting a value"""
 
     def __init__(self, parent_vertex: Union[Vertex, None], error_msg, invalid_path_segment):
         self.error_msg = error_msg
