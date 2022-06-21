@@ -43,6 +43,12 @@ def test_keys_get_match_rec_verify_imaginary_match_path_as_list_correct(keys):
     assert actual.path_match_list == [actual.parent.parent, actual.parent, actual]
 
 
+def test_keys_get_match_rec_verify_imaginary_match_path_segment_correct(keys):
+    actual = get_match(path.x.x.rec, keys)
+    assert isinstance(actual._traverser_match, ImaginaryMatch)
+    assert actual.path_segment == '.x'
+
+
 def test_keys_match_all_root_wc_has_x(keys):
     result = find_matches(path.wc[has(path.x)], keys)
     for expected_path, expected_value in gen_test_data(keys, yaia):

@@ -64,7 +64,7 @@ class TraverserMatch:
 
     @property
     def path_segment(self) -> str:
-        raise NotImplementedError
+        raise NotImplementedError  # pragma: no cover
 
     @property
     def data_name(self) -> str:

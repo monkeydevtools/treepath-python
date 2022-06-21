@@ -872,7 +872,7 @@ methods.
 
 ```python
 class Planet(Document):
-    name = attr(path=path.name)
+    name = attr(path.name)
 
 class SolarSystem(Document):
     jupiter = attr_typed(Planet, path.star.planets.outer[0])

@@ -11,7 +11,7 @@ from treepath.path.typing.json_types import JsonTypes
 from treepath.path.utils.function import do_nothing
 
 
-def attr(path: Optional[PathBuilder] = None,
+def attr(expression: Optional[PathBuilder] = None,
          *,
          getter: Union[get, find, get_match, find_matches] = get,
          setter: Union[set_, set_match] = set_,
@@ -19,7 +19,7 @@ def attr(path: Optional[PathBuilder] = None,
          to_json_value: Callable[[Any], JsonTypes] = do_nothing
          ) -> PathDescriptor[T]:
     return PathDescriptor(
-        path=path,
+        expression=expression,
         getter=getter,
         setter=setter,
         to_wrapped_value=to_wrapped_value,
@@ -28,7 +28,7 @@ def attr(path: Optional[PathBuilder] = None,
 
 
 def attr_typed(type_: Type[T],
-               path: Optional[PathBuilder] = None,
+               expression: Optional[PathBuilder] = None,
                *,
                getter: Union[get, find, get_match, find_matches] = get,
                setter: Union[set_, set_match] = set_,
@@ -37,7 +37,7 @@ def attr_typed(type_: Type[T],
                ) -> PathDescriptor[T]:
     descriptor_builder = DescriptorBuilder(
         type_=type_,
-        path=path,
+        expression=expression,
         getter=getter,
         setter=setter,
         to_wrapped_value=to_wrapped_value,
@@ -47,14 +47,14 @@ def attr_typed(type_: Type[T],
 
 
 def attr_iter_typed(type_: Type[T],
-                    path: Optional[PathBuilder] = None,
+                    expression: Optional[PathBuilder] = None,
                     *,
                     getter: Union[find, find_matches] = find,
                     to_wrapped_value: Callable[[JsonTypes], Any] = do_nothing,
                     ) -> PathDescriptor[T]:
     descriptor_builder = DescriptorBuilder(
         type_=type_,
-        path=path,
+        expression=expression,
         getter=getter,
         to_wrapped_value=to_wrapped_value,
     )
@@ -62,7 +62,7 @@ def attr_iter_typed(type_: Type[T],
 
 
 def attr_list_typed(type_: Type[T],
-                    path: Optional[PathBuilder] = None,
+                    expression: Optional[PathBuilder] = None,
                     *,
                     getter: Union[get, get_match] = get,
                     to_wrapped_value: Callable[[JsonTypes], Any] = do_nothing,
@@ -70,7 +70,7 @@ def attr_list_typed(type_: Type[T],
                     ) -> PathDescriptor[T]:
     descriptor_builder = DescriptorBuilder(
         type_=type_,
-        path=path,
+        expression=expression,
         getter=getter,
         to_wrapped_value=to_wrapped_value,
         to_json_value=to_json_value,

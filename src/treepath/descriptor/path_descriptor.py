@@ -13,17 +13,17 @@ T = TypeVar('T')
 
 
 class PathDescriptor(Generic[T]):
-    __slots__ = "_path", "_getter", "_setter", "_to_wrapped_value", "_to_json_value"
+    __slots__ = "_expression", "_getter", "_setter", "_to_wrapped_value", "_to_json_value"
 
     def __init__(self,
-                 path: Optional[PathBuilder] = None,
+                 expression: Optional[PathBuilder] = None,
                  *,
                  getter: Union[get, find, get_match, find_matches] = get,
                  setter: Union[set_, set_match] = set_,
                  to_wrapped_value: Callable[[JsonTypes], T] = do_nothing,
                  to_json_value: Callable[[T], JsonTypes] = do_nothing
                  ):
-        self._path = path
+        self._expression = expression
         self._getter = getter
         self._setter = setter
         self._to_wrapped_value = to_wrapped_value
@@ -34,8 +34,8 @@ class PathDescriptor(Generic[T]):
             raise ValueError(
                 f"{type(self)} can only be assign to a class that implements "
                 f"{type(AbstractDocument)}")
-        if self._path is None:
-            self._path = RootPathBuilder()[name]
+        if self._expression is None:
+            self._expression = RootPathBuilder()[name]
 
     @overload
     def __get__(self, owner_obj: None, owner_obj_type: None) -> PathDescriptor:  # pragma: no cover
@@ -50,13 +50,13 @@ class PathDescriptor(Generic[T]):
     ) -> PathDescriptor | T:
         if owner_obj is None:
             return self
-        json_value = self._getter(self._path, owner_obj.data)
+        json_value = self._getter(self._expression, owner_obj.data)
         wrapped_value = self._to_wrapped_value(json_value)
         return cast(T, wrapped_value)
 
     def __set__(self, owner_obj: AbstractDocument, wrapped_value: T) -> None:
         json_value = self._to_json_value(wrapped_value)
-        self._setter(self._path, json_value, owner_obj.data)
+        self._setter(self._expression, json_value, owner_obj.data)
 
     def __delete__(self, owner_obj: AbstractDocument) -> None:
-        pop(self._path, owner_obj.data)
+        pop(self._expression, owner_obj.data)

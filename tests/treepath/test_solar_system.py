@@ -803,7 +803,7 @@ def test_path_descriptor_adaptor_types(solar_system):
     # planet with the planet class.   The Planet class extends the Document class which provides the marshalling
     # methods.
     class Planet(Document):
-        name = attr(path=path.name)
+        name = attr(path.name)
 
     class SolarSystem(Document):
         jupiter = attr_typed(Planet, path.star.planets.outer[0])

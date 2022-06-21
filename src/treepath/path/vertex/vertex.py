@@ -23,8 +23,8 @@ class Vertex:
     @property
     def path_as_list(self) -> List[Vertex]:
         path_as_list = self._path_as_list
-        if path_as_list is self:
-            return []
+        if path_as_list is not self:
+            return path_as_list
 
         path_as_list = []
 
@@ -57,7 +57,7 @@ class Vertex:
         visit(self)
 
     def match(self, parent_match: TraverserMatch, traverser, vertex_index: int) -> Union[TraverserMatch, None]:
-        raise NotImplementedError
+        raise NotImplementedError  # pragma: no cover
 
     @property
     def default_value_for_set(self) -> Union[dict, list, None]:

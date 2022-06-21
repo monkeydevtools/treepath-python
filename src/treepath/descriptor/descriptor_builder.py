@@ -28,10 +28,10 @@ class DocTypeTransformer:
 
 
 class DocTypeIteratorTransformer(Generic[T]):
-    __slots__ = '_path', '_to_wrapped_value'
+    __slots__ = '_expression', '_to_wrapped_value'
 
-    def __init__(self, path, to_wrapped_value):
-        self._path = path
+    def __init__(self, expression, to_wrapped_value):
+        self._expression = expression
         self._to_wrapped_value = to_wrapped_value
 
     def to_wrapped_value(self, inner_iterator) -> DocumentIterator[T]:
@@ -39,10 +39,10 @@ class DocTypeIteratorTransformer(Generic[T]):
         return outer_iterator
 
     def to_json_value(self, doc: Document):
-        vertex = get_vertex_from_path_builder(self._path)
+        vertex = get_vertex_from_path_builder(self._expression)
         raise SetError(
             vertex,
-            f"The iterator descriptor for path '{self._path}' does not support set",
+            f"The iterator descriptor for path '{self._expression}' does not support set",
             vertex.path_segment
         )
 
@@ -82,7 +82,7 @@ class DescriptorBuilder:
 
     def __init__(self,
                  type_: Type[T],
-                 path: Optional[PathBuilder] = None,
+                 expression: Optional[PathBuilder] = None,
                  *,
                  getter: Union[get, find, get_match, find_matches] = get,
                  setter: Union[set_, set_match] = set_,
@@ -91,7 +91,7 @@ class DescriptorBuilder:
                  is_for_json_list=False
                  ):
         self._type = type_
-        self._path = path
+        self._expression = expression
         self._getter = getter
         self._setter = setter
         self._to_wrapped_value = to_wrapped_value
@@ -130,7 +130,7 @@ class DescriptorBuilder:
 
     def __build_path_descriptor(self):
         return PathDescriptor(
-            path=self._path,
+            expression=self._expression,
             getter=self._getter,
             setter=self._setter,
             to_wrapped_value=self._to_wrapped_value,
@@ -145,7 +145,7 @@ class DescriptorBuilder:
 
     def __build_doc_type_for_iterator(self) -> PathDescriptor:
         doc_type_transformer = DocTypeTransformer(self._type)
-        doc_list_type_transformer = DocTypeIteratorTransformer(self._path, doc_type_transformer.to_wrapped_value)
+        doc_list_type_transformer = DocTypeIteratorTransformer(self._expression, doc_type_transformer.to_wrapped_value)
         self._to_wrapped_value = doc_list_type_transformer.to_wrapped_value
         self._to_json_value = doc_list_type_transformer.to_json_value
         return self.__build_path_descriptor()
@@ -164,7 +164,7 @@ class DescriptorBuilder:
         return self.__build_path_descriptor()
 
     def __custom_type_for_iterator(self) -> PathDescriptor:
-        doc_list_type_transformer = DocTypeIteratorTransformer(self._path, self._to_wrapped_value)
+        doc_list_type_transformer = DocTypeIteratorTransformer(self._expression, self._to_wrapped_value)
         self._to_wrapped_value = doc_list_type_transformer.to_wrapped_value
         self._to_json_value = doc_list_type_transformer.to_json_value
 

@@ -19,7 +19,7 @@ class _ListVertex(Vertex):
         return f"[{self.name}]"
 
     def match(self, parent_match: TraverserMatch, traverser, vertex_index: int) -> Union[TraverserMatch, None]:
-        raise NotImplementedError
+        raise NotImplementedError  # pragma: no cover
 
 
 class ListIndexVertex(_ListVertex):
