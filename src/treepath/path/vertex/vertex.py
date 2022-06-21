@@ -1,13 +1,12 @@
 from __future__ import annotations
 
-from abc import ABC, abstractmethod
-from typing import Union, Callable
+from typing import Union, Callable, List
 
 from treepath.path.traverser.traverser_match import TraverserMatch
 from treepath.path.typing.json_types import JsonTypes
 
 
-class Vertex(ABC):
+class Vertex:
     __slots__ = 'parent', \
                 'name', \
                 'is_catch_vertex', \
@@ -22,10 +21,10 @@ class Vertex(ABC):
         self._path = self
 
     @property
-    def path_as_list(self) -> list:
+    def path_as_list(self) -> List[Vertex]:
         path_as_list = self._path_as_list
-        if path_as_list != self:
-            return path_as_list
+        if path_as_list is self:
+            return []
 
         path_as_list = []
 
@@ -57,7 +56,6 @@ class Vertex(ABC):
         self.parent.traverse(visit)
         visit(self)
 
-    @abstractmethod
     def match(self, parent_match: TraverserMatch, traverser, vertex_index: int) -> Union[TraverserMatch, None]:
         raise NotImplementedError
 

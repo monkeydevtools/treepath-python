@@ -61,7 +61,6 @@ def _log(log: Callable[[str], None], trace: Trace):
     last_path = trace.last_match.path_as_str
     vertex_path_segment = trace.next_vertex.path_segment
     if trace.next_match:
-        next_match_path_segment = trace.next_match.path_segment
         data = repr(trace.next_match.data)
         trunc_data = data if len(data) < 20 else data[:20] + '...'
         result = f"{trunc_data}"

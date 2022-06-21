@@ -1,4 +1,3 @@
-from abc import abstractmethod
 from typing import Union
 
 from treepath.path.exceptions.set_error import SetError
@@ -19,7 +18,6 @@ class _ListVertex(Vertex):
     def path_segment(self):
         return f"[{self.name}]"
 
-    @abstractmethod
     def match(self, parent_match: TraverserMatch, traverser, vertex_index: int) -> Union[TraverserMatch, None]:
         raise NotImplementedError
 
@@ -65,8 +63,8 @@ class ListIndexVertex(_ListVertex):
                         self.parent,
                         f"The path {self} index is out of range.  "
                         f"The index must be in the range 0 >= index <={len(data)}.  To append the index must the list "
-                        f"current length."
-                        , self.path_segment
+                        f"current length.",
+                        self.path_segment
                     )
                 data.append(value)
             return self.match(parent_match, None, parent_match.vertex_index + 1)
