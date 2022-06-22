@@ -7,6 +7,10 @@ T = TypeVar('T')
 
 
 class DocumentIterator(Generic[T]):
+    """
+    DocumentIterator decorates a json iterator.  The  DocumentIterator marshals each entry in the json iterator
+    before return it to the caller.
+    """
     __slots__ = "_iterable", "_to_wrapped_value"
 
     def __init__(self,

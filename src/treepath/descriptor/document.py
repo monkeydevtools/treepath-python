@@ -5,6 +5,9 @@ from treepath.path.typing.json_arg_types import JsonArgTypes
 
 
 class Document(AbstractDocument):
+    """
+    A class that wraps a json document and provides common json operation.
+    """
     __slots__ = "_data"
 
     def __init__(self, data: JsonArgTypes):

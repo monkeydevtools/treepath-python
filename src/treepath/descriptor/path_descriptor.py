@@ -13,6 +13,12 @@ T = TypeVar('T')
 
 
 class PathDescriptor(Generic[T]):
+    """
+    Treepath implementation of the python descriptor.
+    See details on descriptors: https://docs.python.org/3/howto/descriptor.html
+
+    See descriptor_functions for usage.
+    """
     __slots__ = "_expression", "_getter", "_setter", "_to_wrapped_value", "_to_json_value"
 
     def __init__(self,

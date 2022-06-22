@@ -8,6 +8,10 @@ T = TypeVar('T')
 
 
 class DocumentList(Generic[T], Document):
+    """
+    DocumentList decorates a json list.  The DocumentList (un)marshals each entry in the json list to service each of
+    the basic list operations.    These operations include len(), iter(), [], []=, del [], in, pop, append.
+    """
     __slots__ = "_data", "_to_wrapped_value", "_to_json_value"
 
     def __init__(self,

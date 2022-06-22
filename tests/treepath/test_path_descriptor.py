@@ -5,7 +5,7 @@ from functools import partial
 
 import pytest
 
-from treepath import Document, attr, attr_typed, path, get, set_, MatchNotFoundError, find, SetError
+from treepath import Document, attr, attr_typed, path, get, set_, MatchNotFoundError, find, SetError, wc
 from treepath import JsonArgTypes
 from treepath import attr_iter_typed, attr_list_typed
 
@@ -344,3 +344,48 @@ def test_return_self_when_not_instance():
         a = descriptor
 
     assert descriptor is SomeClass.a
+
+
+def test_descript_function_attr_example():
+    class X(Document):
+        a = attr()
+
+    x = X({"a": 1})
+    assert x.a == 1
+
+
+def test_descript_function_attr_typed_example():
+    class X(Document):
+        a = attr()
+
+    class Y(Document):
+        b = attr_typed(X)
+
+    y = Y({"b": {"a": 1}})
+    assert y.b.a == 1
+
+
+def test_descript_function_attr_iter_typed_example():
+    class X(Document):
+        a = attr()
+
+    class Y(Document):
+        b = attr_iter_typed(X, path.b[wc])
+
+    y = Y({"b": [{"a": 1}, {"a": 2}]})
+    x = iter(y.b)
+    assert next(x).a == 1
+    assert next(x).a == 2
+
+
+def test_descript_function_attr_list_typed_example():
+    class X(Document):
+        a = attr()
+
+    class Y(Document):
+        b = attr_list_typed(X, path.b)
+
+    y = Y({"b": [{"a": 1}, {"a": 2}]})
+
+    assert y.b[0].a == 1
+    assert y.b[1].a == 2
