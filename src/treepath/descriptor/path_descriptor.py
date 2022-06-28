@@ -39,7 +39,7 @@ class PathDescriptor(Generic[T]):
         if not issubclass(owner, AbstractDocument):
             raise ValueError(
                 f"{type(self)} can only be assign to a class that implements "
-                f"{type(AbstractDocument)}")
+                f"{AbstractDocument}")
         if self._expression is None:
             self._expression = RootPathBuilder()[name]
 
