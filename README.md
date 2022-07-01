@@ -12,8 +12,9 @@ Note python 3.6 is supported in version earlier that 1.0.0.
 # Quick start
 All of the treepath components should be imported as follows:
 ```python
-from treepath import path, find, wc, set_, get, has, get_match, find_matches, pathd, wildcard, \
-    MatchNotFoundError, Match, log_to, has_all, has_any, has_not, pprop, mprop
+from treepath import path, pathd, wc, wildcard, set_, get, get_match, find, find_matches, has, has_all,
+    has_any, has_not, MatchNotFoundError, Match, log_to, Document, attr, attr_typed, attr_iter_typed,
+    attr_list_typed, JsonArgTypes
 ```
 
 A treepath example that fetches the value 1 from data.
