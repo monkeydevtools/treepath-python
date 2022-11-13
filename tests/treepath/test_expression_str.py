@@ -1,4 +1,4 @@
-from treepath import path, wildcard, wc, has
+from treepath import path, wildcard, wc, has, has_not, has_any, has_all
 
 
 def test_root():
@@ -173,61 +173,75 @@ def test_root_a_rec():
 
 
 def test_root_a_has_b():
-    expected = "$.a[has($.b)]"
+    expected = "$.a[?(@.b)]"
     actual = str(path.a[has(path.b)])
     assert actual == expected
 
 
 def test_root_a_has_b_lt():
-    expected = "$.a[has($.b < 1)]"
+    expected = "$.a[?(@.b < 1)]"
     actual = str(path.a[has(path.b < 1)])
     assert actual == expected
 
 
 def test_root_a_has_b_le():
-    expected = "$.a[has($.b <= 1)]"
+    expected = "$.a[?(@.b <= 1)]"
     actual = str(path.a[has(path.b <= 1)])
     assert actual == expected
 
 
 def test_root_a_has_b_eq():
-    expected = "$.a[has($.b == 1)]"
+    expected = "$.a[?(@.b == 1)]"
     actual = str(path.a[has(path.b == 1)])
     assert actual == expected
 
 
 def test_root_a_has_b_ne():
-    expected = "$.a[has($.b != 1)]"
+    expected = "$.a[?(@.b != 1)]"
     actual = str(path.a[has(path.b != 1)])
     assert actual == expected
 
 
 def test_root_a_has_b_gt():
-    expected = "$.a[has($.b > 1)]"
+    expected = "$.a[?(@.b > 1)]"
     actual = str(path.a[has(path.b > 1)])
     assert actual == expected
 
 
 def test_root_a_has_b_ge():
-    expected = "$.a[has($.b >= 1)]"
+    expected = "$.a[?(@.b >= 1)]"
     actual = str(path.a[has(path.b >= 1)])
     assert actual == expected
 
+def test_root_a_has_any_b_eq_one_or_c_eq_two():
+    expected = f"$.a[?(@.b == 1 or @.c == 2)]"
+    actual = str(path.a[has_any((path.b == 1), (path.c == 2))])
+    assert actual == expected
+
+def test_root_a_has_all_b_eq_one_or_c_eq_two():
+    expected = f"$.a[?(@.b == 1 and @.c == 2)]"
+    actual = str(path.a[has_all((path.b == 1), (path.c == 2))])
+    assert actual == expected
+
+def test_root_a_has_any_has_all_has_not_mix():
+    expected = '$.a[?(@.a == 1 or (@.b == 2 or not @.c != -3) or @.c or not @.d)]'
+    actual = str(path.a[has_any((path.a == 1), has_any(path.b == 2, has_not(path.c != -3)), path.c, has_not(path.d))])
+    assert actual == expected
 
 def test_root_a_has_b_one_func():
-    expected = f"$.a[has($.b, {int})]"
+    expected = f"$.a[?(@.b, {int})]"
     actual = str(path.a[has(path.b, int)])
     assert actual == expected
 
 
 def test_root_a_has_b_two_func():
-    expected = f"$.a[has($.b, {float}, {float})]"
+    expected = f"$.a[?(@.b, {float}, {float})]"
     actual = str(path.a[has(path.b, float, float)])
     assert actual == expected
 
 
 def test_root_a_has_b_three_func():
-    expected = f"$.a[has($.b, {test_root_a_has_b_three_func}, " \
+    expected = f"$.a[?(@.b, {test_root_a_has_b_three_func}, " \
                f"{test_root_a_has_b_three_func}, " \
                f"{test_root_a_has_b_three_func})]"
     actual = str(
@@ -236,6 +250,23 @@ def test_root_a_has_b_three_func():
 
 
 def test_root_a_has_b_eq_one_func():
-    expected = f"$.a[has($.b == 1, {int})]"
+    expected = f"$.a[?(@.b == 1, {int})]"
     actual = str(path.a[has(path.b == 1, int)])
     assert actual == expected
+
+def test_root_a_has_not_b_eq_one_func():
+    expected = f"$.a[?(not @.b == 1, {int})]"
+    actual = str(path.a[has_not(path.b == 1, int)])
+    assert actual == expected
+
+def test_root_a_has_any_b_eq_one_or_c_eq_two_func():
+    expected = f"$.a[?(@.b == 1, {int} or @.c == 2, {int})]"
+    actual = str(path.a[has_any((path.b == 1, int), (path.c == 2, int))])
+    assert actual == expected
+
+
+
+
+
+
+

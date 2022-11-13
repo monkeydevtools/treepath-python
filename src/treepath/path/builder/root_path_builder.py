@@ -6,5 +6,5 @@ class RootPathBuilder(PathBuilder):
     __slots__ = ()
 
     def __init__(self):
-        vertex = RootVertex("$")
+        vertex = RootVertex('$')
         super().__init__(vertex)

@@ -53,7 +53,7 @@ def _create_has_predicate_with_path_predicate_operation_and_single_arg_functions
         single_arg_functions
 ):
     @pretty_repr(
-        lambda: f"has({real_path} {path_predicate_operation}, {', '.join(map(repr, single_arg_functions))})")
+        lambda: f"{relative_path_str(real_path)} {path_predicate_operation}, {', '.join(map(repr, single_arg_functions))}")
     def has_predicate(parent_match: Match):
         for next_match in match_iter(parent_match):
 
@@ -71,7 +71,7 @@ def _create_has_predicate_with_path_predicate_operation_and_single_arg_functions
 
 
 def _create_has_predicate_with_single_arg_functions(real_path, match_iter, single_arg_functions):
-    @pretty_repr(lambda: f"has({real_path}, {', '.join(map(repr, single_arg_functions))})")
+    @pretty_repr(lambda: f"{relative_path_str(real_path)}, {', '.join(map(repr, single_arg_functions))}")
     def has_predicate(parent_match: Match):
         for next_match in match_iter(parent_match):
 
@@ -87,7 +87,7 @@ def _create_has_predicate_with_single_arg_functions(real_path, match_iter, singl
 
 
 def _create_has_predicate_with_path_predicate_operation(real_path, match_iter, path_predicate_operation):
-    @pretty_repr(lambda: f"has({real_path} {path_predicate_operation})")
+    @pretty_repr(lambda: f"{relative_path_str(real_path)} {path_predicate_operation}")
     def has_predicate(parent_match: Match):
         for next_match in match_iter(parent_match):
             value = path_predicate_operation(next_match.data)
@@ -99,10 +99,14 @@ def _create_has_predicate_with_path_predicate_operation(real_path, match_iter, p
 
 
 def _create_has_predicate(real_path, match_iter):
-    @pretty_repr(lambda: f"has({real_path})")
+    @pretty_repr(lambda: f"{relative_path_str(real_path)}")
     def has_predicate(parent_match: Match):
         for _ in match_iter(parent_match):
             return True
         return False
 
     return has_predicate
+
+
+def relative_path_str(real_path):
+    return f"@{str(real_path)[1::]}"

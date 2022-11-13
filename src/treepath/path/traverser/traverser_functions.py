@@ -382,7 +382,7 @@ def has_these(*args: _has_multiple_arg_type, repr_join_key=', '):
     has_predicates = [process_has_arg(arg) for arg in args]
 
     def wrap(function):
-        @pretty_repr(lambda: f"{repr_join_key.join(map(repr, has_predicates))}")
+        @pretty_repr(lambda: f"({repr_join_key.join(map(repr, has_predicates))})")
         def predicate(parent_match):
             return function(parent_match, *has_predicates)
 
@@ -469,6 +469,7 @@ def has_not(
 
     predicate = create_has_predicate(nested_find_matches, path, *single_arg_functions)
 
+    @pretty_repr(lambda: f"not {repr(predicate)}")
     def not_predicate(parent_match: Match) -> Any:
         return not predicate(parent_match)
 

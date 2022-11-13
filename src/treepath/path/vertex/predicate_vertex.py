@@ -17,7 +17,11 @@ class PredicateVertex(Vertex):
 
     @property
     def path_segment(self):
-        return f"[{self._predicate}]"
+        predicate_str = str(self._predicate)
+        if predicate_str[0] == '(':
+            return f"[?{predicate_str}]"
+        else:
+            return f"[?({predicate_str})]"
 
     def match(self, parent_match: TraverserMatch, traverser, vertex_index: int) -> Union[TraverserMatch, None]:
         try:

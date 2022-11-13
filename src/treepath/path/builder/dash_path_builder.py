@@ -16,5 +16,5 @@ class DashPathRoot(DashPathBuilder):
     __slots__ = ()
 
     def __init__(self):
-        vertex = RootVertex("$")
+        vertex = RootVertex('$')
         super().__init__(vertex)

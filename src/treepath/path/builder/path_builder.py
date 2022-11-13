@@ -1,6 +1,6 @@
 from __future__ import annotations
 
-from typing import Union, Callable, Match, Any
+from typing import Union, Callable, Any
 
 from treepath.path.builder.abstract_class_builder import AbstractPathBuilder
 from treepath.path.builder.patch_constants import wildcard
@@ -14,6 +14,7 @@ from treepath.path.vertex.predicate_vertex import PredicateVertex
 from treepath.path.vertex.recursive_vertex import RecursiveVertex
 from treepath.path.vertex.tuple_vertex import TupleVertex
 from treepath.path.vertex.vertex import Vertex
+from treepath.path.traverser.match import Match
 
 _RESERVED_ATTR_FOR_VERTEX_DATA = "_RESERVED_ATTR_FOR_VERTEX_DATA"
 """

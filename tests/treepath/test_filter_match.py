@@ -1,8 +1,6 @@
-import os
-
 from tests.utils.traverser_utils import *
 from treepath import get, path, find_matches, has, get_match, wc, find, MatchNotFoundError, PathSyntaxError, Match, \
-    has_all, has_any
+    has_all, has_any, has_not
 from treepath.path.traverser.imaginary_match import ImaginaryMatch
 
 
@@ -361,3 +359,10 @@ def test_keys_get_root_has_these_order_four(keys):
 
     actual = next(itr)
     assert actual == {"c": ':)'}
+
+
+def test_keys_get_root_has_not_a(keys):
+    expected = keys
+    target_path = path[has_not(path.a)]
+    actual = get(target_path, keys)
+    assert actual == expected
