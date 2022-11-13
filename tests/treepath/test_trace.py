@@ -59,7 +59,7 @@ def test_keys_find_z_y_has_z_then_x_trace(keys):
         " at $.z got {'x': {'x': '19', 'y...",
         " at $.z.y got {'x': '22', 'y': '23...",
         "     has .z got '24'",
-        " at $.z.y[has($.z)] got {'x': '22', 'y': '23...",
+        " at $.z.y[?(@.z)] got {'x': '22', 'y': '23...",
         " at $.z.y.x got '22'"
     ]
 
@@ -79,7 +79,7 @@ def test_keys_find_z_y_has_a_then_no_match_trace(keys):
         " at $.z got {'x': {'x': '19', 'y...",
         " at $.z.y got {'x': '22', 'y': '23...",
         '     has .a got no match',
-        ' at $.z.y[has($.a)] got no match'
+        ' at $.z.y[?(@.a)] got no match'
     ]
     actual_trace_messages = []
 
@@ -144,17 +144,17 @@ def test_a_k_k_a_k_k_k_a_multiple_has(a_k_k_a_k_k_k_a):
         "    has .x got {'x': [{'x': {'x': {...",
         "    has .x.x got [{'x': {'x': {'x': [...",
         "    has .x.x[1] got {'x': {'x': {'x': ['...",
-        " at $[0][has($.x.x[1])] got {'x': {'x': [{'x': {...",
+        " at $[0][?(@.x.x[1])] got {'x': {'x': [{'x': {...",
         " at $[0].y got {'x': [{'x': {'x': {...",
         " at $[0].y.y got [{'x': {'x': {'x': [...",
         " at $[0].y.y[0] got {'x': {'x': {'x': ['...",
         "           has .x got {'x': {'x': ['973', ...",
         "           has .x.x got {'x': ['973', '974',...",
         "               has .z got ['979', '980', '981'...",
-        "           has .x.x[has($.z)] got {'x': ['973', '974',...",
+        "           has .x.x[?(@.z)] got {'x': ['973', '974',...",
         "           has .x.x.x got ['973', '974', '975'...",
         "           has .x.x.x[1] got '974'",
-        " at $[0].y.y[0][has($.x.x[has($.z)].x[1])] got {'x': {'x': {'x': ['...",
+        " at $[0].y.y[0][?(@.x.x[?(@.z)].x[1])] got {'x': {'x': {'x': ['...",
         " at $[0].y.y[0].y got {'x': {'x': ['1000',...",
         " at $[0].y.y[0].y.y got {'x': ['1009', '1010...",
         " at $[0].y.y[0].y.y.y got ['1012', '1013', '10...",
@@ -176,11 +176,11 @@ def test_keys_find_x_has_x_eq_1_and_has_y_trace(keys):
     expected_trace_messages = [
         " at $.x got {'x': {'x': '1', 'y'...",
         "   has .z got {'x': '7', 'y': '8',...",
-        " at $.x[has($.z)] got {'x': {'x': '1', 'y'...",
+        " at $.x[?(@.z)] got {'x': {'x': '1', 'y'...",
         " at $.x.x got {'x': '1', 'y': '2',...",
         "     has .x got '1'",
         "     has .y got '2'",
-        " at $.x.x[has($.x == 1, <class 'int'>), has($.y)] got {'x': '1', 'y': "
+        " at $.x.x[?(@.x == 1, <class 'int'>, @.y)] got {'x': '1', 'y': "
         "'2',...",
         " at $.x.x.x got '1'"
     ]
@@ -204,7 +204,7 @@ def test_keys_get_root_has_a_or_b_or_z_trace(keys):
         ' has .a got no match',
         ' has .b got no match',
         " has .z got {'x': {'x': '19', 'y...",
-        " at $[has($.a) or has($.b) or has($.z)] got {'x': {'x': {'x': '1..."
+        " at $[?(@.a or @.b or @.z)] got {'x': {'x': {'x': '1..."
     ]
     actual_trace_messages = []
 
@@ -222,7 +222,7 @@ def test_keys_get_root_has_x_and_y_and_z_trace(keys):
         " has .x got {'x': {'x': '1', 'y'...",
         " has .y got {'x': {'x': '10', 'y...",
         " has .z got {'x': {'x': '19', 'y...",
-        " at $[has($.x) and has($.y) and has($.z)] got {'x': {'x': {'x': '1..."
+        " at $[?(@.x and @.y and @.z)] got {'x': {'x': {'x': '1..."
     ]
     actual_trace_messages = []
 

@@ -77,7 +77,7 @@ def test_pop_match_a_predicate():
 
 def test_pop_a_predicate_match_not_found():
     actual = {"a": 0, "x": 2}
-    expected_error_message = 'MatchNotFoundError(No get_match occurred on path: $[has($.a == 1)].a)'
+    expected_error_message = 'MatchNotFoundError(No get_match occurred on path: $[?(@.a == 1)].a)'
     expected = {"a": 0, "x": 2}
     with pytest.raises(MatchNotFoundError) as exc_info:
         pop(path[has(path.a == 1)].a, actual)
@@ -132,7 +132,7 @@ def test_pop_match_0_predicate():
 
 def test_pop_0_predicate_match_not_found():
     actual = [1, 2]
-    expected_error_message = 'MatchNotFoundError(No get_match occurred on path: $[has($.a == 1)].a)'
+    expected_error_message = 'MatchNotFoundError(No get_match occurred on path: $[?(@.a == 1)].a)'
     expected = [1, 2]
     with pytest.raises(MatchNotFoundError) as exc_info:
         pop(path[has(path.a == 1)].a, actual)
