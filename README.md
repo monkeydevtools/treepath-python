@@ -508,6 +508,22 @@ assert star_children == [solar_system["star"]["name"],
                          solar_system["star"]["diameter"],
                          solar_system["star"]["age"],
                          solar_system["star"]["planets"], ]
+
+```
+The dictionary wildcard is declared using dot notation and cannot be used to iterator over a list.  The list
+wildcard is declared using index notation and cannot be used to iterate over dictionary keys.
+
+```python
+all_planets = [p for p in find(path.star.planets.wc[wc].name, solar_system)]
+assert all_planets == ['Mercury', 'Venus', 'Earth', 'Mars', 'Jupiter', 'Saturn', 'Uranus', 'Neptune']
+
+```
+The generic_wildcard, also known as gwc, can be declared in either notations and supports iterating over both
+list and dictionaries.
+
+```python
+all_planets = [p for p in find(path.star.planets.gwc.gwc.name, solar_system)]
+assert all_planets == ['Mercury', 'Venus', 'Earth', 'Mars', 'Jupiter', 'Saturn', 'Uranus', 'Neptune']
 ```
 ### Comma Delimited Keys
 Multiple dictionary keys can be specified using a comma delimited list.
@@ -583,11 +599,19 @@ all_outer = [planet for planet in find(path.star.planets.outer[wc].name, solar_s
 assert all_outer == ["Jupiter", "Saturn", "Uranus", "Neptune"]
 
 ```
-The dictionary wildcard is given as dot notation and cannot be used to iterator over a list.  The list wildcard
-is given as an index and cannot be used to iterate over dictionary keys.
+The list wildcard is declared using index notation and cannot be used to iterate over dictionary keys.  The
+dictionary wildcard is declared using dot notation and cannot be used to iterator over a list.
 
 ```python
 all_planets = [p for p in find(path.star.planets.wc[wc].name, solar_system)]
+assert all_planets == ['Mercury', 'Venus', 'Earth', 'Mars', 'Jupiter', 'Saturn', 'Uranus', 'Neptune']
+
+```
+The generic_wildcard, also known as gwc, can be declared in either notations and supports iterating over both
+list and dictionaries.
+
+```python
+all_planets = [p for p in find(path.star.planets[gwc][gwc].name, solar_system)]
 assert all_planets == ['Mercury', 'Venus', 'Earth', 'Mars', 'Jupiter', 'Saturn', 'Uranus', 'Neptune']
 ```
 ## Recursion

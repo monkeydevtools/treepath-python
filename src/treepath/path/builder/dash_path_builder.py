@@ -8,7 +8,7 @@ class DashPathBuilder(PathBuilder):
     def create_path_builder(self, *args, **kwargs):
         return DashPathBuilder(*args, **kwargs)
 
-    def tranform_attribute_name(self, name):
+    def transform_attribute_name(self, name):
         return name.replace('_', '-')
 
 

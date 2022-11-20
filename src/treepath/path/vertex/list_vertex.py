@@ -6,6 +6,7 @@ from treepath.path.traverser.traverser_match import TraverserMatch
 from treepath.path.typing.json_types import JsonTypes
 from treepath.path.utils.function import enumerate_slice
 from treepath.path.vertex.vertex import Vertex
+from treepath.path.vertex.generic_wildcard_vertex import GenericWildcardVertex
 
 
 class _ListVertex(Vertex):
@@ -129,7 +130,7 @@ class ListSliceVertex(_ListVertex):
             return None
 
 
-class ListWildVertex(_ListVertex):
+class ListWildcardVertex(_ListVertex):
     __slots__ = ()
 
     def __init__(self, parent):
@@ -166,3 +167,15 @@ class ListWildVertex(_ListVertex):
         except StopIteration:
             traverser.restore_on_catch(parent_match)
             return None
+
+
+class ListGenericWildcardVertex(GenericWildcardVertex, _ListVertex):
+    __slots__ = ()
+
+    def __init__(self, parent):
+        super().__init__(parent, '*')
+        self.is_catch_vertex = True
+
+    @property
+    def path_segment(self):
+        return "[*]"

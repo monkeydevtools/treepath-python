@@ -13,7 +13,13 @@ def test_empty_dict_index_MatchNotFoundError():
 def test_empty_dict_wildcard_MatchNotFoundError():
     empty_dict = {}
     with pytest.raises(MatchNotFoundError):
-        get(path.wildcard, empty_dict)
+        get(path.wc, empty_dict)
+
+
+def test_empty_dict_generic_wildcard_MatchNotFoundError():
+    empty_dict = {}
+    with pytest.raises(MatchNotFoundError):
+        get(path.gwc, empty_dict)
 
 
 def test_keys_a_MatchNotFoundError(keys):
@@ -57,7 +63,7 @@ def test_keys_x_on_list_MatchNotFoundError(a_k_k_a_k_k_k_a):
 
 def test_keys_wildcard_on_list_MatchNotFoundError(a_k_k_a_k_k_k_a):
     with pytest.raises(MatchNotFoundError):
-        get(path.wildcard, a_k_k_a_k_k_k_a)
+        get(path.wc, a_k_k_a_k_k_k_a)
 
 
 def test_root_get(keys):
@@ -150,6 +156,38 @@ def test_k_a_a_k_a_a_a_k_find_all_wildcard(k_a_a_k_a_a_a_k):
 
 def test_k_a_a_k_a_a_a_k_find_all_wildcard_path(k_a_a_k_a_a_a_k):
     result = find_matches(path.wc[0][0].wc[0][0][0].wc, k_a_a_k_a_a_a_k)
+    for expected_path, expected_value in gen_test_data(k_a_a_k_a_a_a_k, naia, n0i0, n0i0, naia, n0i0, n0i0, n0i0, yaia):
+        actual = next(result)
+        assert str(actual) == f"{expected_path}={expected_value}"
+    assert_done_iterating(result)
+
+
+def test_a_k_k_a_k_k_k_a_find_all_generic_wildcard(a_k_k_a_k_k_k_a):
+    result = find(path[0].gwc.gwc[0].gwc.gwc.gwc[0], a_k_k_a_k_k_k_a)
+    for expected_path, expected_value in gen_test_data(a_k_k_a_k_k_k_a, n0i0, naia, naia, n0i0, naia, naia, naia, y0i0):
+        actual = next(result)
+        assert actual == expected_value
+    assert_done_iterating(result)
+
+
+def test_a_k_k_a_k_k_k_a_find_all_generic_wildcard_path(a_k_k_a_k_k_k_a):
+    result = find_matches(path[0].gwc.gwc[0].gwc.gwc.gwc[0], a_k_k_a_k_k_k_a)
+    for expected_path, expected_value in gen_test_data(a_k_k_a_k_k_k_a, n0i0, naia, naia, n0i0, naia, naia, naia, y0i0):
+        actual = next(result)
+        assert str(actual) == f"{expected_path}={expected_value}"
+    assert_done_iterating(result)
+
+
+def test_k_a_a_k_a_a_a_k_find_all_generic_wildcard(k_a_a_k_a_a_a_k):
+    result = find(path.gwc[0][0].gwc[0][0][0].gwc, k_a_a_k_a_a_a_k)
+    for expected_path, expected_value in gen_test_data(k_a_a_k_a_a_a_k, naia, n0i0, n0i0, naia, n0i0, n0i0, n0i0, yaia):
+        actual = next(result)
+        assert actual == expected_value
+    assert_done_iterating(result)
+
+
+def test_k_a_a_k_a_a_a_k_find_all_generic_wildcard_path(k_a_a_k_a_a_a_k):
+    result = find_matches(path.gwc[0][0].gwc[0][0][0].gwc, k_a_a_k_a_a_a_k)
     for expected_path, expected_value in gen_test_data(k_a_a_k_a_a_a_k, naia, n0i0, n0i0, naia, n0i0, n0i0, n0i0, yaia):
         actual = next(result)
         assert str(actual) == f"{expected_path}={expected_value}"

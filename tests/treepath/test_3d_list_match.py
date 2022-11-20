@@ -1,7 +1,7 @@
 import pytest
 
 from tests.utils.traverser_utils import assert_done_iterating, gen_test_data, naia, yaia, nyiy, yyia
-from treepath import get, path, find, find_matches, get_match, wildcard, PopError
+from treepath import get, path, find, find_matches, get_match, wc, gwc, PopError
 from treepath.path.exceptions.match_not_found_error import MatchNotFoundError
 
 
@@ -14,7 +14,13 @@ def test_empty_list_index_MatchNotFoundError():
 def test_empty_list_wildcard_MatchNotFoundError():
     empty_list = []
     with pytest.raises(MatchNotFoundError):
-        get(path[wildcard], empty_list)
+        get(path[wc], empty_list)
+
+
+def test_empty_list_generic_wildcard_MatchNotFoundError():
+    empty_list = []
+    with pytest.raises(MatchNotFoundError):
+        get(path[gwc], empty_list)
 
 
 def test_3d_10_MatchNotFoundError(three_dimensional_list):
@@ -44,7 +50,7 @@ def test_list_on_key_MatchNotFoundError(k_a_a_k_a_a_a_k):
 
 def test_list_wildcard_on_key_MatchNotFoundError(k_a_a_k_a_a_a_k):
     with pytest.raises(MatchNotFoundError):
-        get(path[wildcard], k_a_a_k_a_a_a_k)
+        get(path[wc], k_a_a_k_a_a_a_k)
 
 
 def test_3d_root(three_dimensional_list):
@@ -177,7 +183,7 @@ def test_k_a_a_k_a_a_a_k_find_all_slice_path(k_a_a_k_a_a_a_k):
 
 
 def test_3d_find_all_wildcard(three_dimensional_list):
-    result = find(path[wildcard][wildcard][wildcard], three_dimensional_list)
+    result = find(path[wc][wc][wc], three_dimensional_list)
     for expected in range(1, 28):
         actual = next(result)
         assert actual == expected
@@ -185,7 +191,7 @@ def test_3d_find_all_wildcard(three_dimensional_list):
 
 
 def test_3d_find_all_wildcard_path(three_dimensional_list):
-    result = find_matches(path[wildcard][wildcard][wildcard], three_dimensional_list)
+    result = find_matches(path[wc][wc][wc], three_dimensional_list)
     for l1 in range(0, 3):
         for l2 in range(0, 3):
             for l3 in range(0, 3):
@@ -195,7 +201,7 @@ def test_3d_find_all_wildcard_path(three_dimensional_list):
 
 
 def test_a_k_k_a_k_k_k_a_find_all_wildcard(a_k_k_a_k_k_k_a):
-    result = find(path[wildcard].y.y[wildcard].y.y.y[wildcard], a_k_k_a_k_k_k_a)
+    result = find(path[wc].y.y[wc].y.y.y[wc], a_k_k_a_k_k_k_a)
     for expected_path, expected_value in gen_test_data(a_k_k_a_k_k_k_a, naia, nyiy, nyiy, naia, nyiy, nyiy, nyiy, yaia):
         actual = next(result)
         assert actual == expected_value
@@ -204,7 +210,7 @@ def test_a_k_k_a_k_k_k_a_find_all_wildcard(a_k_k_a_k_k_k_a):
 
 
 def test_a_k_k_a_k_k_k_a_find_all_wildcard_path(a_k_k_a_k_k_k_a):
-    result = find_matches(path[wildcard].y.y[wildcard].y.y.y[wildcard], a_k_k_a_k_k_k_a)
+    result = find_matches(path[wc].y.y[wc].y.y.y[wc], a_k_k_a_k_k_k_a)
     for expected_path, expected_value in gen_test_data(a_k_k_a_k_k_k_a, naia, nyiy, nyiy, naia, nyiy, nyiy, nyiy, yaia):
         actual = next(result)
         assert str(actual) == f"{expected_path}={expected_value}"
@@ -213,7 +219,7 @@ def test_a_k_k_a_k_k_k_a_find_all_wildcard_path(a_k_k_a_k_k_k_a):
 
 
 def test_k_a_a_k_a_a_a_k_find_all_wildcard(k_a_a_k_a_a_a_k):
-    result = find(path.y[wildcard][wildcard].y[wildcard][wildcard][wildcard].y, k_a_a_k_a_a_a_k)
+    result = find(path.y[wc][wc].y[wc][wc][wc].y, k_a_a_k_a_a_a_k)
     for expected_path, expected_value in gen_test_data(k_a_a_k_a_a_a_k, nyiy, naia, naia, nyiy, naia, naia, naia, yyia):
         actual = next(result)
         assert actual == expected_value
@@ -222,7 +228,61 @@ def test_k_a_a_k_a_a_a_k_find_all_wildcard(k_a_a_k_a_a_a_k):
 
 
 def test_k_a_a_k_a_a_a_k_find_all_wildcard_path(k_a_a_k_a_a_a_k):
-    result = find_matches(path.y[wildcard][wildcard].y[wildcard][wildcard][wildcard].y, k_a_a_k_a_a_a_k)
+    result = find_matches(path.y[wc][wc].y[wc][wc][wc].y, k_a_a_k_a_a_a_k)
+    for expected_path, expected_value in gen_test_data(k_a_a_k_a_a_a_k, nyiy, naia, naia, nyiy, naia, naia, naia, yyia):
+        actual = next(result)
+        assert str(actual) == f"{expected_path}={expected_value}"
+
+    assert_done_iterating(result)
+
+
+def test_3d_find_all_generic_wildcard(three_dimensional_list):
+    result = find(path[gwc][gwc][gwc], three_dimensional_list)
+    for expected in range(1, 28):
+        actual = next(result)
+        assert actual == expected
+    assert_done_iterating(result)
+
+
+def test_3d_find_all_generic_wildcard_path(three_dimensional_list):
+    result = find_matches(path[gwc][gwc][gwc], three_dimensional_list)
+    for l1 in range(0, 3):
+        for l2 in range(0, 3):
+            for l3 in range(0, 3):
+                actual = next(result)
+                assert str(actual) == f"$[{l1}][{l2}][{l3}]={actual.data}"
+    assert_done_iterating(result)
+
+
+def test_a_k_k_a_k_k_k_a_find_all_generic_wildcard(a_k_k_a_k_k_k_a):
+    result = find(path[gwc].y.y[gwc].y.y.y[gwc], a_k_k_a_k_k_k_a)
+    for expected_path, expected_value in gen_test_data(a_k_k_a_k_k_k_a, naia, nyiy, nyiy, naia, nyiy, nyiy, nyiy, yaia):
+        actual = next(result)
+        assert actual == expected_value
+
+    assert_done_iterating(result)
+
+
+def test_a_k_k_a_k_k_k_a_find_all_generic_wildcard_path(a_k_k_a_k_k_k_a):
+    result = find_matches(path[gwc].y.y[gwc].y.y.y[gwc], a_k_k_a_k_k_k_a)
+    for expected_path, expected_value in gen_test_data(a_k_k_a_k_k_k_a, naia, nyiy, nyiy, naia, nyiy, nyiy, nyiy, yaia):
+        actual = next(result)
+        assert str(actual) == f"{expected_path}={expected_value}"
+
+    assert_done_iterating(result)
+
+
+def test_k_a_a_k_a_a_a_k_find_all_generic_wildcard(k_a_a_k_a_a_a_k):
+    result = find(path.y[gwc][gwc].y[gwc][gwc][gwc].y, k_a_a_k_a_a_a_k)
+    for expected_path, expected_value in gen_test_data(k_a_a_k_a_a_a_k, nyiy, naia, naia, nyiy, naia, naia, naia, yyia):
+        actual = next(result)
+        assert actual == expected_value
+
+    assert_done_iterating(result)
+
+
+def test_k_a_a_k_a_a_a_k_find_all_generic_wildcard_path(k_a_a_k_a_a_a_k):
+    result = find_matches(path.y[gwc][gwc].y[gwc][gwc][gwc].y, k_a_a_k_a_a_a_k)
     for expected_path, expected_value in gen_test_data(k_a_a_k_a_a_a_k, nyiy, naia, naia, nyiy, naia, naia, naia, yyia):
         actual = next(result)
         assert str(actual) == f"{expected_path}={expected_value}"

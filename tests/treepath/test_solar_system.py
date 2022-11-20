@@ -12,7 +12,7 @@ from tests.utils.readme_generator import Readme
 from tests.utils.traverser_utils import gen_test_data, yria, yaia
 from treepath import path, pathd, wc, wildcard, set_, get, get_match, find, find_matches, has, has_all, has_any, \
     has_not, MatchNotFoundError, Match, log_to, Document, attr, attr_typed, attr_iter_typed, attr_list_typed, \
-    JsonArgTypes
+    JsonArgTypes, gwc
 
 read_me_file = find_file("README.md")
 readme = Readme(read_me_file)
@@ -481,6 +481,16 @@ def test_path_keys_wildcard(solar_system):
                              solar_system["star"]["age"],
                              solar_system["star"]["planets"], ]
 
+    # The dictionary wildcard is declared using dot notation and cannot be used to iterator over a list.  The list
+    # wildcard is declared using index notation and cannot be used to iterate over dictionary keys.
+    all_planets = [p for p in find(path.star.planets.wc[wc].name, solar_system)]
+    assert all_planets == ['Mercury', 'Venus', 'Earth', 'Mars', 'Jupiter', 'Saturn', 'Uranus', 'Neptune']
+
+    # The generic_wildcard, also known as gwc, can be declared in either notations and supports iterating over both
+    # list and dictionaries.
+    all_planets = [p for p in find(path.star.planets.gwc.gwc.name, solar_system)]
+    assert all_planets == ['Mercury', 'Venus', 'Earth', 'Mars', 'Jupiter', 'Saturn', 'Uranus', 'Neptune']
+
 
 @readme.append_function
 def test_path_keys_comma_delimited(solar_system):
@@ -551,9 +561,14 @@ def test_path_list_wildcard(solar_system):
     all_outer = [planet for planet in find(path.star.planets.outer[wc].name, solar_system)]
     assert all_outer == ["Jupiter", "Saturn", "Uranus", "Neptune"]
 
-    # The dictionary wildcard is given as dot notation and cannot be used to iterator over a list.  The list wildcard
-    # is given as an index and cannot be used to iterate over dictionary keys.
+    # The list wildcard is declared using index notation and cannot be used to iterate over dictionary keys.  The
+    # dictionary wildcard is declared using dot notation and cannot be used to iterator over a list.
     all_planets = [p for p in find(path.star.planets.wc[wc].name, solar_system)]
+    assert all_planets == ['Mercury', 'Venus', 'Earth', 'Mars', 'Jupiter', 'Saturn', 'Uranus', 'Neptune']
+
+    # The generic_wildcard, also known as gwc, can be declared in either notations and supports iterating over both
+    # list and dictionaries.
+    all_planets = [p for p in find(path.star.planets[gwc][gwc].name, solar_system)]
     assert all_planets == ['Mercury', 'Venus', 'Earth', 'Mars', 'Jupiter', 'Saturn', 'Uranus', 'Neptune']
 
 

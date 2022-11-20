@@ -10,6 +10,8 @@ from treepath.path.builder.patch_constants import rec
 from treepath.path.builder.patch_constants import recursive
 from treepath.path.builder.patch_constants import wc
 from treepath.path.builder.patch_constants import wildcard
+from treepath.path.builder.patch_constants import gwc
+from treepath.path.builder.patch_constants import generic_wildcard
 from treepath.path.builder.root_path_builder import RootPathBuilder
 from treepath.path.exceptions.infinite_loop_detected import InfiniteLoopDetected
 from treepath.path.exceptions.match_not_found_error import MatchNotFoundError

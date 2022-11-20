@@ -3,12 +3,12 @@ from __future__ import annotations
 from typing import Union, Callable, Any
 
 from treepath.path.builder.abstract_class_builder import AbstractPathBuilder
-from treepath.path.builder.patch_constants import wildcard
+from treepath.path.builder.patch_constants import wildcard, generic_wildcard
 from treepath.path.builder.path_builder_predicate import PathBuilderPredicate
 from treepath.path.builder.symbol import Symbol
 from treepath.path.exceptions.path_syntax_error import PathSyntaxError
-from treepath.path.vertex.key_vertex import KeyVertex, KeyWildVertex
-from treepath.path.vertex.list_vertex import ListIndexVertex, ListSliceVertex, ListWildVertex
+from treepath.path.vertex.key_vertex import KeyVertex, KeyWildcardVertex, KeyGenericWildcardVertex
+from treepath.path.vertex.list_vertex import ListIndexVertex, ListSliceVertex, ListWildcardVertex, ListGenericWildcardVertex
 from treepath.path.vertex.parent_vertex import ParentVertex
 from treepath.path.vertex.predicate_vertex import PredicateVertex
 from treepath.path.vertex.recursive_vertex import RecursiveVertex
@@ -28,8 +28,10 @@ def _build_key(parent_vertex: Vertex, key: Union[int, slice, Symbol, str, tuple,
         return ListIndexVertex(parent_vertex, key)
     elif isinstance(key, slice):
         return ListSliceVertex(parent_vertex, key)
-    if wildcard == key:
-        return ListWildVertex(parent_vertex)
+    elif wildcard == key:
+        return ListWildcardVertex(parent_vertex)
+    elif generic_wildcard == key:
+        return ListGenericWildcardVertex(parent_vertex)
     elif isinstance(key, str):
         return KeyVertex(parent_vertex, key)
     elif isinstance(key, tuple):
@@ -57,7 +59,7 @@ class PathBuilder(PathBuilderPredicate, AbstractPathBuilder):
         self.name
         """
         parent_vertex = object.__getattribute__(self, _RESERVED_ATTR_FOR_VERTEX_DATA)
-        vertex = KeyVertex(parent_vertex, self.tranform_attribute_name(name))
+        vertex = KeyVertex(parent_vertex, self.transform_attribute_name(name))
         path_builder = self.create_path_builder(vertex)
         return path_builder
 
@@ -104,7 +106,7 @@ class PathBuilder(PathBuilderPredicate, AbstractPathBuilder):
         attribute defined by __getattr__ conflicts with the value the debugger expects the shape property to return.
         This can causes instability with some debuggers.
 
-        To prevent any instability with debuggers, the property shape is reserved so it cannot be used a a dynamic
+        To prevent any instability with debuggers, the property shape is reserved so it cannot be used as a dynamic
         property.
         """
         parent_vertex = object.__getattribute__(self, _RESERVED_ATTR_FOR_VERTEX_DATA)
@@ -117,7 +119,7 @@ class PathBuilder(PathBuilderPredicate, AbstractPathBuilder):
     def create_path_builder(self, *args, **kwargs):
         return PathBuilder(*args, **kwargs)
 
-    def tranform_attribute_name(self, name):
+    def transform_attribute_name(self, name):
         return name
 
     @property
@@ -140,13 +142,24 @@ class PathBuilder(PathBuilderPredicate, AbstractPathBuilder):
     @property
     def wildcard(self):
         parent_vertex = object.__getattribute__(self, _RESERVED_ATTR_FOR_VERTEX_DATA)
-        vertex = KeyWildVertex(parent_vertex)
+        vertex = KeyWildcardVertex(parent_vertex)
         path_builder = self.create_path_builder(vertex)
         return path_builder
 
     @property
     def wc(self):
         return self.wildcard
+
+    @property
+    def generic_wildcard(self):
+        parent_vertex = object.__getattribute__(self, _RESERVED_ATTR_FOR_VERTEX_DATA)
+        vertex = KeyGenericWildcardVertex(parent_vertex)
+        path_builder = self.create_path_builder(vertex)
+        return path_builder
+
+    @property
+    def gwc(self):
+        return self.generic_wildcard
 
     @property
     def parent(self):

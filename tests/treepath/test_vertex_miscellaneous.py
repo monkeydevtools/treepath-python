@@ -2,7 +2,7 @@ import os
 
 import pytest
 
-from treepath import path, get, TraversingError, get_match
+from treepath import path, get, TraversingError, get_match, MatchNotFoundError
 from treepath.path.exceptions.path_syntax_error import PathSyntaxError
 
 
@@ -49,3 +49,10 @@ def test_vertex_PathSyntaxError_tuple_invalid_comma_seperated_indices():
         b = path.a[0, '1', 1.0]
 
     assert repr(exc_info.value) == expected
+
+def test_generic_wildcard_MatchNotFoundError_on_tuple():
+    data = {
+        "a": (1,2,3)
+    }
+    with pytest.raises(MatchNotFoundError):
+        get(path.a.gwc, data)

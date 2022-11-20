@@ -4,6 +4,7 @@ from treepath.path.traverser.key_match import KeyMatch
 from treepath.path.traverser.traverser_match import TraverserMatch
 from treepath.path.typing.json_types import JsonTypes
 from treepath.path.vertex.vertex import Vertex
+from treepath.path.vertex.generic_wildcard_vertex import GenericWildcardVertex
 
 
 class KeyVertex(Vertex):
@@ -55,7 +56,7 @@ class KeyVertex(Vertex):
             self.raise_invalid_pop(data)
 
 
-class KeyWildVertex(Vertex):
+class KeyWildcardVertex(Vertex):
     __slots__ = ()
 
     def __init__(self, parent):
@@ -92,3 +93,15 @@ class KeyWildVertex(Vertex):
         except StopIteration:
             traverser.restore_on_catch(parent_match)
             return None
+
+
+class KeyGenericWildcardVertex(GenericWildcardVertex, Vertex):
+    __slots__ = ()
+
+    def __init__(self, parent):
+        super().__init__(parent, '*')
+        self.is_catch_vertex = True
+
+    @property
+    def path_segment(self):
+        return ".*"
