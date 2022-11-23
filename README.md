@@ -181,14 +181,15 @@ assert actual == expected
 |----------------------------------------------|-------------------------------------|-------------------------------------------|------------------------------------|
 | Find planet earth.                           | /star/planets/inner[name='Earth']   | $.star.planets.inner[?(@.name=='Earth')]  | path.star.planets.inner[wc][has(path.name == 'Earth')]   |
 | List the names of all inner planets.         | /star/planets/inner[*].name         | $.star.planets.inner[*].name              | path.star.planets.inner[wc].name   |
-| List the names of all planets.               | /star/planets/*/name                | $.star.planets.[*].name                   | path.star.planets.wc[wc].name      |
+| List the names of all planets.               | /star/planets/*/name                | $.star.planets.*[*].name                   | path.star.planets.wc[wc].name      |
 | List the names of all celestial bodies       | //name                              | $..name                                   | path.rec.name                      |  
 | List all nodes in the tree Preorder          | //*                                 | $..                                       | path.rec                           |
 | Get the third rock from the sun              | /star/planets/inner[3]              | $.star.planets.inner[2]                   | path.star.planets.inner[2]         |
 | List first two inner planets                 | /star/planets.inner[position()<3]   | $.star.planets.inner[:2]                  | path.star.planets.inner[0:2]       |
 |                                              |                                     | $.star.planets.inner[0, 1]                | path.star.planets.inner[0, 2]      |
-| List planets smaller than earth              | /star/planets/inner[Equatorial_diameter < 1]   | $.star.planets.inner[?(@.['Equatorial diameter'] < 1)]              | path.star.planets.inner[wc][has(path["Equatorial diameter"] < 1)]       |
-| List celestial bodies that have planets.     | //*[planets]/name                   | $..*[?(@.planets)].name                   | path.rec[has(path.planets)].name       |
+| List planets smaller than earth              | /star/planets/inner[diameter < 1]   | $.star.planets.inner[?(@.diameter < 12756)]              | path.star.planets.inner[wc][has(path.diameter < 12756)]      |
+| List celestial bodies that have planets.     | //*[planets]/name                   | $..[?(@.planets)].name                   | path.rec[has(path.planets)].name       |
+| List the planets with more than 50 moons     |                                     |                                          | |
 
 # Traversal Functions
 ## get

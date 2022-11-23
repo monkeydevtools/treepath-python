@@ -34,7 +34,7 @@ Note python 3.6 is supported in version earlier that 1.0.0.
 def test_quick_start(solar_system):
     """# Quick start"""
 
-    # All of the treepath components should be imported as follows:
+    # All the treepath components should be imported as follows:
     # ```python
     # from treepath import path, pathd, wc, wildcard, set_, get, get_match, find, find_matches, has, has_all,
     #     has_any, has_not, MatchNotFoundError, Match, log_to, Document, attr, attr_typed, attr_iter_typed,
@@ -145,16 +145,20 @@ readme += """
 |----------------------------------------------|-------------------------------------|-------------------------------------------|------------------------------------|
 | Find planet earth.                           | /star/planets/inner[name='Earth']   | $.star.planets.inner[?(@.name=='Earth')]  | path.star.planets.inner[wc][has(path.name == 'Earth')]   |
 | List the names of all inner planets.         | /star/planets/inner[*].name         | $.star.planets.inner[*].name              | path.star.planets.inner[wc].name   |
-| List the names of all planets.               | /star/planets/*/name                | $.star.planets.[*].name                   | path.star.planets.wc[wc].name      |
+| List the names of all planets.               | /star/planets/*/name                | $.star.planets.*[*].name                   | path.star.planets.wc[wc].name      |
 | List the names of all celestial bodies       | //name                              | $..name                                   | path.rec.name                      |  
 | List all nodes in the tree Preorder          | //*                                 | $..                                       | path.rec                           |
 | Get the third rock from the sun              | /star/planets/inner[3]              | $.star.planets.inner[2]                   | path.star.planets.inner[2]         |
 | List first two inner planets                 | /star/planets.inner[position()<3]   | $.star.planets.inner[:2]                  | path.star.planets.inner[0:2]       |
 |                                              |                                     | $.star.planets.inner[0, 1]                | path.star.planets.inner[0, 2]      |
-| List planets smaller than earth              | /star/planets/inner[Equatorial_diameter < 1]   | $.star.planets.inner[?(@.['Equatorial diameter'] < 1)]              | path.star.planets.inner[wc][has(path["Equatorial diameter"] < 1)]       |
-| List celestial bodies that have planets.     | //*[planets]/name                   | $..*[?(@.planets)].name                   | path.rec[has(path.planets)].name       |
+| List planets smaller than earth              | /star/planets/inner[diameter < 1]   | $.star.planets.inner[?(@.diameter < 12756)]              | path.star.planets.inner[wc][has(path.diameter < 12756)]      |
+| List celestial bodies that have planets.     | //*[planets]/name                   | $..[?(@.planets)].name                   | path.rec[has(path.planets)].name       |
+| List the planets with more than 50 moons     |                                     | $..[?(int(@['Number of Moons']) > 50)].name | path.rec[wc][has(path['Number of Moons'] > 50, int)].name |
 """
 
+def test_query_examples_find_planet_earth(solar_system):
+    earth = get(path.star.planets.inner[wc][has(path.name == 'Earth')], solar_system)
+    assert earth == solar_system["star"]["planets"]["inner"][2]
 
 def test_query_examples_list_the_names_of_all_inner_planets(solar_system):
     inner_planets = [p for p in find(path.star.planets.inner[wc].name, solar_system)]
@@ -204,6 +208,11 @@ def test_query_examples_list_planets_smaller_than_earth(solar_system):
 def test_query_examples_list_celestial_bodies_that_have_planets(solar_system):
     sun = [p for p in find(path.rec[has(path.planets)].name, solar_system)]
     assert sun == ['Sun']
+
+
+def test_query_examples_list_planets_with_more_than_50_moons(solar_system):
+    planets = [p for p in find(path.rec[wc][has(path['Number of Moons'] > 50, int)].name, solar_system)]
+    assert planets == ['Jupiter', 'Saturn']
 
 
 readme += """# Traversal Functions"""
@@ -282,7 +291,7 @@ def test_traversal_function_find(solar_system):
     # The **find** function returns an Iterator that iterates to each value the path leads to.  Each value is
     # determine on its iteration.
 
-    # Find all of the planet names.
+    # Find All the planet names.
     inner_planets = [planet for planet in find(path.star.planets.inner[wc].name, solar_system)]
     assert inner_planets == ['Mercury', 'Venus', 'Earth', 'Mars']
 
@@ -392,7 +401,7 @@ def test_traversal_function_match_class(solar_system):
 def test_tracing(solar_system):
     """## Tracing Debugging"""
 
-    # All of the functions: get, find, get_match and find_matchesm, support tracing.   An option, when enabled,
+    # All the functions: get, find, get_match and find_matchesm, support tracing.   An option, when enabled,
     # records the route the algorithm takes to determine a match.
 
     # This example logs the route the algorithm takes to find the inner planets.  The **print**
@@ -427,7 +436,7 @@ def test_path_root(solar_system):
 
     assert match.data == solar_system
 
-    # In a filter path point to the current element.
+    # In a filter, the **path** point to the current element.
     match = get_match(path.star.name[has(path == 'Sun')], solar_system)
 
     assert match.data == 'Sun'
@@ -451,7 +460,7 @@ def test_path_keys(solar_system):
 def test_path_keys_special_characters(solar_system):
     """### Keys With Special Characters"""
 
-    # Dictionary keys that are not valid python syntax can be referenced as double quoted strings.
+    # Dictionary keys that are not valid python syntax can be referenced as quoted strings.
     sun_equatorial_diameter = get(path.star.planets.inner[0]["Number of Moons"], solar_system)
 
     assert sun_equatorial_diameter == solar_system["star"]["planets"]["inner"][0]["Number of Moons"]
@@ -518,6 +527,15 @@ def test_path_list(solar_system):
 
 
 @readme.append_function
+def test_path_list_comma_delimited(solar_system):
+    """### Comma Delimited Indexes."""
+
+    # List indexes can be specified as a comma delimited list.
+    last_and_first = [planet for planet in find(path.star.planets.outer[3, 0].name, solar_system)]
+    assert last_and_first == ["Neptune", "Jupiter"]
+
+
+@readme.append_function
 def test_path_list_slice(solar_system):
     """### Slices"""
 
@@ -538,15 +556,6 @@ def test_path_list_slice(solar_system):
     # List the last inner and outer planets.
     last_two = [planet for planet in find(path.star.wc.wc[-1:].name, solar_system)]
     assert last_two == ["Mars", "Neptune"]
-
-
-@readme.append_function
-def test_path_list_comma_delimited(solar_system):
-    """### Comma Delimited Indexes."""
-
-    # List indexes can be specified as a comma delimited list.
-    last_and_first = [planet for planet in find(path.star.planets.outer[3, 0].name, solar_system)]
-    assert last_and_first == ["Neptune", "Jupiter"]
 
 
 @readme.append_function
