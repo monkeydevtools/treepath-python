@@ -677,7 +677,7 @@ def test_path_has_filter_operators_as_single_argument_functions(solar_system):
     assert earth == ['Earth']
 
     # Any single argument function can be used as an operator.  This example uses a Regular Expression to finds
-    # planets that end with s.
+    # planets that end with the letter s.
     name_ends_with_s = re.compile(r"\w+s").match
     earth = [planet for planet in find(path.rec[has(path.name, name_ends_with_s)].name, solar_system)]
     assert earth == ['Venus', 'Mars', 'Uranus']
@@ -695,7 +695,7 @@ def test_path_filter_has_all(solar_system):
     """### logical and, or and not filters"""
 
     # #### has_all
-    # A regular express to test if second letter in the value is an a.
+    # A regular express to test if second letter in the value is 'a'.
     second_letter_is_a = re.compile(r".a.*").fullmatch
 
     # The **has_all** function evaluates as the logical **and** operator.   It is equivalent to: (arg1 and arg2 and ...)

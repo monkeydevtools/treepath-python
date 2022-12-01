@@ -10,7 +10,7 @@ written in native python syntax.
 Note python 3.6 is supported in version earlier that 1.0.0.
 
 # Quick start
-All of the treepath components should be imported as follows:
+All the treepath components should be imported as follows:
 ```python
 from treepath import path, pathd, wc, wildcard, set_, get, get_match, find, find_matches, has, has_all,
     has_any, has_not, MatchNotFoundError, Match, log_to, Document, attr, attr_typed, attr_iter_typed,
@@ -189,7 +189,7 @@ assert actual == expected
 |                                              |                                     | $.star.planets.inner[0, 1]                | path.star.planets.inner[0, 2]      |
 | List planets smaller than earth              | /star/planets/inner[diameter < 1]   | $.star.planets.inner[?(@.diameter < 12756)]              | path.star.planets.inner[wc][has(path.diameter < 12756)]      |
 | List celestial bodies that have planets.     | //*[planets]/name                   | $..[?(@.planets)].name                   | path.rec[has(path.planets)].name       |
-| List the planets with more than 50 moons     |                                     |                                          | |
+| List the planets with more than 50 moons     |                                     | $..[?(int(@['Number of Moons']) > 50)].name | path.rec[wc][has(path['Number of Moons'] > 50, int)].name |
 
 # Traversal Functions
 ## get
@@ -276,7 +276,7 @@ assert planets_count == 9
 The **find** function returns an Iterator that iterates to each value the path leads to.  Each value is
 determine on its iteration.
 
-Find all of the planet names.
+Find All the planet names.
 
 ```python
 inner_planets = [planet for planet in find(path.star.planets.inner[wc].name, solar_system)]
@@ -418,7 +418,7 @@ match.pop()
 assert repr(match) == "$.star.name=None"
 ```
 ## Tracing Debugging
-All of the functions: get, find, get_match and find_matchesm, support tracing.   An option, when enabled,
+All the functions: get, find, get_match and find_matchesm, support tracing.   An option, when enabled,
 records the route the algorithm takes to determine a match.
 
 This example logs the route the algorithm takes to find the inner planets.  The **print**
@@ -456,7 +456,7 @@ match = get_match(path, solar_system)
 assert match.data == solar_system
 
 ```
-In a filter path point to the current element.
+In a filter, the **path** point to the current element.
 
 ```python
 match = get_match(path.star.name[has(path == 'Sun')], solar_system)
@@ -474,7 +474,7 @@ inner_from_string_keys = get(path["star"]["planets"]["inner"], solar_system)
 assert inner_from_attribute == inner_from_string_keys == solar_system["star"]["planets"]["inner"]
 ```
 ### Keys With Special Characters
-Dictionary keys that are not valid python syntax can be referenced as double quoted strings.
+Dictionary keys that are not valid python syntax can be referenced as quoted strings.
 
 ```python
 sun_equatorial_diameter = get(path.star.planets.inner[0]["Number of Moons"], solar_system)
@@ -548,6 +548,13 @@ List the third inner and outer planet.
 last_two = [planet for planet in find(path.star.wc.wc[2].name, solar_system)]
 assert last_two == ['Earth', 'Uranus']
 ```
+### Comma Delimited Indexes.
+List indexes can be specified as a comma delimited list.
+
+```python
+last_and_first = [planet for planet in find(path.star.planets.outer[3, 0].name, solar_system)]
+assert last_and_first == ["Neptune", "Jupiter"]
+```
 ### Slices
 List can be access using slices.
 
@@ -577,13 +584,6 @@ List the last inner and outer planets.
 ```python
 last_two = [planet for planet in find(path.star.wc.wc[-1:].name, solar_system)]
 assert last_two == ["Mars", "Neptune"]
-```
-### Comma Delimited Indexes.
-List indexes can be specified as a comma delimited list.
-
-```python
-last_and_first = [planet for planet in find(path.star.planets.outer[3, 0].name, solar_system)]
-assert last_and_first == ["Neptune", "Jupiter"]
 ```
 ### Wildcard as an Index.
 The **wildcard** word can be used as a list index.   It is useful for iterating over attributes.
@@ -716,7 +716,7 @@ assert earth == ['Earth']
 
 ```
 Any single argument function can be used as an operator.  This example uses a Regular Expression to finds
-planets that end with s.
+planets that end with the letter s.
 
 ```python
 name_ends_with_s = re.compile(r"\w+s").match
@@ -735,7 +735,7 @@ assert earth == ['Mercury', 'Venus', 'Mars']
 ```
 ### logical and, or and not filters
 #### has_all
-A regular express to test if second letter in the value is an a.
+A regular express to test if second letter in the value is 'a'.
 
 ```python
 second_letter_is_a = re.compile(r".a.*").fullmatch
