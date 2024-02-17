@@ -1,6 +1,7 @@
 from __future__ import annotations
 
 import re
+import sys
 from functools import partial
 
 import pytest
@@ -327,13 +328,25 @@ def test_attr_list_custom_type_transformation():
     assert actual == other
 
 
-def test_value_error_when_class_not_document():
+@pytest.mark.skipif(sys.version_info > (3, 12), reason="requires python3.11 or lower")
+def test_value_error_when_class_not_document_legacy():
     with pytest.raises(RuntimeError) as exc_info:
         class SomeClass:
             a = attr()
 
     actual = repr(exc_info.value)
-    expected = ('RuntimeError("Error calling __set_name__ on \'PathDescriptor\' instance \'a\' in \'SomeClass\'")')
+    expected = 'RuntimeError("Error calling __set_name__ on \'PathDescriptor\' instance \'a\' in \'SomeClass\'")'
+    assert actual == expected
+
+
+@pytest.mark.skipif(sys.version_info < (3, 12), reason="requires python3.12 or higher")
+def test_value_error_when_class_not_document():
+    with pytest.raises(ValueError) as exc_info:
+        class SomeClass:
+            a = attr()
+
+    actual = repr(exc_info.value)
+    expected = """ValueError("<class 'treepath.descriptor.path_descriptor.PathDescriptor'> can only be assign to a class that implements <class 'treepath.descriptor.abstract_document.AbstractDocument'>")"""
     assert actual == expected
 
 
