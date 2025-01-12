@@ -21,18 +21,32 @@ class Readme:
 
     @staticmethod
     def extract_doc_string(python_entity):
-        doc_string = python_entity.__doc__
+        doc_string = inspect.getdoc(python_entity)
         return doc_string
 
     @staticmethod
     def extract_python_src(python_entity):
-        doc_string = python_entity.__doc__
+        doc_string = Readme.extract_doc_string(python_entity)
+
+
         source = inspect.getsource(python_entity)
 
-        index_of_doc = source.index(doc_string)
-        source_start = index_of_doc + len(doc_string) + 3
-        python_src = source[source_start:]
+        index_of_doc = -1
+        tries = 0
+        while index_of_doc < 0:
+            try:
+                index_of_doc = source.index(doc_string)
+            except ValueError as e:
+                tries += 1
+                if tries > 100:
+                    raise e
+                doc_string = textwrap.indent(doc_string, ' ')
 
+        source_start = index_of_doc + len(doc_string)
+        python_src = source[source_start:]
+        python_src = python_src.lstrip().lstrip('"')
+        # python_src = textwrap.dedent(python_src)
+        # python_src = python_src.lstrip()
         return python_src
 
     def process_python_src(self, python_src: str):
@@ -80,4 +94,3 @@ class Readme:
         self.append(dedent_txt)
         self.append(os.linesep)
         return self
-

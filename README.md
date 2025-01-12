@@ -127,13 +127,11 @@ differences between the two approaches.
 The problem is fetch the planet by name from the given solar system json document.  
 
 
-
 ## Imperative Solution
 
 The first example uses flow control statements to define a
 [Imperative Solution]( https://en.wikipedia.org/wiki/Imperative_programming).   This is a
 very common approach to solving problems.
-
 ```python
 
 
@@ -152,14 +150,12 @@ actual = get_planet_by_name('Earth', solar_system)
 expected = {'Number of Moons': '1', 'diameter': 12756, 'has-moons': True, 'name': 'Earth'}
 assert actual == expected
 ```
-
 ## Declarative  Solution
 
 The second example uses treepath to define a
 [declarative solution](https://en.wikipedia.org/wiki/Declarative_programming).
 It solves the same problem without defining any flow control statements.    This keeps the Cyclomatic and
 Cognitive Complexity low.
-
 ```python
 
 
