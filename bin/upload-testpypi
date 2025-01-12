@@ -4,5 +4,5 @@
 BIN_DIR=$(dirname "$BASH_SOURCE")
 cd ${BIN_DIR}
 cd ../
-#pip install --upgrade twine
-twine upload --repository testpypi dist/*
+pip install --upgrade twine
+twine upload --verbose --repository testpypi dist/*

@@ -5,6 +5,7 @@ BIN_DIR=$(dirname "$BASH_SOURCE")
 cd ${BIN_DIR}
 cd ../
 rm -rf dist/*
+pip install --upgrade pip
 pip install --upgrade build
 python -m build
 cd dist
